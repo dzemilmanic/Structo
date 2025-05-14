@@ -37,7 +37,7 @@
 
     {{-- Footer --}}
     <footer class="text-center">
-        <p>&copy; 2025 Moja Aplikacija</p>
+        <p>&copy; 2025 Structo</p>
     </footer>
 
     {{-- Bootstrap JS --}}
