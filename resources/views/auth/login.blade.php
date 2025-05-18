@@ -1,4 +1,8 @@
+@extends('layouts.app')
 <x-guest-layout>
+
+    @vite(['resources/js/app.js'])
+
     <!-- Session Status -->
     <x-auth-session-status class="session-status" :status="session('status')" />
 

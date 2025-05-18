@@ -13,6 +13,9 @@
     
     <!-- Styles -->
     @vite(['resources/css/style.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/components.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
 
     <!-- Additional styles specific to pages -->
     @yield('styles')
@@ -37,9 +40,6 @@
                         <li><a href="#projects">Projects</a></li>
                         <li><a href="/about">About</a></li>
                         <li><a href="/contact">Contact</a></li>
-                        @auth
-                            <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        @endauth
                     </ul>
                 </nav>
                 
@@ -70,9 +70,20 @@
     </header>
 
     <!-- Main Content -->
-    <main>
-        @yield('content')
-    </main>
+    <div style="padding-top: 80px;">
+        @if (isset($header))
+            <header class="bg-white shadow">
+                <div class="container py-6">
+                    {{ $header }}
+                </div>
+            </header>
+        @endif
+
+        <main class="min-h-screen">
+           @yield('content')
+
+        </main>
+    </div>
 
     <!-- Footer -->
     <footer class="site-footer">
