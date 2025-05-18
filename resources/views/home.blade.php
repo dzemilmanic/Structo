@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Home - BuildConnect')
+@section('title', 'Home - Structo')
 
 @section('content')
     <!-- Hero Section -->
