@@ -33,4 +33,9 @@ Route::get('/services/{type}', function ($type) {
     return view('services.show', compact('type'));
 });
 
+Route::view('/privacy', 'policy.privacy')->name('privacy');
+Route::view('/terms', 'policy.terms')->name('terms');
+Route::view('/cookies', 'policy.cookies')->name('cookies');
+Route::view('/users', 'users')->name('users');
+
 require __DIR__.'/auth.php';

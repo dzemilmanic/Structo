@@ -12,8 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <!-- Styles -->
-    @vite(['resources/css/style.css', 'resources/js/app.js', 'resources/css/app.css'])
+    @vite(['resources/js/app.js', 'resources/js/home.js', 'resources/css/app.css'])
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
     
     <!-- Additional styles specific to pages -->
     @yield('styles')
@@ -32,17 +33,21 @@
                 
                 <nav class="main-nav">
                     <ul class="nav-list">
-                        <li class="nav-item-dropdown">
+                        <li class="nav-item {{ request()->is('/') ? 'nav-item-dropdown' : '' }}">
                             <a href="/" class="nav-link">Home</a>
+                            @if(request()->is('/'))
                             <ul class="dropdown-menu">
                                 <li><a href="#services" class="dropdown-item">Services</a></li>
                                 <li><a href="#how-it-works" class="dropdown-item">How It Works</a></li>
                                 <li><a href="#professionals" class="dropdown-item">Professionals</a></li>
                                 <li><a href="#projects" class="dropdown-item">Projects</a></li>
                             </ul>
+                            @endif
                         </li>
-                        <li><a href="/users">Users</a></li>
-                        <li><a href="/jobs">Jobs</a></li>
+                        <li class="nav-item"><a href="/users" class="nav-link">Users</a></li>
+                        <li class="nav-item"><a href="/jobs" class="nav-link">Jobs</a></li>
+                        <li class="nav-item"><a href="/about" class="nav-link">About</a></li>
+                        <li class="nav-item"><a href="/contact" class="nav-link">Contact</a></li>
                     </ul>
                 </nav>
                 
@@ -51,7 +56,7 @@
                         <div class="user-dropdown">
                             <span>{{ Auth::user()->name }}</span>
                             <div class="dropdown-menu">
-                                <a href="{{ route('profile.edit') }}">Profile</a>
+                                <a href="{{ route('profile.edit') }}" class="dropdown-item">Profile</a>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit">Logout</button>
@@ -59,10 +64,12 @@
                             </div>
                         </div>
                     @else
-                        <a href="{{ route('login') }}" class="btn btn-outline btn-sm">Login</a>
-                        <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Register</a>
+                        @if(!request()->routeIs('login') && !request()->routeIs('register'))
+                            <a href="{{ route('login') }}" class="btn btn-outline btn-sm">Login</a>
+                            <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Register</a>
+                        @endif
                     @endauth
-                    <button class="mobile-menu-toggle">
+                    <button class="mobile-menu-toggle" aria-label="Toggle menu">
                         <span></span>
                         <span></span>
                         <span></span>
@@ -148,6 +155,7 @@
     </footer>
 
     <!-- Scripts -->
+    <script src="{{ asset('js/navbar.js') }}"></script>
     @yield('scripts')
 </body>
 </html>
