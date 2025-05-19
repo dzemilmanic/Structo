@@ -12,11 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <!-- Styles -->
-    @vite(['resources/css/style.css', 'resources/js/app.js'])
+    @vite(['resources/css/style.css', 'resources/js/app.js', 'resources/css/app.css'])
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/components.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
-
+    
     <!-- Additional styles specific to pages -->
     @yield('styles')
 </head>
@@ -34,12 +32,17 @@
                 
                 <nav class="main-nav">
                     <ul class="nav-list">
-                        <li><a href="#services">Services</a></li>
-                        <li><a href="#how-it-works">How It Works</a></li>
-                        <li><a href="#professionals">Professionals</a></li>
-                        <li><a href="#projects">Projects</a></li>
-                        <li><a href="/about">About</a></li>
-                        <li><a href="/contact">Contact</a></li>
+                        <li class="nav-item-dropdown">
+                            <a href="/" class="nav-link">Home</a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#services" class="dropdown-item">Services</a></li>
+                                <li><a href="#how-it-works" class="dropdown-item">How It Works</a></li>
+                                <li><a href="#professionals" class="dropdown-item">Professionals</a></li>
+                                <li><a href="#projects" class="dropdown-item">Projects</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="/users">Users</a></li>
+                        <li><a href="/jobs">Jobs</a></li>
                     </ul>
                 </nav>
                 
@@ -81,7 +84,6 @@
 
         <main class="min-h-screen">
            @yield('content')
-
         </main>
     </div>
 
@@ -101,9 +103,8 @@
                     <h3>Quick Links</h3>
                     <ul class="footer-links">
                         <li><a href="/">Home</a></li>
-                        <li><a href="#services">Services</a></li>
-                        <li><a href="#professionals">Find Professionals</a></li>
-                        <li><a href="/register">Join as Professional</a></li>
+                        <li><a href="/users">Users</a></li>
+                        <li><a href="/jobs">Jobs</a></li>
                         <li><a href="/about">About Us</a></li>
                     </ul>
                 </div>

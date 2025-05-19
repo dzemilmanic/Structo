@@ -9,7 +9,8 @@ export default defineConfig({
                 'resources/css/home.css',
                 'resources/css/login.css',
                 'resources/css/profile.css',
-                'resources/js/app.js'
+                'resources/js/app.js',
+                'resources/js/profile.js'
             ],
             refresh: true,
         }),
