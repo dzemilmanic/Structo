@@ -1,4 +1,6 @@
+
 @extends('layouts.auth')
+
 
 @section('auth-header')
 <div class="auth-header">

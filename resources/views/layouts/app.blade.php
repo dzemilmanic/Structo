@@ -14,7 +14,6 @@
     <!-- Styles -->
     @vite(['resources/js/app.js', 'resources/js/home.js', 'resources/css/app.css'])
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
     
     <!-- Additional styles specific to pages -->
     @yield('styles')
@@ -64,10 +63,8 @@
                             </div>
                         </div>
                     @else
-                        @if(!request()->routeIs('login') && !request()->routeIs('register'))
-                            <a href="{{ route('login') }}" class="btn btn-outline btn-sm">Login</a>
-                            <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Register</a>
-                        @endif
+                        <a href="{{ route('login') }}" class="btn btn-outline btn-sm">Login</a>
+                        <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Register</a>
                     @endauth
                     <button class="mobile-menu-toggle" aria-label="Toggle menu">
                         <span></span>
@@ -155,7 +152,7 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="{{ asset('js/navbar.js') }}"></script>
+    <script src="{{ asset('js/home.js') }}"></script>
     @yield('scripts')
 </body>
 </html>

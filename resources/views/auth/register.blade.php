@@ -1,4 +1,8 @@
 @extends('layouts.app')
+
+@section('title', 'Register - Structo')
+
+@section('content')
 <x-guest-layout>
     @vite(['resources/js/app.js', 'resources/css/login.css', 'resources/js/login.js'])
     <!-- Session Status -->
@@ -75,3 +79,4 @@
         </div>
     </div>
 </x-guest-layout>
+@endsection

@@ -1,4 +1,8 @@
 @extends('layouts.app')
+
+@section('title', 'Login - Structo')
+
+@section('content')
 <x-guest-layout>
 
     @vite(['resources/js/app.js', 'resources/css/login.css', 'resources/js/login.js'])
@@ -64,3 +68,4 @@
         </div>
     </div>
 </x-guest-layout>
+@endsection
