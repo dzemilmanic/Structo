@@ -228,38 +228,48 @@
     <!-- Testimonials Section -->
     <section class="testimonials">
         <div class="container">
+
+        @if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
             <div class="section-header">
                 <h2>Client Testimonials</h2>
                 <p>What our clients say about the professionals on our platform</p>
             </div>
             <div class="testimonials-slider">
-                <div class="testimonial">
-                    <div class="testimonial-content">
-                        <p>"Finding the right architect for our home renovation was incredibly easy with this platform. The process was smooth from start to finish."</p>
-                    </div>
-                    <div class="testimonial-author">
-                        <div class="author-image"></div>
-                        <div class="author-info">
-                            <h4>Michael Brown</h4>
-                            <p>Homeowner, London</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial">
-                    <div class="testimonial-content">
-                        <p>"As a contractor, this platform has helped me connect with clients who appreciate quality work. It's been a game-changer for my business."</p>
-                    </div>
-                    <div class="testimonial-author">
-                        <div class="author-image"></div>
-                        <div class="author-info">
-                            <h4>Jennifer Clark</h4>
-                            <p>Building Contractor, Manchester</p>
-                        </div>
-                    </div>
+    @foreach($testimonials as $testimonial)
+        <div class="testimonial">
+            <div class="testimonial-content">
+                <p>"{{ $testimonial->content }}"</p>
+            </div>
+            <div class="testimonial-author">
+                <div class="author-image"></div>
+                <div class="author-info">
+                    <h4>{{ $testimonial->user->name }}</h4>
+                    <p>{{ $testimonial->title }}</p>
                 </div>
             </div>
         </div>
+    @endforeach
+</div>
+
+        </div>
     </section>
+
+@auth
+    <div class="testimonial-form">
+        <form method="POST" action="{{ url('/testimonials') }}">
+            @csrf
+            <textarea name="content" placeholder="Leave your testimonial..." required></textarea>
+            <input type="text" name="title" placeholder="Your role or city (optional)">
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+@endauth
+
 
     <!-- CTA Section -->
     <section class="cta">

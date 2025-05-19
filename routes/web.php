@@ -2,9 +2,12 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TestimonialController;
+use App\Models\Testimonial;
 
 Route::get('/', function () {
-    return view('home');
+    $testimonials = Testimonial::with('user')->latest()->take(5)->get();
+    return view('home', compact('testimonials'));
 });
 
 Route::get('/dashboard', function () {
@@ -17,8 +20,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/about', function () {
-    return view('about');
+Route::get('/jobs', function () {
+    return view('jobs');
 });
 
 Route::get('/contact', function () {
@@ -37,5 +40,9 @@ Route::view('/privacy', 'policy.privacy')->name('privacy');
 Route::view('/terms', 'policy.terms')->name('terms');
 Route::view('/cookies', 'policy.cookies')->name('cookies');
 Route::view('/users', 'users')->name('users');
+
+
+
+Route::post('/testimonials', [TestimonialController::class, 'store'])->middleware('auth');
 
 require __DIR__.'/auth.php';
