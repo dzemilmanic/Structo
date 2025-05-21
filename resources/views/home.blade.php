@@ -225,51 +225,81 @@
         </div>
     </section>
 
-    <!-- Testimonials Section -->
-    <section class="testimonials">
-        <div class="container">
-
+    <<section class="testimonials" id="testimonials">
+    <div class="container">
         @if(session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
-@endif
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
 
-            <div class="section-header">
-                <h2>Client Testimonials</h2>
-                <p>What our clients say about the professionals on our platform</p>
+        <div class="section-header">
+            <h2>Client Testimonials</h2>
+            <p>What our clients say about the professionals on our platform</p>
+        </div>
+        
+        <div class="testimonials-container">
+            <div class="testimonials-wrapper">
+                @if(count($testimonials) > 0)
+                    <div class="testimonials-slider">
+                        {{-- The JavaScript will restructure this into pages with 2 testimonials each --}}
+                        @foreach($testimonials as $testimonial)
+                            <div class="testimonial">
+                                <div class="testimonial-content">
+                                    <p>"{{ $testimonial->content }}"</p>
+                                </div>
+                                <div class="testimonial-author">
+                                    <div class="author-image"></div>
+                                    <div class="author-info">
+                                        <h4>{{ $testimonial->user->name }}</h4>
+                                        <p>{{ $testimonial->title }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="no-testimonials">No testimonials yet. Be the first to share your experience!</p>
+                @endif
             </div>
-            <div class="testimonials-slider">
-    @foreach($testimonials as $testimonial)
-        <div class="testimonial">
-            <div class="testimonial-content">
-                <p>"{{ $testimonial->content }}"</p>
-            </div>
-            <div class="testimonial-author">
-                <div class="author-image"></div>
-                <div class="author-info">
-                    <h4>{{ $testimonial->user->name }}</h4>
-                    <p>{{ $testimonial->title }}</p>
+            
+            @if(count($testimonials) > 2)
+                <div class="testimonials-navigation">
+                    <button class="nav-btn prev-btn" aria-label="Previous testimonials">&lt;</button>
+                    <div class="pagination-dots">
+                        @for($i = 0; $i < ceil(count($testimonials) / 2); $i++)
+                            <span class="dot {{ $i == 0 ? 'active' : '' }}" data-index="{{ $i }}"></span>
+                        @endfor
+                    </div>
+                    <button class="nav-btn next-btn" aria-label="Next testimonials">&gt;</button>
+                </div>
+            @endif
+        </div>
+        
+        @auth
+            <div class="testimonial-form-container">
+                <button id="toggleFormBtn" class="btn btn-primary">Add Your Testimonial</button>
+                <div id="testimonialFormWrapper" class="form-wrapper">
+                    <form method="POST" action="{{ url('/testimonials') }}" class="testimonial-form">
+                        @csrf
+                        <div class="form-group">
+                            <label for="content">Your Experience</label>
+                            <textarea name="content" id="content" placeholder="Share your experience..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="title">Your Role or City (Optional)</label>
+                            <input type="text" name="title" id="title" placeholder="e.g., Homeowner from London">
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="button" class="btn btn-outline cancel-btn">Cancel</button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </div>
-    @endforeach
-</div>
-
-        </div>
-    </section>
-
-@auth
-    <div class="testimonial-form">
-        <form method="POST" action="{{ url('/testimonials') }}">
-            @csrf
-            <textarea name="content" placeholder="Leave your testimonial..." required></textarea>
-            <input type="text" name="title" placeholder="Your role or city (optional)">
-            <button type="submit">Submit</button>
-        </form>
+        @endauth
     </div>
-@endauth
-
+</section>
 
     <!-- CTA Section -->
     <section class="cta">
@@ -286,4 +316,9 @@
     </section>
 @endsection
 
-@vite('resources/js/home.js')
+
+
+@section('scripts')
+    <!-- Add testimonials JS via Vite -->
+    @vite('resources/js/home.js')
+@endsection

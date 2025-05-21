@@ -6,8 +6,14 @@ use App\Http\Controllers\TestimonialController;
 use App\Models\Testimonial;
 
 Route::get('/', function () {
-    $testimonials = Testimonial::with('user')->latest()->take(5)->get();
-    return view('home', compact('testimonials'));
+    // This gets ALL testimonials, but we'll use JavaScript to paginate them client-side
+    $testimonials = Testimonial::with('user')->latest()->get();
+    
+    // Calculate the number of pages needed for pagination
+    $testimonialsPerPage = 2;
+    $totalPages = ceil($testimonials->count() / $testimonialsPerPage);
+    
+    return view('home', compact('testimonials', 'totalPages'));
 });
 
 Route::get('/dashboard', function () {
@@ -42,7 +48,13 @@ Route::view('/cookies', 'policy.cookies')->name('cookies');
 Route::view('/users', 'users')->name('users');
 
 
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+
+// Testimonials API route
+Route::get('/testimonials', [TestimonialController::class, 'getTestimonials']);
 
 Route::post('/testimonials', [TestimonialController::class, 'store'])->middleware('auth');
-
+Route::get('/testimonials/load', [TestimonialController::class, 'getTestimonials']);
 require __DIR__.'/auth.php';
