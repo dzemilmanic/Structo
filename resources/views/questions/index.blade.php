@@ -1,26 +1,26 @@
 @extends('layouts.app')
 @vite(['resources/css/qa.css'])
 
-@section('title', 'Pitanja i odgovori')
+@section('title', 'Questions and answers')
 
 @section('content')
     <div class="search-container">
         <form action="{{ route('questions.index') }}" method="GET" class="search-form">
             <input type="text" name="search" class="search-input" placeholder="Pretražite pitanja..." value="{{ $search ?? '' }}">
-            <button type="submit" class="btn btn-primary">Pretraži</button>
-            <a href="{{ route('questions.create') }}" class="btn btn-secondary">Postavi pitanje</a>
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="{{ route('questions.create') }}" class="btn btn-secondary">Ask a question</a>
         </form>
     </div>
 
     <div class="sort-container">
-        <h1 class="page-title">Pitanja i odgovori</h1>
+        <h1 class="page-title">Questions and answers</h1>
         <div class="sort-options">
-            <span class="sort-label">Sortiraj po:</span>
+            <span class="sort-label">Sort by:</span>
             <select name="sort" class="sort-select">
-                <option value="newest" {{ ($sort ?? '') == 'newest' ? 'selected' : '' }}>Najnovije</option>
-                <option value="oldest" {{ ($sort ?? '') == 'oldest' ? 'selected' : '' }}>Najstarije</option>
-                <option value="most_answers" {{ ($sort ?? '') == 'most_answers' ? 'selected' : '' }}>Najviše odgovora</option>
-                <option value="views" {{ ($sort ?? '') == 'views' ? 'selected' : '' }}>Najviše pregleda</option>
+                <option value="newest" {{ ($sort ?? '') == 'newest' ? 'selected' : '' }}>Newest</option>
+                <option value="oldest" {{ ($sort ?? '') == 'oldest' ? 'selected' : '' }}>Oldest</option>
+                <option value="most_answers" {{ ($sort ?? '') == 'most_answers' ? 'selected' : '' }}>Most Answers</option>
+                <option value="views" {{ ($sort ?? '') == 'views' ? 'selected' : '' }}>Most viewed</option>
             </select>
         </div>
     </div>
@@ -37,7 +37,7 @@
                     </div>
                     
                     <div class="question-meta">
-                        <span>Postavio <span class="question-author">{{ $question->user->name }}</span></span>
+                        <span>Posted by <span class="question-author">{{ $question->user->name }}</span></span>
                         <span>{{ $question->created_at->diffForHumans() }}</span>
                     </div>
                     
@@ -48,11 +48,11 @@
                     <div class="question-stats">
                         <div class="question-stat">
                             <i class="icon-eye"></i>
-                            <span>{{ $question->views }} pregleda</span>
+                            <span>{{ $question->views }} views</span>
                         </div>
                         <div class="question-stat">
                             <i class="icon-message"></i>
-                            <span>{{ $question->answers_count }} odgovora</span>
+                            <span>{{ $question->answers_count }} answers</span>
                         </div>
                     </div>
                 </div>
@@ -63,14 +63,14 @@
             </div>
         @else
             <div class="empty-state">
-                <p>Nema pronađenih pitanja{{ $search ? ' za traženi pojam "' . $search . '"' : '' }}.</p>
+                <p>No questions found{{ $search ? ' for the required term "' . $search . '"' : '' }}.</p>
                 
                 @auth
-                    <a href="{{ route('questions.create') }}" class="btn btn-primary">Postavite prvo pitanje</a>
+                    <a href="{{ route('questions.create') }}" class="btn btn-primary">Ask the first question</a>
                 @else
                     <p>
-                        <a href="{{ route('login') }}">Prijavite se</a> ili 
-                        <a href="{{ route('register') }}">registrujte</a> da biste postavili pitanje.
+                        <a href="{{ route('login') }}">Login</a> or 
+                        <a href="{{ route('register') }}">Register</a> to ask a question.
                     </p>
                 @endauth
             </div>
