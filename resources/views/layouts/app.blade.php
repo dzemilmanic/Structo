@@ -45,6 +45,7 @@
                         </li>
                         <li class="nav-item"><a href="/users" class="nav-link">Users</a></li>
                         <li class="nav-item"><a href="/jobs" class="nav-link">Jobs</a></li>
+                        <li class="nav-item"><a href="{{ route('questions.index') }}" class="nav-link {{ request()->routeIs('questions.*') ? 'active' : '' }}">Questions</a></li>
                         <li class="nav-item"><a href="/about" class="nav-link">About</a></li>
                         <li class="nav-item"><a href="/contact" class="nav-link">Contact</a></li>
                     </ul>
@@ -109,6 +110,7 @@
                         <li><a href="/">Home</a></li>
                         <li><a href="/users">Users</a></li>
                         <li><a href="/jobs">Jobs</a></li>
+                        <li><a href="{{ route('questions.index') }}">Questions</a></li>
                         <li><a href="/about">About Us</a></li>
                     </ul>
                 </div>

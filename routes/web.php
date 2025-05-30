@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestimonialController;
 use App\Models\Testimonial;
+use App\Http\Controllers\QuestionsController;
+use App\Http\Controllers\AnswerController;
 
 Route::get('/', function () {
     // This gets ALL testimonials, but we'll use JavaScript to paginate them client-side
@@ -51,6 +53,22 @@ Route::view('/users', 'users')->name('users');
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
+
+Route::get('/questions', [QuestionsController::class, 'index'])->name('questions.index');
+Route::resource('questions', QuestionsController::class);
+Route::resource('questions.answers', AnswerController::class)->shallow();
+
+Route::resource('answers', AnswerController::class)->only([
+    'store', 'edit', 'update', 'destroy'
+]);
+
+//Route::resource('questions.answers', AnswerController::class)->shallow();
+
+
+
+
 
 // Testimonials API route
 Route::get('/testimonials', [TestimonialController::class, 'getTestimonials']);
