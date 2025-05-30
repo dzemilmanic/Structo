@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @vite(['resources/css/qa.css'])
+@vite(['resources/js/qa.js'])
 @section('title', 'Ask a new question')
 
 @section('content')

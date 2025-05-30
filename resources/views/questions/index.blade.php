@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @vite(['resources/css/qa.css'])
-
+@vite(['resources/js/qa.js'])
 @section('title', 'Questions and answers')
 
 @section('content')
@@ -52,7 +52,7 @@
                         </div>
                         <div class="question-stat">
                             <i class="icon-message"></i>
-                            <span>{{ $question->answers_count }} answers</span>
+                            <span>{{ $question->answers_count }} reply</span>
                         </div>
                     </div>
                 </div>

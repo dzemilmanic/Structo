@@ -66,6 +66,7 @@ Route::resource('answers', AnswerController::class)->only([
 
 //Route::resource('questions.answers', AnswerController::class)->shallow();
 
+Route::post('/answers/{answer}/solution', [AnswerController::class, 'markAsSolution'])->name('answers.solution');
 
 
 
