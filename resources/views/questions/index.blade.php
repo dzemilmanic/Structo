@@ -6,7 +6,7 @@
 @section('content')
     <div class="search-container">
         <form action="{{ route('questions.index') }}" method="GET" class="search-form">
-            <input type="text" name="search" class="search-input" placeholder="Pretražite pitanja..." value="{{ $search ?? '' }}">
+            <input type="text" name="search" class="search-input" placeholder="Search..." value="{{ $search ?? '' }}">
             <button type="submit" class="btn btn-primary">Search</button>
             <a href="{{ route('questions.create') }}" class="btn btn-secondary">Ask a question</a>
         </form>
