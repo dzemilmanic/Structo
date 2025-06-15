@@ -6,6 +6,8 @@ use App\Http\Controllers\TestimonialController;
 use App\Models\Testimonial;
 use App\Http\Controllers\QuestionsController;
 use App\Http\Controllers\AnswerController;
+use App\Http\Controllers\UsersController;
+use App\Http\Controllers\ProfiRequestController;
 
 Route::get('/', function () {
     // This gets ALL testimonials, but we'll use JavaScript to paginate them client-side
@@ -68,7 +70,18 @@ Route::resource('answers', AnswerController::class)->only([
 
 Route::post('/answers/{answer}/solution', [AnswerController::class, 'markAsSolution'])->name('answers.solution');
 
+Route::get('/users', [UsersController::class, 'index'])->name('users.index');
+Route::get('/users/{user}', [UsersController::class, 'show'])->name('users.show');
 
+Route::middleware('auth')->group(function () {
+    Route::post('/profi-requests', [ProfiRequestController::class, 'store'])->name('profi-requests.store');
+});
+
+Route::middleware(['auth', 'can:isAdmin'])->group(function () {
+    Route::get('/admin/profi-requests', [ProfiRequestController::class, 'index'])->name('admin.profi-requests.index');
+    Route::post('/admin/profi-requests/{id}/approve', [ProfiRequestController::class, 'approve'])->name('admin.profi-requests.approve');
+    Route::post('/admin/profi-requests/{id}/reject', [ProfiRequestController::class, 'reject'])->name('admin.profi-requests.reject');
+});
 
 
 // Testimonials API route
