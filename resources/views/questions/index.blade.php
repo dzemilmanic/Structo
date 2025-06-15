@@ -28,7 +28,8 @@
     <div class="question-list">
         @if ($questions->count() > 0)
             @foreach ($questions as $question)
-                <div class="question-card">
+                <div class="question-card" data-url="{{ route('questions.show', $question) }}">
+
                     <div class="question-header">
                         <h2 class="question-title">
                             <a href="{{ route('questions.show', $question) }}">{{ $question->title }}</a>
@@ -36,13 +37,13 @@
                         <span class="question-status status-{{ $question->status }}">{{ $question->status }}</span>
                     </div>
                     
+                    <div class="question-content">
+                        {{ \Illuminate\Support\Str::limit(strip_tags($question->content), 200) }}
+                    </div>
+
                     <div class="question-meta">
                         <span>Posted by <span class="question-author">{{ $question->user->name }}</span></span>
                         <span>{{ $question->created_at->diffForHumans() }}</span>
-                    </div>
-                    
-                    <div class="question-content">
-                        {{ \Illuminate\Support\Str::limit(strip_tags($question->content), 200) }}
                     </div>
                     
                     <div class="question-stats">
@@ -76,4 +77,26 @@
             </div>
         @endif
     </div>
+@endsection
+
+@section('scripts')
+    <!-- Include SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+    @if(session('success'))
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: "{{ session('success') }}",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            customClass: {
+                popup: 'swal2-toast-custom'
+            }
+        });
+    @endif
+    </script>
 @endsection

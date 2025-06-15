@@ -359,3 +359,39 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Delete Testimonial Confirmation Script
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listener to all delete forms
+    const deleteForms = document.querySelectorAll('.delete-testimonial-form');
+    
+    deleteForms.forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent immediate form submission
+            
+            // Show confirmation dialog
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This testimonial will be permanently deleted. This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                focusCancel: true,
+                customClass: {
+                    popup: 'swal2-popup-custom',
+                    confirmButton: 'swal2-confirm-custom',
+                    cancelButton: 'swal2-cancel-custom'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // If confirmed, submit the form
+                    form.submit();
+                }
+            });
+        });
+    });
+});

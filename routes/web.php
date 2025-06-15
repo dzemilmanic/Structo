@@ -73,6 +73,7 @@ Route::post('/answers/{answer}/solution', [AnswerController::class, 'markAsSolut
 
 // Testimonials API route
 Route::get('/testimonials', [TestimonialController::class, 'getTestimonials']);
+Route::delete('/testimonials/{testimonial}', [TestimonialController::class, 'destroy'])->name('testimonials.destroy');
 
 Route::post('/testimonials', [TestimonialController::class, 'store'])->middleware('auth');
 Route::get('/testimonials/load', [TestimonialController::class, 'getTestimonials']);

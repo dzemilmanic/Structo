@@ -225,7 +225,7 @@
         </div>
     </section>
 
-    <<section class="testimonials" id="testimonials">
+    <section class="testimonials" id="testimonials">
     <div class="container">
         @if(session('success'))
             <div class="alert alert-success">
@@ -255,6 +255,17 @@
                                         <p>{{ $testimonial->title }}</p>
                                     </div>
                                 </div>
+
+                                @auth
+                                    @if(auth()->user()->isAdmin())
+                                        <form action="{{ route('testimonials.destroy', $testimonial) }}" method="POST" class="delete-testimonial-form">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                        </form>
+                                    @endif
+                                @endauth
+
                             </div>
                         @endforeach
                     </div>
@@ -299,7 +310,7 @@
             </div>
         @endauth
     </div>
-</section>
+    </section>
 
     <!-- CTA Section -->
     <section class="cta">
@@ -321,4 +332,17 @@
 @section('scripts')
     <!-- Add testimonials JS via Vite -->
     @vite('resources/js/home.js')
+    <script>
+    @if(session('success'))
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: "{{ session('success') }}",
+            showConfirmButton: false,
+            timer: 3000
+        });
+    @endif
+</script>
+
 @endsection

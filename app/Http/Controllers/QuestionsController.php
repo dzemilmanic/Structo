@@ -70,8 +70,10 @@ class QuestionsController extends Controller
         $question->views = 0;
         $question->save();
 
-        return redirect()->route('questions.show', $question)
-                        ->with('success', 'Vaše pitanje je uspešno postavljeno.');
+        // return redirect()->route('questions.show', $question)
+        //                 ->with('success', 'Vaše pitanje je uspešno postavljeno.');
+
+        return redirect()->route('questions.index')->with('success', 'Posted succesfully!');
     }
 
     /**
@@ -122,7 +124,7 @@ class QuestionsController extends Controller
         $question->save();
 
         return redirect()->route('questions.show', $question)
-                        ->with('success', 'Pitanje je uspešno ažurirano.');
+                        ->with('success', 'Updated succesfully.');
     }
 
     /**
@@ -138,6 +140,6 @@ class QuestionsController extends Controller
         $question->delete();
 
         return redirect()->route('questions.index')
-                        ->with('success', 'Pitanje je uspešno obrisano.');
+                        ->with('success', 'Deleted succesfully.');
     }
 }

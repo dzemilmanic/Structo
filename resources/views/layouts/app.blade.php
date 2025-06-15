@@ -14,7 +14,8 @@
     <!-- Styles -->
     @vite(['resources/js/app.js', 'resources/js/home.js', 'resources/css/app.css'])
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <!-- Additional styles specific to pages -->
     @yield('styles')
 </head>
@@ -130,14 +131,14 @@
                     <h3>Contact Us</h3>
                     <address>
                         <p>123 Building Street<br>London, UK</p>
-                        <p>Email: <a href="mailto:info@structo.com">info@structo.com</a></p>
-                        <p>Phone: <a href="tel:+442012345678">+44 20 1234 5678</a></p>
+                        <p>Email: <a href="mailto:dzemilmanic@hotmail.com">info@structo.com</a></p>
+                        <p>Phone: <a href="tel:+442012345678">+381 63 7248 930</a></p>
                     </address>
                     <div class="social-links">
-                        <a href="#" class="social-link">FB</a>
-                        <a href="#" class="social-link">TW</a>
-                        <a href="#" class="social-link">IN</a>
-                        <a href="#" class="social-link">IG</a>
+                        <a href="https://www.facebook.com/dzemil.manic" target="blank" class="social-link">FB</a>
+                        <a href="https://github.com/dzemilmanic" target="blank" class="social-link">GH</a>
+                        <a href="https://www.instagram.com/dzemilmanic/" target="blank" class="social-link">IG</a>
+                        <a href="https://orcid.org/my-orcid?orcid=0009-0008-9867-0905" target="blank" class="social-link">OR</a>
                     </div>
                 </div>
             </div>

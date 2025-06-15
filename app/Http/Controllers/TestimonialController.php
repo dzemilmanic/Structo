@@ -67,4 +67,15 @@ class TestimonialController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
     }
+    public function destroy(Testimonial $testimonial)
+{
+    if (!auth()->user()->isAdmin()) {
+        abort(403, 'Unauthorized');
+    }
+
+    $testimonial->delete();
+
+    return redirect()->back()->with('success', 'Testimonial deleted successfully.');
+}
+
 }

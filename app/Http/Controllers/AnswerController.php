@@ -44,7 +44,7 @@ class AnswerController extends Controller
         $answer->save();
 
         return redirect()->route('questions.show', $question)
-                        ->with('success', 'Vaš odgovor je uspešno dodat.');
+                        ->with('success', 'Your answer has been added successfully.');
     }
 
     /**
@@ -81,7 +81,7 @@ class AnswerController extends Controller
         $answer->save();
 
         return redirect()->route('questions.show', $answer->question)
-                        ->with('success', 'Odgovor je uspešno ažuriran.');
+                        ->with('success', 'Response updated successfully.');
     }
 
     /**
@@ -98,7 +98,7 @@ class AnswerController extends Controller
         $answer->delete();
 
         return redirect()->route('questions.show', $question)
-                        ->with('success', 'Odgovor je uspešno obrisan.');
+                        ->with('success', 'The answer was successfully deleted..');
     }
     public function index()
 {
@@ -131,6 +131,6 @@ class AnswerController extends Controller
         $question->save();
 
         return redirect()->route('questions.show', $question)
-                        ->with('success', 'Odgovor je označen kao rešenje.');
+                        ->with('success', 'The answer is marked as a solution.');
     }
 }
