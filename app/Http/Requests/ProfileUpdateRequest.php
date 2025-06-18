@@ -25,6 +25,26 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'specialization' => ['nullable', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'bio' => ['nullable', 'string', 'max:1000'],
+            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // 2MB max
+        ];
+    }
+
+     /**
+     * Get custom validation messages.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'photo.image' => 'The photo must be an image file.',
+            'photo.mimes' => 'The photo must be a file of type: jpeg, png, jpg, gif.',
+            'photo.max' => 'The photo may not be greater than 2MB.',
+            'bio.max' => 'The bio may not be greater than 1000 characters.',
         ];
     }
 }

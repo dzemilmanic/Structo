@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@vite('resources/js/profile.js')
 @section('header')
     <h2 class="font-semibold text-xl text-neutral-dark leading-tight">
         {{ __('Profile') }}
@@ -29,6 +29,8 @@
         </div>
     </div>
 @endsection
- 
 
-@vite('resources/js/profile.js')
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('resources/css/profile.css') }}">
+@endpush
+

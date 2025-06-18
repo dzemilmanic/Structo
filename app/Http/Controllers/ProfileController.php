@@ -26,7 +26,21 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $validated = $request->validated();
+        
+        // Handle photo upload
+        if ($request->hasFile('photo')) {
+            // Delete old photo if exists
+            if ($request->user()->photo) {
+                //Storage::disk('public')->delete($request->user()->photo);
+            }
+            
+            // Store new photo
+            $photoPath = $request->file('photo')->store('profile-photos', 'public');
+            $validated['photo'] = $photoPath;
+        }
+
+        $request->user()->fill($validated);
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
@@ -36,6 +50,7 @@ class ProfileController extends Controller
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
+
 
     /**
      * Delete the user's account.
@@ -47,6 +62,11 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+
+        // Delete user's photo if exists
+        if ($user->photo) {
+            //Storage::disk('public')->delete($user->photo);
+        }
 
         Auth::logout();
 
