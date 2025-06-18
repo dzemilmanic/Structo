@@ -18,7 +18,7 @@
                 
                 @if(!$hasPendingRequest)
                     <div class="become-professional-section">
-                        <button type="button" class="btn btn-accent btn-lg" data-bs-toggle="modal" data-bs-target="#professionalRequestModal">
+                        <button type="button" class="btn btn-accent btn-lg" id="becomeProfessionalBtn">
                             <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                             </svg>
@@ -123,118 +123,11 @@
     </div>
 </div>
 
-@auth
-    @if(auth()->user()->role !== 'profi' && auth()->user()->role !== 'admin')
-        <!-- Professional Request Modal -->
-        <div class="modal fade" id="professionalRequestModal" tabindex="-1" aria-labelledby="professionalRequestModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="professionalRequestModalLabel">
-                            <svg class="modal-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                            </svg>
-                            Become a Professional
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form method="POST" action="{{ route('profi-requests.store') }}" enctype="multipart/form-data">
-                        @csrf
-                        <div class="modal-body">
-                            @if(session('success'))
-                                <div class="alert alert-success">
-                                    <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    {{ session('success') }}
-                                </div>
-                            @endif
-
-                            @if($errors->any())
-                                <div class="alert alert-danger">
-                                    <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    <ul class="error-list">
-                                        @foreach($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
-
-                            <div class="form-group">
-                                <label for="specialization" class="form-label">
-                                    <svg class="label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6z"/>
-                                    </svg>
-                                    Specialization *
-                                </label>
-                                <input type="text" name="specialization" id="specialization" class="form-control" 
-                                       placeholder="e.g., Full Stack Developer, UI/UX Designer, Data Scientist" 
-                                       value="{{ old('specialization') }}" required>
-                                <small class="form-text">Describe your professional expertise and main area of specialization</small>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="image" class="form-label">
-                                    <svg class="label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                    </svg>
-                                    Professional Proof (Optional)
-                                </label>
-                                <input type="file" name="image" id="image" class="form-control" accept="image/*">
-                                <small class="form-text">Upload a certificate, diploma, or other proof of your professional qualifications (Max: 2MB)</small>
-                            </div>
-
-                            <div class="professional-benefits">
-                                <h6 class="benefits-title">Professional Benefits:</h6>
-                                <ul class="benefits-list">
-                                    <li>
-                                        <svg class="benefit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                        </svg>
-                                        Verified professional badge
-                                    </li>
-                                    <li>
-                                        <svg class="benefit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                        </svg>
-                                        Enhanced profile visibility
-                                    </li>
-                                    <li>
-                                        <svg class="benefit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                        </svg>
-                                        Access to professional features
-                                    </li>
-                                    <li>
-                                        <svg class="benefit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                        </svg>
-                                        Priority in search results
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">
-                                <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                                </svg>
-                                Send Request
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    @endif
-@endauth
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
     const searchInput = document.getElementById('searchInput');
     const usersGrid = document.getElementById('usersGrid');
     const userCards = usersGrid.querySelectorAll('.user-card');
@@ -277,6 +170,386 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // Professional request modal
+    const becomeProfessionalBtn = document.getElementById('becomeProfessionalBtn');
+    
+    if (becomeProfessionalBtn) {
+        becomeProfessionalBtn.addEventListener('click', function() {
+            showProfessionalRequestModal();
+        });
+    }
+
+    // Show success/error notifications
+    @if(session('success'))
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: "{{ session('success') }}",
+            showConfirmButton: false,
+            timer: 4000,
+            timerProgressBar: true,
+            customClass: {
+                popup: 'swal2-toast-custom'
+            }
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: "{{ session('error') }}",
+            showConfirmButton: false,
+            timer: 5000,
+            timerProgressBar: true,
+            customClass: {
+                popup: 'swal2-toast-custom'
+            }
+        });
+    @endif
+
+    @if($errors->any())
+        let errorMessages = '';
+        @foreach($errors->all() as $error)
+            errorMessages += '• {{ $error }}\n';
+        @endforeach
+        
+        Swal.fire({
+            icon: 'error',
+            title: 'Validation Errors',
+            text: errorMessages,
+            confirmButtonText: 'OK',
+            customClass: {
+                popup: 'swal2-popup-custom',
+                confirmButton: 'swal2-confirm-custom'
+            }
+        });
+    @endif
 });
+
+function showProfessionalRequestModal() {
+    Swal.fire({
+        title: '<div class="swal-title-with-icon"><svg class="swal-title-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Become a Professional</div>',
+        html: `
+            <form id="professionalRequestForm" enctype="multipart/form-data">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                
+                <div class="swal-form-group">
+                    <label for="swal-specialization" class="swal-form-label">
+                        <svg class="swal-label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6z"/>
+                        </svg>
+                        Specialization *
+                    </label>
+                    <input type="text" name="specialization" id="swal-specialization" class="swal-input" 
+                           placeholder="e.g., Full Stack Developer, UI/UX Designer, Data Scientist" required>
+                    <small class="swal-form-text">Describe your professional expertise and main area of specialization</small>
+                </div>
+
+                <div class="swal-form-group">
+                    <label for="swal-image" class="swal-form-label">
+                        <svg class="swal-label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Professional Proof (Optional)
+                    </label>
+                    <input type="file" name="image" id="swal-image" class="swal-file-input" accept="image/*">
+                    <small class="swal-form-text">Upload a certificate, diploma, or other proof of your professional qualifications (Max: 2MB)</small>
+                </div>
+
+                <div class="swal-professional-benefits">
+                    <h6 class="swal-benefits-title">Professional Benefits:</h6>
+                    <ul class="swal-benefits-list">
+                        <li>
+                            <svg class="swal-benefit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Verified professional badge
+                        </li>
+                        <li>
+                            <svg class="swal-benefit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Enhanced profile visibility
+                        </li>
+                        <li>
+                            <svg class="swal-benefit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Access to professional features
+                        </li>
+                        <li>
+                            <svg class="swal-benefit-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Priority in search results
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        `,
+        width: '600px',
+        showCancelButton: true,
+        confirmButtonText: '<svg class="swal-btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>Send Request',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true,
+        customClass: {
+            popup: 'swal2-popup-professional',
+            confirmButton: 'swal2-confirm-professional',
+            cancelButton: 'swal2-cancel-professional',
+            htmlContainer: 'swal2-html-professional'
+        },
+        preConfirm: () => {
+            const form = document.getElementById('professionalRequestForm');
+            const specialization = document.getElementById('swal-specialization').value;
+            const imageFile = document.getElementById('swal-image').files[0];
+            
+            if (!specialization.trim()) {
+                Swal.showValidationMessage('Please enter your specialization');
+                return false;
+            }
+            
+            if (imageFile && imageFile.size > 2097152) { // 2MB in bytes
+                Swal.showValidationMessage('Image file size must be less than 2MB');
+                return false;
+            }
+            
+            return {
+                specialization: specialization,
+                image: imageFile
+            };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            submitProfessionalRequest(result.value);
+        }
+    });
+}
+
+function submitProfessionalRequest(data) {
+    // Show loading
+    Swal.fire({
+        title: 'Submitting Request...',
+        text: 'Please wait while we process your professional request.',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Create FormData
+    const formData = new FormData();
+    formData.append('_token', '{{ csrf_token() }}');
+    formData.append('specialization', data.specialization);
+    if (data.image) {
+        formData.append('image', data.image);
+    }
+
+    // Submit form
+    fetch('{{ route("profi-requests.store") }}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Request Submitted!',
+                text: data.message || 'Your professional request has been submitted successfully and is pending review.',
+                confirmButtonText: 'Great!',
+                customClass: {
+                    popup: 'swal2-popup-custom',
+                    confirmButton: 'swal2-confirm-custom'
+                }
+            }).then(() => {
+                // Reload page to update UI
+                window.location.reload();
+            });
+        } else {
+            throw new Error(data.message || 'An error occurred');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Submission Failed',
+            text: error.message || 'Failed to submit your request. Please try again.',
+            confirmButtonText: 'OK',
+            customClass: {
+                popup: 'swal2-popup-custom',
+                confirmButton: 'swal2-confirm-custom'
+            }
+        });
+    });
+}
 </script>
+
+<style>
+/* SweetAlert2 Custom Styles */
+.swal2-toast-custom {
+    font-family: inherit;
+}
+
+.swal2-popup-professional {
+    border-radius: 12px;
+    padding: 0;
+}
+
+.swal2-html-professional {
+    padding: 0 20px 20px 20px;
+}
+
+.swal-title-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+}
+
+.swal-title-icon {
+    width: 24px;
+    height: 24px;
+    color: #FF6B35;
+}
+
+.swal-form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.swal-form-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.swal-label-icon {
+    width: 16px;
+    height: 16px;
+    color: #FF6B35;
+}
+
+.swal-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.swal-input:focus {
+    outline: none;
+    border-color: #FF6B35;
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.swal-file-input {
+    width: 100%;
+    padding: 8px;
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    background: #f9f9f9;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.swal-file-input:hover {
+    border-color: #FF6B35;
+    background: #fff5f2;
+}
+
+.swal-form-text {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #666;
+}
+
+.swal-professional-benefits {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.swal-benefits-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 12px 0;
+}
+
+.swal-benefits-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.swal-benefits-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #555;
+}
+
+.swal-benefit-icon {
+    width: 16px;
+    height: 16px;
+    color: #28a745;
+    flex-shrink: 0;
+}
+
+.swal2-confirm-professional {
+    background: linear-gradient(135deg, #FF6B35, #E85D2C) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.swal2-cancel-professional {
+    background: #6c757d !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+}
+
+.swal-btn-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.swal2-popup-custom {
+    border-radius: 12px;
+}
+
+.swal2-confirm-custom {
+    background: linear-gradient(135deg, #FF6B35, #E85D2C) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+}
+</style>
 @endsection

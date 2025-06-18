@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@vite(['resources/css/admin_requests.css'])
 @section('title', 'Professional Requests - Admin')
 
 @section('content')
@@ -95,26 +96,25 @@
                 </div>
 
                 <div class="request-actions">
-                    <form method="POST" action="{{ route('admin.profi-requests.approve', $request->id) }}" style="display: inline;">
+                    <form id="approve-form-{{ $request->id }}" method="POST" action="{{ route('admin.profi-requests.approve', $request->id) }}" style="display: none;">
                         @csrf
-                        @method('PATCH')
-                        <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Are you sure you want to approve this request?')">
-                            <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            Approve
-                        </button>
                     </form>
-                    <form method="POST" action="{{ route('admin.profi-requests.reject', $request->id) }}" style="display: inline;">
+                    <button type="button" class="btn btn-success btn-sm" onclick="confirmApprove({{ $request->id }}, '{{ $request->user->name }} {{ $request->user->lastname ?? '' }}')">
+                        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Approve
+                    </button>
+                    
+                    <form id="reject-form-{{ $request->id }}" method="POST" action="{{ route('admin.profi-requests.reject', $request->id) }}" style="display: none;">
                         @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to reject this request?')">
-                            <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                            Reject
-                        </button>
                     </form>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmReject({{ $request->id }}, '{{ $request->user->name }} {{ $request->user->lastname ?? '' }}')">
+                        <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Reject
+                    </button>
                 </div>
             </div>
         @empty
@@ -151,5 +151,92 @@ function openImageModal(imageSrc) {
     document.getElementById('modalImage').src = imageSrc;
     new bootstrap.Modal(document.getElementById('imageModal')).show();
 }
+
+function confirmApprove(requestId, userName) {
+    Swal.fire({
+        title: 'Approve Professional Request?',
+        text: `Are you sure you want to approve ${userName}'s professional request? This will upgrade their account to professional status.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Approve',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Show loading state
+            Swal.fire({
+                title: 'Processing...',
+                text: 'Approving professional request',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Submit the form
+            document.getElementById(`approve-form-${requestId}`).submit();
+        }
+    });
+}
+
+function confirmReject(requestId, userName) {
+    Swal.fire({
+        title: 'Reject Professional Request?',
+        text: `Are you sure you want to reject ${userName}'s professional request? This action cannot be undone and the request will be permanently deleted.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Reject',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Show loading state
+            Swal.fire({
+                title: 'Processing...',
+                text: 'Rejecting professional request',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Submit the form
+            document.getElementById(`reject-form-${requestId}`).submit();
+        }
+    });
+}
+
+// Show success/error messages if they exist
+@if(session('success'))
+    Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: '{{ session('success') }}',
+        timer: 3000,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+    });
+@endif
+
+@if(session('error'))
+    Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: '{{ session('error') }}',
+        timer: 3000,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+    });
+@endif
 </script>
 @endsection

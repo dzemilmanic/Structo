@@ -47,9 +47,12 @@
                         <li class="nav-item"><a href="/users" class="nav-link">Users</a></li>
                         <li class="nav-item"><a href="/jobs" class="nav-link">Jobs</a></li>
                         <li class="nav-item"><a href="{{ route('questions.index') }}" class="nav-link {{ request()->routeIs('questions.*') ? 'active' : '' }}">Questions</a></li>
-                        <li class="nav-item"><a href="/about" class="nav-link">About</a></li>
-                        <li class="nav-item"><a href="/contact" class="nav-link">Contact</a></li>
-                    </ul>
+                        @auth
+                            @if(Auth::user()->role === 'admin')
+                                <li class="nav-item"><a href="/admin/profi-requests" class="nav-link {{ request()->is('admin/profi-requests*') ? 'active' : '' }}">Role Requests</a></li>
+                            @endif
+                        @endauth
+                      </ul>
                 </nav>
                 
                 <div class="header-actions">
