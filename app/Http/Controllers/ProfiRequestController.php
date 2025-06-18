@@ -136,13 +136,13 @@ class ProfiRequestController extends Controller
             }
             
             // Update request status
-            $profiRequest->update(['status' => 'approved']);
+            $profiRequest->update(['status' => 'accepted']);
 
             // Update user role and specialization
             $user = $profiRequest->user;
             $user->update([
                 'role' => 'profi',
-                'specialty' => $profiRequest->specialization
+                'specialization' => $profiRequest->specialization
             ]);
 
             DB::commit();

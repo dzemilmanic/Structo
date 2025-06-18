@@ -22,8 +22,8 @@
             </div>
             <div class="profile-info">
                 <h1 class="profile-name">{{ $user->name }} {{ $user->lastname }}</h1>
-                @if($user->specialty)
-                    <p class="profile-specialty">{{ $user->specialty }}</p>
+                @if($user->specialization)
+                    <p class="profile-specialty">{{ $user->specialization }}</p>
                 @endif
             </div>
         </div>
@@ -95,7 +95,7 @@
                 <p>{{ $user->bio }}</p>
             </div>
         @endif
-        
+
     </div>
 </div>
 @endsection
