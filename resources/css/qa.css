@@ -574,6 +574,7 @@ body {
     font-size: 0.9375rem;
     transition: var(--transition);
     background-color: var(--white);
+    box-sizing: border-box;
 }
 
 .form-control:focus {
@@ -688,6 +689,226 @@ textarea.form-control {
     color: #dc2626;
 }
 
+/* MODAL STYLES - KOMPLETNO POPRAVLJEN SA SCROLL FUNKCIONALNOSTI */
+.modal {
+    display: none;
+    position: fixed !important;
+    z-index: 9999 !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(5px) !important;
+    -webkit-backdrop-filter: blur(5px) !important;
+    overflow: hidden !important;
+    animation: fadeInBackdrop 0.3s ease-out;
+}
+
+.modal.show {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+    box-sizing: border-box !important;
+}
+
+.modal-content {
+    background-color: var(--white) !important;
+    border-radius: var(--border-radius) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4) !important;
+    width: 100% !important;
+    max-width: 650px !important;
+    max-height: 90vh !important;
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    transform: scale(0.9) !important;
+    opacity: 0 !important;
+    animation: slideInModal 0.3s ease-out forwards !important;
+}
+
+.modal-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 1.5rem 2rem !important;
+    border-bottom: 2px solid var(--neutral-light) !important;
+    flex-shrink: 0 !important;
+    background-color: var(--white) !important;
+}
+
+.modal-title {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: var(--neutral-dark) !important;
+    margin: 0 !important;
+}
+
+.modal-close {
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    color: var(--neutral-medium) !important;
+    cursor: pointer !important;
+    padding: 0.5rem !important;
+    border-radius: 6px !important;
+    transition: var(--transition) !important;
+    user-select: none !important;
+    line-height: 1 !important;
+    background: transparent !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 40px !important;
+    height: 40px !important;
+}
+
+.modal-close:hover {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    color: #ef4444 !important;
+    transform: scale(1.1) !important;
+}
+
+/* MODAL BODY - KLJUČNO ZA SCROLL FUNKCIONALNOST */
+.modal-body {
+    padding: 2rem !important;
+    overflow-y: auto !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+    max-height: calc(90vh - 200px) !important; /* Rezerviše prostor za header i footer */
+}
+
+/* CUSTOM SCROLLBAR ZA MODAL BODY */
+.modal-body::-webkit-scrollbar {
+    width: 8px !important;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05) !important;
+    border-radius: 4px !important;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2) !important;
+    border-radius: 4px !important;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Firefox scrollbar */
+.modal-body {
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05) !important;
+}
+
+.modal-footer {
+    display: flex !important;
+    gap: 1rem !important;
+    justify-content: flex-end !important;
+    padding: 1.5rem 2rem !important;
+    border-top: 2px solid var(--neutral-light) !important;
+    background-color: rgba(249, 250, 251, 0.8) !important;
+    flex-shrink: 0 !important;
+}
+
+/* TEXTAREA U MODALU - POBOLJŠANO */
+.modal .form-control {
+    background-color: var(--white) !important;
+    border: 2px solid var(--neutral-light) !important;
+    resize: vertical !important;
+    min-height: 120px !important;
+    max-height: 400px !important; /* Ograničava maksimalnu visinu */
+}
+
+.modal .form-control:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+}
+
+.modal textarea.form-control {
+    min-height: 120px !important;
+    max-height: 400px !important;
+    resize: vertical !important;
+    line-height: 1.6 !important;
+}
+
+/* Animacije za modal */
+@keyframes fadeInBackdrop {
+    from {
+        opacity: 0;
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+    }
+    to {
+        opacity: 1;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+}
+
+@keyframes slideInModal {
+    0% {
+        opacity: 0;
+        transform: scale(0.9) translateY(-30px);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(0.95) translateY(-15px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Specijalne CSS klase za bolju vidljivost */
+.modal-visible {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.modal-content-visible {
+    transform: scale(1) !important;
+    opacity: 1 !important;
+}
+
+/* Override za sve što može da uticaju na modal */
+.modal * {
+    box-sizing: border-box !important;
+}
+
+.modal .btn {
+    font-weight: 600 !important;
+    padding: 0.75rem 1.5rem !important;
+}
+
+.modal .btn-primary {
+    background-color: var(--primary-color) !important;
+    border: none !important;
+    color: var(--white) !important;
+}
+
+.modal .btn-outline {
+    background-color: transparent !important;
+    border: 2px solid var(--neutral-light) !important;
+    color: var(--neutral-dark) !important;
+}
+
+/* SweetAlert2 Custom Styles */
+.swal2-toast-custom {
+    font-size: 0.875rem !important;
+}
+
+.swal2-toast-custom .swal2-title {
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .header-container {
@@ -736,6 +957,44 @@ textarea.form-control {
     .form-actions .btn {
         width: 100%;
     }
+
+    .modal {
+        padding: 10px !important;
+        align-items: flex-start !important;
+        padding-top: 30px !important;
+    }
+
+    .modal-content {
+        width: 100% !important;
+        max-width: none !important;
+        max-height: calc(100vh - 40px) !important;
+    }
+
+    .modal-header {
+        padding: 1rem 1.5rem !important;
+    }
+
+    .modal-title {
+        font-size: 1.25rem !important;
+    }
+
+    .modal-body {
+        padding: 1.5rem !important;
+        max-height: calc(100vh - 180px) !important;
+    }
+
+    .modal-footer {
+        padding: 1rem 1.5rem !important;
+        flex-direction: column !important;
+    }
+
+    .modal-footer .btn {
+        width: 100% !important;
+    }
+
+    .modal textarea.form-control {
+        max-height: 300px !important;
+    }
 }
 
 /* Animations */
@@ -782,4 +1041,19 @@ textarea.form-control {
 *:focus-visible {
     outline: 2px solid var(--primary-color);
     outline-offset: 2px;
+}
+
+/* Dodatni fix za modal da se uvek vidi */
+body.modal-open {
+    overflow: hidden !important;
+}
+
+.modal-backdrop-fix {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    z-index: 9998 !important;
 }

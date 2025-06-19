@@ -8,7 +8,7 @@
         <form action="{{ route('questions.index') }}" method="GET" class="search-form">
             <input type="text" name="search" class="search-input" placeholder="Search..." value="{{ $search ?? '' }}">
             <button type="submit" class="btn btn-primary">Search</button>
-            <a href="{{ route('questions.create') }}" class="btn btn-secondary">Ask a question</a>
+            <button type="button" class="btn btn-secondary" id="askQuestionBtn">Ask a question</button>
         </form>
     </div>
 
@@ -67,7 +67,7 @@
                 <p>No questions found{{ $search ? ' for the required term "' . $search . '"' : '' }}.</p>
                 
                 @auth
-                    <a href="{{ route('questions.create') }}" class="btn btn-primary">Ask the first question</a>
+                    <button type="button" class="btn btn-primary" id="askQuestionBtnEmpty">Ask the first question</button>
                 @else
                     <p>
                         <a href="{{ route('login') }}">Login</a> or 
@@ -77,6 +77,40 @@
             </div>
         @endif
     </div>
+
+    <!-- Ask Question Modal -->
+    @auth
+    <div id="askQuestionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Ask a new question</h2>
+                <span class="modal-close">&times;</span>
+            </div>
+            <form id="askQuestionForm" action="{{ route('questions.store') }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="modal-title" class="form-label">Title of the question</label>
+                        <input type="text" name="title" id="modal-title" class="form-control" required minlength="5" maxlength="255">
+                        <span class="form-text">The title should be clear and concise (5-255 characters).</span>
+                        <span class="form-text text-danger" id="title-error" style="display: none;"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modal-content" class="form-label">Question description</label>
+                        <textarea name="content" id="modal-content" class="form-control" rows="8" required minlength="10"></textarea>
+                        <span class="form-text">Please describe your question in detail in order to get the most accurate answer possible.</span>
+                        <span class="form-text text-danger" id="content-error" style="display: none;"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="modalCancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Ask a question</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endauth
 @endsection
 
 @section('scripts')
@@ -96,6 +130,34 @@
             customClass: {
                 popup: 'swal2-toast-custom'
             }
+        });
+    @endif
+
+    @if($errors->any())
+        // Show modal again if there are validation errors
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('askQuestionModal').style.display = 'block';
+            
+            @if($errors->has('title'))
+                document.getElementById('title-error').textContent = "{{ $errors->first('title') }}";
+                document.getElementById('title-error').style.display = 'block';
+                document.getElementById('modal-title').classList.add('is-invalid');
+            @endif
+            
+            @if($errors->has('content'))
+                document.getElementById('content-error').textContent = "{{ $errors->first('content') }}";
+                document.getElementById('content-error').style.display = 'block';
+                document.getElementById('modal-content').classList.add('is-invalid');
+            @endif
+            
+            // Populate form with old values
+            @if(old('title'))
+                document.getElementById('modal-title').value = "{{ old('title') }}";
+            @endif
+            
+            @if(old('content'))
+                document.getElementById('modal-content').value = "{{ old('content') }}";
+            @endif
         });
     @endif
     </script>

@@ -135,7 +135,7 @@
                     <address>
                         <p>123 Building Street<br>London, UK</p>
                         <p>Email: <a href="mailto:dzemilmanic@hotmail.com">info@structo.com</a></p>
-                        <p>Phone: <a href="tel:+442012345678">+381 63 7248 930</a></p>
+                        <p>Phone: <a href="tel:+381637248930">+381 63 7248 930</a></p>
                     </address>
                     <div class="social-links">
                         <a href="https://www.facebook.com/dzemil.manic" target="blank" class="social-link">FB</a>
