@@ -28,6 +28,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Add password update route
+    Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
 });
 
 Route::get('/jobs', function () {
@@ -51,12 +53,9 @@ Route::view('/terms', 'policy.terms')->name('terms');
 Route::view('/cookies', 'policy.cookies')->name('cookies');
 Route::view('/users', 'users')->name('users');
 
-
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
-
 
 Route::get('/questions', [QuestionsController::class, 'index'])->name('questions.index');
 Route::resource('questions', QuestionsController::class);
@@ -65,8 +64,6 @@ Route::resource('questions.answers', AnswerController::class)->shallow();
 Route::resource('answers', AnswerController::class)->only([
     'store', 'edit', 'update', 'destroy'
 ]);
-
-//Route::resource('questions.answers', AnswerController::class)->shallow();
 
 Route::post('/answers/{answer}/solution', [AnswerController::class, 'markAsSolution'])->name('answers.solution');
 
@@ -83,11 +80,11 @@ Route::middleware(['auth', 'can:isAdmin'])->group(function () {
     Route::post('/admin/profi-requests/{id}/reject', [ProfiRequestController::class, 'reject'])->name('admin.profi-requests.reject');
 });
 
-
 // Testimonials API route
 Route::get('/testimonials', [TestimonialController::class, 'getTestimonials']);
 Route::delete('/testimonials/{testimonial}', [TestimonialController::class, 'destroy'])->name('testimonials.destroy');
 
 Route::post('/testimonials', [TestimonialController::class, 'store'])->middleware('auth');
 Route::get('/testimonials/load', [TestimonialController::class, 'getTestimonials']);
+
 require __DIR__.'/auth.php';

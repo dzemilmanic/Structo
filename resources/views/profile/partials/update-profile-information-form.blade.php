@@ -29,6 +29,14 @@
             <form method="POST" action="{{ route('profile.update') }}" class="profile-edit-form" id="edit-form-photo" enctype="multipart/form-data" style="display: none;">
                 @csrf
                 @method('PATCH')
+                <!-- Add hidden fields to preserve other data -->
+                <input type="hidden" name="name" value="{{ $user->name }}">
+                <input type="hidden" name="email" value="{{ $user->email }}">
+                <input type="hidden" name="specialization" value="{{ $user->specialization }}">
+                <input type="hidden" name="bio" value="{{ $user->bio }}">
+                <input type="hidden" name="phone" value="{{ $user->phone }}">
+                <input type="hidden" name="location" value="{{ $user->location }}">
+                
                 <div class="form-group">
                     <label for="photo" class="form-label">{{ __('Profile Photo') }}</label>
                     <input
@@ -86,6 +94,7 @@
                         required
                         autocomplete="name"
                         aria-describedby="name-error"
+                        data-original-value="{{ $user->name }}"
                     />
                     @error('name')
                         <div id="name-error" class="form-error" role="alert">
@@ -131,6 +140,7 @@
                         required
                         autocomplete="username"
                         aria-describedby="email-error"
+                        data-original-value="{{ $user->email }}"
                     />
                     @error('email')
                         <div id="email-error" class="form-error" role="alert">
@@ -178,6 +188,7 @@
                         placeholder="{{ __('e.g., Web Developer, Designer, Teacher') }}"
                         autocomplete="organization-title"
                         aria-describedby="specialization-error"
+                        data-original-value="{{ $user->specialization }}"
                     />
                     @error('specialization')
                         <div id="specialization-error" class="form-error" role="alert">
@@ -223,6 +234,7 @@
                         class="form-input @error('bio') form-input-error @enderror"
                         placeholder="{{ __('Tell us about yourself, your interests, experience...') }}"
                         aria-describedby="bio-error"
+                        data-original-value="{{ $user->bio }}"
                     >{{ old('bio', $user->bio) }}</textarea>
                     @error('bio')
                         <div id="bio-error" class="form-error" role="alert">
@@ -270,6 +282,7 @@
                         placeholder="{{ __('e.g., +1 (555) 123-4567') }}"
                         autocomplete="tel"
                         aria-describedby="phone-error"
+                        data-original-value="{{ $user->phone }}"
                     />
                     @error('phone')
                         <div id="phone-error" class="form-error" role="alert">
@@ -317,6 +330,7 @@
                         placeholder="{{ __('e.g., New York, NY') }}"
                         autocomplete="address-level2"
                         aria-describedby="location-error"
+                        data-original-value="{{ $user->location }}"
                     />
                     @error('location')
                         <div id="location-error" class="form-error" role="alert">
@@ -333,14 +347,69 @@
                     </button>
                 </div>
             </form>
-
-            
-
-            
         </div>
-        
-        @if (session('status') === 'profile-updated')
-            <p class="form-help flash-message" role="status" aria-live="polite">{{ __('Profile information updated successfully.') }}</p>
-        @endif
     </div>
 </section>
+
+<!-- SweetAlert2 Script -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Handle Flash Messages with SweetAlert2 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Success message
+    @if (session('status') === 'profile-updated')
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Profile updated successfully.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+    
+    // Error message
+    @if (session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: '{{ session('error') }}',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#d33'
+        });
+    @endif
+    
+    // Password updated message
+    @if (session('status') === 'password-updated')
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Password updated successfully.',
+            timer: 3000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    @endif
+    
+    // Validation errors
+    @if ($errors->any())
+        let errorMessages = '';
+        @foreach ($errors->all() as $error)
+            errorMessages += '• {{ $error }}\n';
+        @endforeach
+        
+        Swal.fire({
+            icon: 'error',
+            title: 'Validation Errors',
+            text: errorMessages,
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#d33'
+        });
+    @endif
+});
+</script>

@@ -7,7 +7,7 @@
     <div class="profile-section-content">
         <!-- Display Mode -->
         <div class="profile-info">
-            <div class="profile-display">
+            <div class="profile-display" id="password-display">
                 <div class="profile-value">
                     <span class="profile-text">{{ __('Your password is securely stored.') }}</span>
                 </div>
@@ -24,7 +24,7 @@
         </div>
 
         <!-- Edit Mode -->
-        <form method="post" action="{{ route('password.update') }}" class="profile-edit-form">
+        <form method="post" action="{{ route('password.update') }}" class="profile-edit-form" id="edit-form-password" style="display: none;">
             @csrf
             @method('put')
 
@@ -35,7 +35,8 @@
                     name="current_password" 
                     type="password" 
                     class="form-input @error('current_password') form-input-error @enderror" 
-                    autocomplete="current-password" 
+                    autocomplete="current-password"
+                    required
                 />
                 @error('current_password')
                     <div class="form-error">{{ $message }}</div>
@@ -49,7 +50,8 @@
                     name="password" 
                     type="password" 
                     class="form-input @error('password') form-input-error @enderror" 
-                    autocomplete="new-password" 
+                    autocomplete="new-password"
+                    required
                 />
                 @error('password')
                     <div class="form-error">{{ $message }}</div>
@@ -63,7 +65,8 @@
                     name="password_confirmation" 
                     type="password" 
                     class="form-input" 
-                    autocomplete="new-password" 
+                    autocomplete="new-password"
+                    required
                 />
             </div>
 
@@ -71,7 +74,7 @@
                 <button type="submit" class="btn-profile btn-profile-primary">
                     {{ __('Update Password') }}
                 </button>
-                <button type="button" class="btn-profile btn-profile-secondary cancel-edit">
+                <button type="button" class="btn-profile btn-profile-secondary cancel-edit" data-field="password">
                     {{ __('Cancel') }}
                 </button>
             </div>

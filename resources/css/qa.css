@@ -689,7 +689,7 @@ textarea.form-control {
     color: #dc2626;
 }
 
-/* MODAL STYLES - KOMPLETNO POPRAVLJEN SA SCROLL FUNKCIONALNOSTI */
+/* MODAL STYLES */
 .modal {
     display: none;
     position: fixed !important;
@@ -821,7 +821,7 @@ textarea.form-control {
     border: 2px solid var(--neutral-light) !important;
     resize: vertical !important;
     min-height: 120px !important;
-    max-height: 400px !important; /* Ograničava maksimalnu visinu */
+    max-height: 400px !important; 
 }
 
 .modal .form-control:focus {
