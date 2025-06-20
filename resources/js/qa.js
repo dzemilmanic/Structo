@@ -68,7 +68,44 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // POTPUNO NOVA MODAL FUNKCIONALNOST - GARANTOVANO RADI
+    // Authentication check function
+    function showLoginAlert() {
+        Swal.fire({
+            title: 'Login Required',
+            text: 'You must be logged in to ask a question.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#FF6B35',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Go to Login',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/login';
+            }
+        });
+    }
+
+    // Guest user buttons - show login alert
+    const askQuestionBtnGuest = document.getElementById('askQuestionBtnGuest');
+    const askQuestionBtnEmptyGuest = document.getElementById('askQuestionBtnEmptyGuest');
+
+    if (askQuestionBtnGuest) {
+        askQuestionBtnGuest.addEventListener('click', function(e) {
+            e.preventDefault();
+            showLoginAlert();
+        });
+    }
+
+    if (askQuestionBtnEmptyGuest) {
+        askQuestionBtnEmptyGuest.addEventListener('click', function(e) {
+            e.preventDefault();
+            showLoginAlert();
+        });
+    }
+
+    // MODAL FUNCTIONALITY FOR AUTHENTICATED USERS
     const modal = document.getElementById('askQuestionModal');
     const askQuestionBtn = document.getElementById('askQuestionBtn');
     const askQuestionBtnEmpty = document.getElementById('askQuestionBtnEmpty');
@@ -76,12 +113,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalClose = document.querySelector('.modal-close');
     const askQuestionForm = document.getElementById('askQuestionForm');
 
-    // Funkcija za otvaranje modala - poboljšana
+    // Function to open modal - improved
     function openModal() {
-        console.log('Otvaranje modala...');
+        console.log('Opening modal...');
         
         if (modal) {
-            // Postavi visok z-index
+            // Set high z-index
             modal.style.zIndex = '99999';
             modal.style.position = 'fixed';
             modal.style.top = '0';
@@ -95,15 +132,15 @@ document.addEventListener('DOMContentLoaded', function() {
             modal.style.padding = '20px';
             modal.style.boxSizing = 'border-box';
             
-            // Dodaj klase za animaciju
+            // Add animation classes
             modal.classList.add('show');
             modal.classList.add('modal-visible');
             
-            // Blokiraj scroll na body
+            // Block scroll on body
             document.body.style.overflow = 'hidden';
             document.body.classList.add('modal-open');
             
-            // Postavi stilove za modal-content
+            // Set styles for modal-content
             const modalContent = modal.querySelector('.modal-content');
             if (modalContent) {
                 modalContent.style.transform = 'scale(1)';
@@ -111,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 modalContent.classList.add('modal-content-visible');
             }
             
-            // Fokusiraj prvi input nakon kratke pauze
+            // Focus first input after short pause
             setTimeout(() => {
                 const titleInput = document.getElementById('modal-title');
                 if (titleInput) {
@@ -119,18 +156,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }, 300);
             
-            console.log('Modal je otvoren!');
+            console.log('Modal is open!');
         } else {
-            console.error('Modal element nije pronađen!');
+            console.error('Modal element not found!');
         }
     }
 
-    // Funkcija za zatvaranje modala - poboljšana
+    // Function to close modal - improved
     function closeModal() {
-        console.log('Zatvaranje modala...');
+        console.log('Closing modal...');
         
         if (modal) {
-            // Ukloni klase
+            // Remove classes
             modal.classList.remove('show');
             modal.classList.remove('modal-visible');
             
@@ -139,28 +176,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 modalContent.classList.remove('modal-content-visible');
             }
             
-            // Animiraj zatvaranje
+            // Animate closing
             setTimeout(() => {
                 modal.style.display = 'none';
                 
-                // Vrati scroll na body
+                // Restore scroll on body
                 document.body.style.overflow = '';
                 document.body.classList.remove('modal-open');
             }, 300);
             
-            // Resetuj formu
+            // Reset form
             if (askQuestionForm) {
                 askQuestionForm.reset();
             }
             
-            // Očisti greške
+            // Clear errors
             clearFormErrors();
             
-            console.log('Modal je zatvoren!');
+            console.log('Modal is closed!');
         }
     }
 
-    // Funkcija za čišćenje grešaka forme
+    // Function to clear form errors
     function clearFormErrors() {
         const titleError = document.getElementById('title-error');
         const contentError = document.getElementById('content-error');
@@ -173,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (contentInput) contentInput.classList.remove('is-invalid');
     }
 
-    // Event listeneri za otvaranje modala
+    // Event listeners for opening modal (authenticated users only)
     if (askQuestionBtn) {
         askQuestionBtn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -188,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Event listeneri za zatvaranje modala
+    // Event listeners for closing modal
     if (modalCancelBtn) {
         modalCancelBtn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -203,24 +240,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Zatvaranje modala klikom na pozadinu
+    // Close modal by clicking on background
     if (modal) {
         modal.addEventListener('click', function(e) {
-            // Zatvaraj samo ako je kliknut tačno modal (pozadina), a ne njegovi child elementi
+            // Close only if clicked exactly on modal (background), not its child elements
             if (e.target === modal) {
                 closeModal();
             }
         });
     }
 
-    // Zatvaranje modala sa Escape tasterom
+    // Close modal with Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && modal && modal.classList.contains('show')) {
             closeModal();
         }
     });
 
-    // Handle form submission sa loading stanjem
+    // Handle form submission with loading state
     if (askQuestionForm) {
         askQuestionForm.addEventListener('submit', function(e) {
             const submitBtn = this.querySelector('button[type="submit"]');
@@ -228,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Posting...';
                 
-                // Vrati originalan tekst nakon 5 sekundi ako forma nije poslata
+                // Restore original text after 5 seconds if form wasn't submitted
                 setTimeout(() => {
                     if (submitBtn.disabled) {
                         submitBtn.disabled = false;
@@ -237,18 +274,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 5000);
             }
             
-            // Očisti prethodne greške
+            // Clear previous errors
             clearFormErrors();
         });
     }
 
-    // Debugging - proveravaj da li modal postoji
+    // Debugging - check if modal exists
     console.log('Modal element:', modal);
     console.log('Ask Question Button:', askQuestionBtn);
     console.log('Ask Question Button Empty:', askQuestionBtnEmpty);
 });
 
-// Dodatni event listeneri
+// Additional event listeners
 document.addEventListener("DOMContentLoaded", function () {
     const cards = document.querySelectorAll(".question-card");
 
@@ -331,7 +368,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Dodatna sigurnosna funkcija za modal
+// Additional security function for modal
 window.forceOpenModal = function() {
     const modal = document.getElementById('askQuestionModal');
     if (modal) {
@@ -358,13 +395,13 @@ window.forceOpenModal = function() {
         }
         
         document.body.style.overflow = 'hidden';
-        console.log('Modal je prisilno otvoren!');
+        console.log('Modal is forcefully opened!');
     }
 };
 
-// Test funkcija - možete je pozvati iz console-a
+// Test function - you can call it from console
 window.testModal = function() {
-    console.log('Testiranje modala...');
+    console.log('Testing modal...');
     const modal = document.getElementById('askQuestionModal');
     console.log('Modal:', modal);
     

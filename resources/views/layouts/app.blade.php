@@ -58,12 +58,59 @@
                 <div class="header-actions">
                     @auth
                         <div class="user-dropdown">
-                            <span>{{ Auth::user()->name }}</span>
+                            <div class="user-info">
+                                <div class="user-avatar">
+                                    @if(Auth::user()->photo)
+                                        @php
+                                            // Check if photo is already a full URL or just a path
+                                            if (str_contains(Auth::user()->photo, 'amazonaws.com') || str_contains(Auth::user()->photo, 'http')) {
+                                                $photoUrl = Auth::user()->photo;
+                                            } else {
+                                                // Generate full S3 URL from path
+                                                // Remove leading slash if present
+                                                $photoPath = ltrim(Auth::user()->photo, '/');
+                                                $bucket = config('filesystems.disks.s3.bucket') ?? config('filesystems.disks.profile_photos.bucket');
+                                                $region = config('filesystems.disks.s3.region') ?? config('filesystems.disks.profile_photos.region');
+                                                $photoUrl = 'https://' . $bucket . '.s3.' . $region . '.amazonaws.com/' . $photoPath;
+                                            }
+                                        @endphp
+                                        <img src="{{ $photoUrl }}" alt="Profile Photo" class="avatar-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="avatar-placeholder" style="display: none;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="12" cy="7" r="4"></circle>
+                                            </svg>
+                                        </div>
+                                    @else
+                                        <div class="avatar-placeholder">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="12" cy="7" r="4"></circle>
+                                            </svg>
+                                        </div>
+                                    @endif
+                                </div>
+                                <span class="user-name">{{ Auth::user()->name }}</span>
+                                <div class="dropdown-arrow"></div>
+                            </div>
                             <div class="dropdown-menu">
-                                <a href="{{ route('profile.edit') }}" class="dropdown-item">Profile</a>
-                                <form method="POST" action="{{ route('logout') }}">
+                                <a href="{{ route('profile.edit') }}" class="dropdown-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                    Profile
+                                </a>
+                                <form method="POST" action="{{ route('logout') }}" class="dropdown-form">
                                     @csrf
-                                    <button type="submit">Logout</button>
+                                    <button type="submit" class="dropdown-item logout-btn">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                            <polyline points="16,17 21,12 16,7"></polyline>
+                                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                                        </svg>
+                                        Logout
+                                    </button>
                                 </form>
                             </div>
                         </div>

@@ -8,7 +8,11 @@
         <form action="{{ route('questions.index') }}" method="GET" class="search-form">
             <input type="text" name="search" class="search-input" placeholder="Search..." value="{{ $search ?? '' }}">
             <button type="submit" class="btn btn-primary">Search</button>
-            <button type="button" class="btn btn-secondary" id="askQuestionBtn">Ask a question</button>
+            @auth
+                <button type="button" class="btn btn-secondary" id="askQuestionBtn">Ask a question</button>
+            @else
+                <button type="button" class="btn btn-secondary" id="askQuestionBtnGuest">Ask a question</button>
+            @endauth
         </form>
     </div>
 
@@ -69,6 +73,7 @@
                 @auth
                     <button type="button" class="btn btn-primary" id="askQuestionBtnEmpty">Ask the first question</button>
                 @else
+                    <button type="button" class="btn btn-primary" id="askQuestionBtnEmptyGuest">Ask the first question</button>
                     <p>
                         <a href="{{ route('login') }}">Login</a> or 
                         <a href="{{ route('register') }}">Register</a> to ask a question.
