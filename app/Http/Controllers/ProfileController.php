@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class ProfileController extends Controller
 {
@@ -51,16 +53,57 @@ class ProfileController extends Controller
 
         $validated = $request->validate($fieldsToValidate);
 
-        // Handle photo upload separately
+        // Handle photo upload to AWS S3
         if ($request->hasFile('photo')) {
-            // Delete old photo if exists
-            if ($user->photo) {
-                Storage::disk('public')->delete($user->photo);
+            try {
+                Log::info('Starting photo upload process');
+                
+                // Test S3 connection first
+                try {
+                    Storage::disk('profile_photos')->exists('test');
+                    Log::info('S3 connection test successful');
+                } catch (\Exception $e) {
+                    Log::error('S3 connection failed: ' . $e->getMessage());
+                    return Redirect::route('profile.edit')->with('error', 'S3 connection failed. Please check your AWS credentials.');
+                }
+                
+                // Delete old photo from S3 if exists
+                if ($user->photo) {
+                    try {
+                        $oldKey = $this->getPhotoKeyFromUrl($user->photo);
+                        if ($oldKey) {
+                            Storage::disk('profile_photos')->delete($oldKey);
+                            Log::info('Old photo deleted: ' . $oldKey);
+                        }
+                    } catch (\Exception $e) {
+                        Log::warning('Failed to delete old photo: ' . $e->getMessage());
+                    }
+                }
+                
+                // Generate unique filename
+                $file = $request->file('photo');
+                $filename = 'user_' . $user->id . '_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+                
+                Log::info('Uploading file: ' . $filename);
+                
+                // Store new photo on S3
+                $path = Storage::disk('profile_photos')->putFileAs('', $file, $filename);
+                
+                if ($path) {
+                    // Get the full S3 URL
+                    $photoUrl = Storage::disk('profile_photos')->url($path);
+                    $user->photo = $photoUrl;
+                    Log::info('Photo uploaded successfully: ' . $photoUrl);
+                } else {
+                    Log::error('Failed to upload photo - putFileAs returned false');
+                    return Redirect::route('profile.edit')->with('error', 'Failed to upload photo to S3');
+                }
+                
+            } catch (\Exception $e) {
+                Log::error('S3 Photo Upload Error: ' . $e->getMessage());
+                Log::error('Stack trace: ' . $e->getTraceAsString());
+                return Redirect::route('profile.edit')->with('error', 'Failed to upload photo: ' . $e->getMessage());
             }
-            
-            // Store new photo
-            $photoPath = $request->file('photo')->store('profile-photos', 'public');
-            $user->photo = $photoPath;
         }
 
         // Update each field individually to ensure it's saved
@@ -83,6 +126,38 @@ class ProfileController extends Controller
         } else {
             return Redirect::route('profile.edit')->with('error', 'Failed to update profile');
         }
+    }
+
+    /**
+     * Extract the S3 key from the full URL
+     */
+    private function getPhotoKeyFromUrl($url)
+    {
+        if (!$url) {
+            return null;
+        }
+        
+        // If it's a full S3 URL, extract the key
+        if (str_contains($url, 'amazonaws.com') || str_contains($url, 's3.')) {
+            $parts = parse_url($url);
+            $path = ltrim($parts['path'], '/');
+            
+            // Remove bucket name from path if present (for path-style URLs)
+            $bucketName = env('AWS_BUCKET');
+            if (str_starts_with($path, $bucketName . '/')) {
+                $path = substr($path, strlen($bucketName) + 1);
+            }
+            
+            // Remove profile-photos prefix if present (since we set root in config)
+            if (str_starts_with($path, 'profile-photos/')) {
+                $path = substr($path, strlen('profile-photos/'));
+            }
+            
+            return $path;
+        }
+        
+        // If it's just a filename, return as is
+        return basename($url);
     }
 
     /**
@@ -113,9 +188,16 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
-        // Delete user's photo if exists
+        // Delete user's photo from S3 if exists
         if ($user->photo) {
-            Storage::disk('public')->delete($user->photo);
+            try {
+                $key = $this->getPhotoKeyFromUrl($user->photo);
+                if ($key) {
+                    Storage::disk('profile_photos')->delete($key);
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to delete photo from S3: ' . $e->getMessage());
+            }
         }
 
         Auth::logout();

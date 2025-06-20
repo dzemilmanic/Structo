@@ -8,6 +8,7 @@ use App\Http\Controllers\QuestionsController;
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\ProfiRequestController;
+use App\Http\Services\S3TestService;
 
 Route::get('/', function () {
     // This gets ALL testimonials, but we'll use JavaScript to paginate them client-side
@@ -87,4 +88,22 @@ Route::delete('/testimonials/{testimonial}', [TestimonialController::class, 'des
 Route::post('/testimonials', [TestimonialController::class, 'store'])->middleware('auth');
 Route::get('/testimonials/load', [TestimonialController::class, 'getTestimonials']);
 
+Route::get('/test-s3', function (S3TestService $s3Test) {
+    try {
+        $config = $s3Test->getS3Config();
+        $tests = $s3Test->testS3Connection();
+        
+        return response()->json([
+            'status' => 'success',
+            'config' => $config,
+            'tests' => $tests
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'config' => $s3Test->getS3Config()
+        ], 500);
+    }
+})->middleware('auth');
 require __DIR__.'/auth.php';

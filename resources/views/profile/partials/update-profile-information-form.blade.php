@@ -9,7 +9,20 @@
         <div class="profile-photo-section">
             <div class="profile-photo-container">
                 @if($user->photo)
-                    <img src="{{ asset('storage/' . $user->photo) }}" alt="Profile Photo" class="profile-photo">
+                    @php
+                        // Check if photo is already a full URL or just a path
+                        if (str_contains($user->photo, 'amazonaws.com') || str_contains($user->photo, 'http')) {
+                            $photoUrl = $user->photo;
+                        } else {
+                            // Generate full S3 URL from path
+                            // Remove leading slash if present
+                            $photoPath = ltrim($user->photo, '/');
+                            $bucket = config('filesystems.disks.s3.bucket') ?? config('filesystems.disks.profile_photos.bucket');
+                            $region = config('filesystems.disks.s3.region') ?? config('filesystems.disks.profile_photos.region');
+                            $photoUrl = 'https://' . $bucket . '.s3.' . $region . '.amazonaws.com/' . $photoPath;
+                        }
+                    @endphp
+                    <img src="{{ $photoUrl }}" alt="Profile Photo" class="profile-photo" onerror="this.src='{{ asset('images/default-avatar.png') }}'; this.onerror=null;">
                 @else
                     <div class="profile-photo-placeholder">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -48,6 +61,7 @@
                         aria-describedby="photo-error"
                     />
                     <small class="form-help">{{ __('Upload a profile photo (JPG, PNG, max 2MB)') }}</small>
+                    <small class="form-help text-info">{{ __('Photo will be stored securely on AWS S3') }}</small>
                     @error('photo')
                         <div id="photo-error" class="form-error" role="alert">
                             {{ $message }}
@@ -272,7 +286,7 @@
                 @csrf
                 @method('PATCH')
                 <div class="form-group">
-                    <label for="phone" class="form-label">{{ __('Phone') }}</label>
+                <label for="phone" class="form-label">{{ __('Phone') }}</label>
                     <input
                         id="phone"
                         name="phone"
