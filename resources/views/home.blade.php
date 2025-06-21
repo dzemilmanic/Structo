@@ -327,8 +327,6 @@
     </section>
 @endsection
 
-
-
 @section('scripts')
     <!-- Add testimonials JS via Vite -->
     @vite('resources/js/home.js')

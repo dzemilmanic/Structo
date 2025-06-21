@@ -8,6 +8,7 @@ use App\Http\Controllers\QuestionsController;
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\ProfiRequestController;
+use App\Http\Controllers\JobController;
 use App\Http\Services\S3TestService;
 
 Route::get('/', function () {
@@ -108,4 +109,26 @@ Route::get('/test-s3', function (S3TestService $s3Test) {
         ], 500);
     }
 })->middleware('auth');
+
+// Job management routes
+Route::middleware(['auth'])->group(function () {
+    // Dashboard and main job routes
+    Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
+    Route::get('/jobs/create', [JobController::class, 'create'])->name('jobs.create');
+    Route::post('/jobs', [JobController::class, 'store'])->name('jobs.store');
+    
+    // Job request routes (for professionals)
+    Route::post('/jobs/{job}/request', [JobController::class, 'requestJob'])->name('jobs.request');
+    Route::post('/job-requests/{jobRequest}/accept', [JobController::class, 'acceptJobRequest'])->name('job-requests.accept');
+    Route::post('/job-requests/{jobRequest}/reject', [JobController::class, 'rejectJobRequest'])->name('job-requests.reject');
+    
+    // Service request routes (for users)
+    Route::post('/services/{service}/request', [JobController::class, 'requestService'])->name('services.request');
+    Route::post('/service-requests/{serviceRequest}/accept', [JobController::class, 'acceptServiceRequest'])->name('service-requests.accept');
+    Route::post('/service-requests/{serviceRequest}/reject', [JobController::class, 'rejectServiceRequest'])->name('service-requests.reject');
+    
+    // Job completion
+    Route::post('/jobs/{job}/complete', [JobController::class, 'completeJob'])->name('jobs.complete');
+});
+
 require __DIR__.'/auth.php';
