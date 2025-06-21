@@ -68,6 +68,8 @@ Route::resource('answers', AnswerController::class)->only([
 
 Route::post('/answers/{answer}/solution', [AnswerController::class, 'markAsSolution'])->name('answers.solution');
 
+Route::get('/jobs', [UsersController::class, 'index'])->name('users.index');
+
 Route::get('/users', [UsersController::class, 'index'])->name('users.index');
 Route::get('/users/{user}', [UsersController::class, 'show'])->name('users.show');
 

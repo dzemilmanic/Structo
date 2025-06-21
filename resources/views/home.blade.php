@@ -9,7 +9,7 @@
             <h1>Connect with Top Construction & Architectural Professionals</h1>
             <p>Find verified experts for your building projects or showcase your professional services</p>
             <div class="hero-buttons">
-                <a href="#" class="btn btn-primary">Find Professionals</a>
+                <a href="users" class="btn btn-primary">Find Professionals</a>
                 <a href="#" class="btn btn-outline">List Your Services</a>
             </div>
         </div>
@@ -154,7 +154,7 @@
                 </div>
             </div>
             <div class="view-all">
-                <a href="#" class="btn btn-primary">View All Professionals</a>
+                <a href="users" class="btn btn-primary">View All Professionals</a>
             </div>
         </div>
     </section>
@@ -319,7 +319,7 @@
                 <h2>Ready to Start Your Project?</h2>
                 <p>Connect with top professionals in construction and architecture today</p>
                 <div class="cta-buttons">
-                    <a href="#" class="btn btn-light">Find Professionals</a>
+                    <a href="users" class="btn btn-light">Find Professionals</a>
                     <a href="#" class="btn btn-outline-light">List Your Services</a>
                 </div>
             </div>
