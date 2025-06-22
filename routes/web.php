@@ -9,6 +9,7 @@ use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\ProfiRequestController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Services\S3TestService;
 
 Route::get('/', function () {
@@ -116,6 +117,19 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
     Route::get('/jobs/create', [JobController::class, 'create'])->name('jobs.create');
     Route::post('/jobs', [JobController::class, 'store'])->name('jobs.store');
+    Route::get('/jobs/{job}', [JobController::class, 'show'])->name('jobs.show');
+    Route::get('/jobs/{job}/edit', [JobController::class, 'edit'])->name('jobs.edit');
+    Route::put('/jobs/{job}', [JobController::class, 'update'])->name('jobs.update');
+    Route::delete('/jobs/{job}', [JobController::class, 'destroy'])->name('jobs.destroy');
+    
+    // Service management routes
+    Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
+    Route::get('/services/create', [ServiceController::class, 'create'])->name('services.create');
+    Route::post('/services', [ServiceController::class, 'store'])->name('services.store');
+    Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
+    Route::get('/services/{service}/edit', [ServiceController::class, 'edit'])->name('services.edit');
+    Route::put('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
+    Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
     
     // Job request routes (for professionals)
     Route::post('/jobs/{job}/request', [JobController::class, 'requestJob'])->name('jobs.request');
@@ -123,9 +137,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/job-requests/{jobRequest}/reject', [JobController::class, 'rejectJobRequest'])->name('job-requests.reject');
     
     // Service request routes (for users)
-    Route::post('/services/{service}/request', [JobController::class, 'requestService'])->name('services.request');
-    Route::post('/service-requests/{serviceRequest}/accept', [JobController::class, 'acceptServiceRequest'])->name('service-requests.accept');
-    Route::post('/service-requests/{serviceRequest}/reject', [JobController::class, 'rejectServiceRequest'])->name('service-requests.reject');
+    Route::post('/services/{service}/request', [ServiceController::class, 'requestService'])->name('services.request');
+    Route::post('/service-requests/{serviceRequest}/accept', [ServiceController::class, 'acceptServiceRequest'])->name('service-requests.accept');
+    Route::post('/service-requests/{serviceRequest}/reject', [ServiceController::class, 'rejectServiceRequest'])->name('service-requests.reject');
     
     // Job completion
     Route::post('/jobs/{job}/complete', [JobController::class, 'completeJob'])->name('jobs.complete');

@@ -19,8 +19,11 @@ class JobController extends Controller
             $services = $user->services()->latest()->get();
             $jobRequests = $user->jobRequests()->with('job.user')->latest()->get();
             $assignedJobs = $user->assignedJobs()->with('user')->latest()->get();
+            $serviceRequests = ServiceRequest::whereHas('service', function ($query) use ($user) {
+                $query->where('professional_id', $user->id);
+            })->with('user', 'service')->latest()->get();
             
-            return view('jobs.partials.professional-dashboard', compact('services', 'jobRequests', 'assignedJobs'));
+            return view('jobs.index', compact('services', 'jobRequests', 'assignedJobs', 'serviceRequests'));
         } else {
             $jobs = $user->jobs()->latest()->get();
             $serviceRequests = $user->serviceRequests()->with('service.professional')->latest()->get();
@@ -29,7 +32,7 @@ class JobController extends Controller
                 ->latest()
                 ->get();
             
-            return view('jobs.partials.user-dashboard', compact('jobs', 'serviceRequests', 'availableServices'));
+            return view('jobs.index', compact('jobs', 'serviceRequests', 'availableServices'));
         }
     }
 
@@ -42,43 +45,77 @@ class JobController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->isProfi()) {
-            // Professional posting a service
-            $validated = $request->validate([
-                'title' => 'required|string|max:255',
-                'description' => 'required|string',
-                'category' => 'required|string',
-                'price_from' => 'nullable|numeric|min:0',
-                'price_to' => 'nullable|numeric|min:0',
-                'service_area' => 'required|string',
-            ]);
+        // Regular user posting a job
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'category' => 'required|string',
+            'budget' => 'nullable|numeric|min:0',
+            'location' => 'required|string',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'deadline' => 'nullable|date|after:today',
+        ]);
 
-            $validated['professional_id'] = $user->id;
-            $validated['is_active'] = true;
+        $validated['user_id'] = $user->id;
+        $validated['status'] = Job::STATUS_OPEN;
 
-            Service::create($validated);
+        Job::create($validated);
 
-            return redirect()->route('jobs.index')->with('success', 'Usluga je uspešno kreirana!');
-        } else {
-            // Regular user posting a job
-            $validated = $request->validate([
-                'title' => 'required|string|max:255',
-                'description' => 'required|string',
-                'category' => 'required|string',
-                'budget' => 'nullable|numeric|min:0',
-                'location' => 'required|string',
-                'latitude' => 'required|numeric',
-                'longitude' => 'required|numeric',
-                'deadline' => 'nullable|date|after:today',
-            ]);
+        return redirect()->route('jobs.index')->with('success', 'Posao je uspešno kreiran!');
+    }
 
-            $validated['user_id'] = $user->id;
-            $validated['status'] = Job::STATUS_OPEN;
+    public function show(Job $job)
+    {
+        return view('jobs.show', compact('job'));
+    }
 
-            Job::create($validated);
-
-            return redirect()->route('jobs.index')->with('success', 'Posao je uspešno kreiran!');
+    public function edit(Job $job)
+    {
+        $user = Auth::user();
+        
+        if ($job->user_id !== $user->id) {
+            return redirect()->route('jobs.index')->with('error', 'Nemate dozvolu za ovu akciju.');
         }
+        
+        return view('jobs.edit', compact('job'));
+    }
+
+    public function update(Request $request, Job $job)
+    {
+        $user = Auth::user();
+        
+        if ($job->user_id !== $user->id) {
+            return redirect()->route('jobs.index')->with('error', 'Nemate dozvolu za ovu akciju.');
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'category' => 'required|string',
+            'budget' => 'nullable|numeric|min:0',
+            'location' => 'required|string',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'deadline' => 'nullable|date|after:today',
+        ]);
+
+        $job->update($validated);
+
+        return redirect()->route('jobs.index')->with('success', 'Posao je uspešno ažuriran!');
+    }
+
+    public function destroy(Job $job)
+    {
+        $user = Auth::user();
+        
+        if ($job->user_id !== $user->id) {
+            return redirect()->route('jobs.index')->with('error', 'Nemate dozvolu za ovu akciju.');
+        }
+
+        $job->delete();
+
+        return redirect()->route('jobs.index')->with('success', 'Posao je uspešno obrisan!');
     }
 
     public function requestJob(Request $request, Job $job)
@@ -99,32 +136,6 @@ class JobController extends Controller
         $validated['status'] = JobRequest::STATUS_PENDING;
 
         JobRequest::create($validated);
-
-        return redirect()->back()->with('success', 'Zahtev je uspešno poslat!');
-    }
-
-    public function requestService(Request $request, Service $service)
-    {
-        $user = Auth::user();
-
-        if (!$user->isUser()) {
-            return redirect()->back()->with('error', 'Nemate dozvolu za ovu akciju.');
-        }
-
-        $validated = $request->validate([
-            'message' => 'required|string',
-            'job_description' => 'required|string',
-            'budget' => 'nullable|numeric|min:0',
-            'location' => 'required|string',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-        ]);
-
-        $validated['service_id'] = $service->id;
-        $validated['user_id'] = $user->id;
-        $validated['status'] = ServiceRequest::STATUS_PENDING;
-
-        ServiceRequest::create($validated);
 
         return redirect()->back()->with('success', 'Zahtev je uspešno poslat!');
     }
@@ -154,17 +165,17 @@ class JobController extends Controller
         return redirect()->back()->with('success', 'Zahtev je prihvaćen!');
     }
 
-    public function acceptServiceRequest(ServiceRequest $serviceRequest)
+    public function rejectJobRequest(JobRequest $jobRequest)
     {
-        $professional = Auth::user();
+        $user = Auth::user();
 
-        if ($serviceRequest->service->professional_id !== $professional->id) {
+        if ($jobRequest->job->user_id !== $user->id) {
             return redirect()->back()->with('error', 'Nemate dozvolu za ovu akciju.');
         }
 
-        $serviceRequest->update(['status' => ServiceRequest::STATUS_ACCEPTED]);
+        $jobRequest->update(['status' => JobRequest::STATUS_REJECTED]);
 
-        return redirect()->back()->with('success', 'Zahtev je prihvaćen!');
+        return redirect()->back()->with('success', 'Zahtev je odbijen!');
     }
 
     public function completeJob(Job $job)

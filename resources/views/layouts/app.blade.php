@@ -13,7 +13,7 @@
     
     <!-- Styles -->
     @vite(['resources/js/app.js', 'resources/js/home.js', 'resources/css/app.css'])
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Additional styles specific to pages -->

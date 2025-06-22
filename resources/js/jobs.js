@@ -1,506 +1,473 @@
-// Job Management JavaScript
+// ===== MODAL MANAGEMENT SYSTEM - FIXED VERSION =====
 
 // Global variables
-let map;
-let serviceRequestMap;
-let marker;
-let serviceRequestMarker;
+let activeModal = null;
+let isInitialized = false;
 
-// Initialize when DOM is loaded
+// Ensure all functions are available globally immediately
+window.openJobModal = openJobModal;
+window.closeJobModal = closeJobModal;
+window.openServiceModal = openServiceModal;
+window.closeServiceModal = closeServiceModal;
+window.openServiceRequestModal = openServiceRequestModal;
+window.closeServiceRequestModal = closeServiceRequestModal;
+window.editJob = editJob;
+window.deleteJob = deleteJob;
+window.editService = editService;
+window.deleteService = deleteService;
+window.requestService = requestService;
+window.completeJob = completeJob;
+
+// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Leaflet maps if containers exist
-    if (document.getElementById('map')) {
-        initializeMap();
-    }
-    
-    // Set up form event listeners
-    setupFormEventListeners();
-    
-    // Set up modal event listeners
-    setupModalEventListeners();
-    
-    // Close modals on outside click
-    setupModalOutsideClick();
+    initializeModals();
+    initializeFormValidation();
+    initializeTextareas();
 });
 
-// Map initialization
-function initializeMap() {
-    // Main job posting map
-    if (document.getElementById('map')) {
-        map = L.map('map').setView([44.8176, 20.4633], 13); // Belgrade coordinates
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-        
-        map.on('click', function(e) {
-            if (marker) {
-                map.removeLayer(marker);
-            }
-            
-            marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-            
-            document.getElementById('latitude').value = e.latlng.lat;
-            document.getElementById('longitude').value = e.latlng.lng;
-            
-            // Reverse geocoding to get address
-            reverseGeocode(e.latlng.lat, e.latlng.lng, 'job_location');
-        });
+// Fallback initialization
+window.addEventListener('load', function() {
+    if (!isInitialized) {
+        initializeModals();
     }
-}
+});
 
-function initializeServiceRequestMap() {
-    if (document.getElementById('serviceRequestMap')) {
-        serviceRequestMap = L.map('serviceRequestMap').setView([44.8176, 20.4633], 13);
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(serviceRequestMap);
-        
-        serviceRequestMap.on('click', function(e) {
-            if (serviceRequestMarker) {
-                serviceRequestMap.removeLayer(serviceRequestMarker);
-            }
-            
-            serviceRequestMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(serviceRequestMap);
-            
-            document.getElementById('sr_latitude').value = e.latlng.lat;
-            document.getElementById('sr_longitude').value = e.latlng.lng;
-            
-            // Reverse geocoding to get address
-            reverseGeocode(e.latlng.lat, e.latlng.lng, 'sr_location');
-        });
-    }
-}
+// ===== MODAL FUNCTIONS =====
 
-// Reverse geocoding function
-function reverseGeocode(lat, lng, inputId) {
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.display_name) {
-                document.getElementById(inputId).value = data.display_name;
-            }
-        })
-        .catch(error => {
-            console.error('Reverse geocoding error:', error);
-        });
-}
-
-// Form event listeners
-function setupFormEventListeners() {
-    // Location input autocomplete
-    const locationInputs = ['job_location', 'sr_location'];
+function initializeModals() {
+    console.log('Initializing modals...');
     
-    locationInputs.forEach(inputId => {
-        const input = document.getElementById(inputId);
-        if (input) {
-            let timeout;
-            input.addEventListener('input', function() {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    if (this.value.length > 2) {
-                        geocodeAddress(this.value, inputId);
-                    }
-                }, 500);
-            });
-        }
-    });
-    
-    // Form validation
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            if (!validateForm(this)) {
-                e.preventDefault();
-            }
-        });
-    });
-}
-
-// Geocoding function for address search
-function geocodeAddress(address, inputId) {
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=5`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.length > 0) {
-                const result = data[0];
-                const lat = parseFloat(result.lat);
-                const lng = parseFloat(result.lon);
-                
-                if (inputId === 'job_location' && map) {
-                    if (marker) map.removeLayer(marker);
-                    marker = L.marker([lat, lng]).addTo(map);
-                    map.setView([lat, lng], 15);
-                    document.getElementById('latitude').value = lat;
-                    document.getElementById('longitude').value = lng;
-                } else if (inputId === 'sr_location' && serviceRequestMap) {
-                    if (serviceRequestMarker) serviceRequestMap.removeLayer(serviceRequestMarker);
-                    serviceRequestMarker = L.marker([lat, lng]).addTo(serviceRequestMap);
-                    serviceRequestMap.setView([lat, lng], 15);
-                    document.getElementById('sr_latitude').value = lat;
-                    document.getElementById('sr_longitude').value = lng;
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Geocoding error:', error);
-        });
-}
-
-// Modal functions
-function setupModalEventListeners() {
-    // ESC key to close modals
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeAllModals();
-        }
-    });
-}
-
-function setupModalOutsideClick() {
+    // Force hide all modals on load
     const modals = document.querySelectorAll('.modal');
     modals.forEach(modal => {
-        modal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeAllModals();
+        modal.style.display = 'none';
+        modal.classList.remove('modal-open');
+        modal.setAttribute('aria-hidden', 'true');
+    });
+    
+    // Setup event listeners
+    setupModalEventListeners();
+    
+    // Reset body state
+    document.body.style.overflow = '';
+    document.body.classList.remove('modal-open');
+    
+    isInitialized = true;
+    console.log('Modals initialized successfully');
+}
+
+function setupModalEventListeners() {
+    // Close modal when clicking outside
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal') && e.target.style.display === 'flex') {
+            closeModal(e.target.id);
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && activeModal) {
+            closeModal(activeModal);
+        }
+    });
+
+    // Setup close buttons
+    const closeButtons = document.querySelectorAll('.modal-close');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const modal = this.closest('.modal');
+            if (modal) {
+                closeModal(modal.id);
             }
         });
     });
 }
 
-// Service modal functions
-function openServiceModal() {
-    const modal = document.getElementById('serviceModal');
-    if (modal) {
-        modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
+function openModal(modalId) {
+    console.log('Opening modal:', modalId);
+    
+    // Close any open modal first
+    if (activeModal) {
+        closeModal(activeModal);
     }
+    
+    const modal = document.getElementById(modalId);
+    if (!modal) {
+        console.error('Modal not found:', modalId);
+        return;
+    }
+    
+    // Show modal
+    modal.style.display = 'flex';
+    modal.classList.add('modal-open');
+    modal.setAttribute('aria-hidden', 'false');
+    
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+    document.body.classList.add('modal-open');
+    
+    activeModal = modalId;
+    
+    // Focus first input
+    setTimeout(() => {
+        const firstInput = modal.querySelector('input, textarea, select');
+        if (firstInput) {
+            firstInput.focus();
+        }
+    }, 100);
+    
+    console.log('Modal opened:', modalId);
 }
 
-function closeServiceModal() {
-    const modal = document.getElementById('serviceModal');
-    if (modal) {
-        modal.classList.remove('show');
-        document.body.style.overflow = '';
-        resetForm(modal.querySelector('form'));
+function closeModal(modalId) {
+    console.log('Closing modal:', modalId);
+    
+    const modal = document.getElementById(modalId);
+    if (!modal) {
+        console.error('Modal not found:', modalId);
+        return;
     }
+    
+    // Hide modal
+    modal.style.display = 'none';
+    modal.classList.remove('modal-open');
+    modal.setAttribute('aria-hidden', 'true');
+    
+    // Reset body scroll
+    document.body.style.overflow = '';
+    document.body.classList.remove('modal-open');
+    
+    if (activeModal === modalId) {
+        activeModal = null;
+    }
+    
+    // Clear form if exists
+    const form = modal.querySelector('form');
+    if (form) {
+        form.reset();
+        // Remove error states
+        const errorFields = form.querySelectorAll('.error');
+        errorFields.forEach(field => {
+            field.classList.remove('error');
+            field.style.borderColor = '';
+        });
+    }
+    
+    console.log('Modal closed:', modalId);
 }
 
-// Job modal functions
+// ===== GLOBAL MODAL FUNCTIONS =====
+
 function openJobModal() {
-    const modal = document.getElementById('jobModal');
-    if (modal) {
-        modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
-        
-        // Initialize map after modal is shown
-        setTimeout(() => {
-            if (map) {
-                map.invalidateSize();
-            } else {
-                initializeMap();
-            }
-        }, 100);
-    }
+    console.log('openJobModal called');
+    openModal('jobModal');
 }
 
 function closeJobModal() {
-    const modal = document.getElementById('jobModal');
-    if (modal) {
-        modal.classList.remove('show');
-        document.body.style.overflow = '';
-        resetForm(modal.querySelector('form'));
-        
-        // Clear map marker
-        if (marker && map) {
-            map.removeLayer(marker);
-            marker = null;
-        }
-    }
+    console.log('closeJobModal called');
+    closeModal('jobModal');
 }
 
-// Service request modal functions
-function requestService(serviceId) {
-    const modal = document.getElementById('serviceRequestModal');
-    const form = document.getElementById('serviceRequestForm');
-    
-    if (modal && form) {
-        form.action = `/services/${serviceId}/request`;
-        modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
-        
-        // Initialize service request map
-        setTimeout(() => {
-            if (serviceRequestMap) {
-                serviceRequestMap.invalidateSize();
-            } else {
-                initializeServiceRequestMap();
-            }
-        }, 100);
-    }
+function openServiceModal() {
+    console.log('openServiceModal called');
+    openModal('serviceModal');
+}
+
+function closeServiceModal() {
+    console.log('closeServiceModal called');
+    closeModal('serviceModal');
+}
+
+function openServiceRequestModal() {
+    console.log('openServiceRequestModal called');
+    openModal('serviceRequestModal');
 }
 
 function closeServiceRequestModal() {
-    const modal = document.getElementById('serviceRequestModal');
-    if (modal) {
-        modal.classList.remove('show');
-        document.body.style.overflow = '';
-        resetForm(modal.querySelector('form'));
-        
-        // Clear map marker
-        if (serviceRequestMarker && serviceRequestMap) {
-            serviceRequestMap.removeLayer(serviceRequestMarker);
-            serviceRequestMarker = null;
-        }
-    }
+    console.log('closeServiceRequestModal called');
+    closeModal('serviceRequestModal');
 }
 
-function closeAllModals() {
-    closeServiceModal();
-    closeJobModal();
-    closeServiceRequestModal();
+// ===== JOB MANAGEMENT FUNCTIONS =====
+
+function editJob(jobId) {
+    console.log('Editing job:', jobId);
+    window.location.href = `/jobs/${jobId}/edit`;
 }
 
-// Job request functions
-function acceptJobRequest(requestId) {
-    if (confirm('Da li ste sigurni da želite da prihvatite ovaj zahtev?')) {
-        showLoading();
-        
-        fetch(`/job-requests/${requestId}/accept`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': getCSRFToken()
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            hideLoading();
-            if (data.success) {
-                showNotification('Zahtev je uspešno prihvaćen!', 'success');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
-            } else {
-                showNotification('Greška pri prihvatanju zahteva.', 'error');
-            }
-        })
-        .catch(error => {
-            hideLoading();
-            showNotification('Greška pri prihvatanju zahteva.', 'error');
-            console.error('Error:', error);
-        });
-    }
-}
-
-function rejectJobRequest(requestId) {
-    if (confirm('Da li ste sigurni da želite da odbijete ovaj zahtev?')) {
-        showLoading();
-        
-        fetch(`/job-requests/${requestId}/reject`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': getCSRFToken()
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            hideLoading();
-            if (data.success) {
-                showNotification('Zahtev je odbijen.', 'success');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
-            } else {
-                showNotification('Greška pri odbijanju zahteva.', 'error');
-            }
-        })
-        .catch(error => {
-            hideLoading();
-            showNotification('Greška pri odbijanju zahteva.', 'error');
-            console.error('Error:', error);
-        });
-    }
-}
-
-// Complete job function
-function completeJob(jobId) {
-    if (confirm('Da li ste sigurni da želite da označite ovaj posao kao završen?')) {
-        showLoading();
-        
-        fetch(`/jobs/${jobId}/complete`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': getCSRFToken()
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            hideLoading();
-            if (data.success) {
-                showNotification('Posao je označen kao završen!', 'success');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
-            } else {
-                showNotification('Greška pri označavanju posla kao završen.', 'error');
-            }
-        })
-        .catch(error => {
-            hideLoading();
-            showNotification('Greška pri označavanju posla kao završen.', 'error');
-            console.error('Error:', error);
-        });
-    }
-}
-
-// Utility functions
-function getCSRFToken() {
-    const token = document.querySelector('meta[name="csrf-token"]');
-    return token ? token.getAttribute('content') : '';
-}
-
-function resetForm(form) {
-    if (form) {
-        form.reset();
-        
-        // Clear hidden inputs
-        const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
-        hiddenInputs.forEach(input => {
-            if (input.name === 'latitude' || input.name === 'longitude') {
-                input.value = '';
-            }
-        });
-        
-        // Remove validation classes
-        const inputs = form.querySelectorAll('.form-control');
-        inputs.forEach(input => {
-            input.classList.remove('is-invalid', 'is-valid');
-        });
-    }
-}
-
-function validateForm(form) {
-    let isValid = true;
-    const requiredFields = form.querySelectorAll('[required]');
+function deleteJob(jobId) {
+    console.log('Deleting job:', jobId);
     
-    requiredFields.forEach(field => {
-        if (!field.value.trim()) {
-            field.classList.add('is-invalid');
-            isValid = false;
-        } else {
-            field.classList.remove('is-invalid');
-            field.classList.add('is-valid');
+    if (typeof Swal === 'undefined') {
+        if (confirm('Are you sure you want to delete this job?')) {
+            submitDeleteForm('jobs', jobId);
+        }
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this action!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            submitDeleteForm('jobs', jobId);
         }
     });
+}
+
+// ===== SERVICE MANAGEMENT FUNCTIONS =====
+
+function editService(serviceId) {
+    console.log('Editing service:', serviceId);
+    window.location.href = `/services/${serviceId}/edit`;
+}
+
+function deleteService(serviceId) {
+    console.log('Deleting service:', serviceId);
     
-    // Additional validation for location fields
-    if (form.querySelector('#job_location') || form.querySelector('#sr_location')) {
-        const latField = form.querySelector('#latitude') || form.querySelector('#sr_latitude');
-        const lngField = form.querySelector('#longitude') || form.querySelector('#sr_longitude');
+    if (typeof Swal === 'undefined') {
+        if (confirm('Are you sure you want to delete this service?')) {
+            submitDeleteForm('services', serviceId);
+        }
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this action!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            submitDeleteForm('services', serviceId);
+        }
+    });
+}
+
+function requestService(serviceId) {
+    console.log('Requesting service:', serviceId);
+    
+    // Set form action
+    const form = document.getElementById('serviceRequestForm');
+    if (form) {
+        form.action = `/services/${serviceId}/request`;
+    }
+    
+    openServiceRequestModal();
+}
+
+function completeJob(jobId) {
+    console.log('Completing job:', jobId);
+    
+    if (typeof Swal === 'undefined') {
+        if (confirm('Are you sure you want to mark this job as completed?')) {
+            submitForm('POST', `/jobs/${jobId}/complete`);
+        }
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Mark as Completed?',
+        text: "Are you sure you want to mark this job as completed?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, complete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            submitForm('POST', `/jobs/${jobId}/complete`);
+        }
+    });
+}
+
+// ===== HELPER FUNCTIONS =====
+
+function submitDeleteForm(type, id) {
+    submitForm('DELETE', `/${type}/${id}`);
+}
+
+function submitForm(method, action) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = action;
+    
+    // Add CSRF token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+    if (csrfToken) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken.getAttribute('content');
+        form.appendChild(csrfInput);
+    }
+    
+    // Add method spoofing for non-POST methods
+    if (method !== 'POST') {
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = method;
+        form.appendChild(methodInput);
+    }
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+
+// ===== FORM VALIDATION =====
+
+function initializeFormValidation() {
+    const forms = document.querySelectorAll('form');
+    
+    forms.forEach(form => {
+        const requiredFields = form.querySelectorAll('[required]');
         
-        if (latField && lngField && (!latField.value || !lngField.value)) {
-            const locationField = form.querySelector('#job_location') || form.querySelector('#sr_location');
-            locationField.classList.add('is-invalid');
-            showNotification('Molimo izaberite lokaciju na mapi.', 'error');
+        // Real-time validation
+        requiredFields.forEach(field => {
+            field.addEventListener('blur', function() {
+                validateField(this);
+            });
+            
+            field.addEventListener('input', function() {
+                if (this.classList.contains('error')) {
+                    validateField(this);
+                }
+            });
+        });
+        
+        // Form submission validation
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!validateField(field)) {
+                    isValid = false;
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                showErrorMessage('Please fill in all required fields correctly.');
+                
+                // Focus first invalid field
+                const firstInvalid = form.querySelector('.error');
+                if (firstInvalid) {
+                    firstInvalid.focus();
+                }
+            }
+        });
+    });
+}
+
+function validateField(field) {
+    const value = field.value.trim();
+    let isValid = true;
+    
+    // Remove existing error styling
+    field.classList.remove('error');
+    field.style.borderColor = '';
+    
+    // Check if required field is empty
+    if (field.hasAttribute('required') && !value) {
+        isValid = false;
+    }
+    
+    // Email validation
+    if (field.type === 'email' && value) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
             isValid = false;
         }
+    }
+    
+    // Number validation
+    if (field.type === 'number' && value) {
+        const min = field.getAttribute('min');
+        if (min && parseFloat(value) < parseFloat(min)) {
+            isValid = false;
+        }
+    }
+    
+    // Apply error styling if invalid
+    if (!isValid) {
+        field.classList.add('error');
+        field.style.borderColor = '#dc3545';
     }
     
     return isValid;
 }
 
-function showLoading() {
-    // Create loading overlay if it doesn't exist
-    let overlay = document.getElementById('loadingOverlay');
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'loadingOverlay';
-        overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        `;
-        overlay.innerHTML = '<div class="loading-spinner"></div>';
-        document.body.appendChild(overlay);
-    }
-    overlay.style.display = 'flex';
+// ===== TEXTAREA AUTO-RESIZE =====
+
+function initializeTextareas() {
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    });
 }
 
-function hideLoading() {
-    const overlay = document.getElementById('loadingOverlay');
-    if (overlay) {
-        overlay.style.display = 'none';
+// ===== UTILITY FUNCTIONS =====
+
+function showSuccessMessage(message) {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Success!',
+            text: message,
+            icon: 'success',
+            confirmButtonColor: '#28a745',
+            timer: 3000,
+            timerProgressBar: true
+        });
+    } else {
+        alert(message);
     }
 }
 
-function showNotification(message, type = 'info') {
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 1rem 1.5rem;
-        border-radius: 8px;
-        color: white;
-        font-weight: 600;
-        z-index: 10000;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-        max-width: 400px;
-    `;
-    
-    // Set background color based on type
-    switch (type) {
-        case 'success':
-            notification.style.backgroundColor = '#27AE60';
-            break;
-        case 'error':
-            notification.style.backgroundColor = '#C0392B';
-            break;
-        case 'warning':
-            notification.style.backgroundColor = '#F39C12';
-            break;
-        default:
-            notification.style.backgroundColor = '#3498DB';
+function showErrorMessage(message) {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Error!',
+            text: message,
+            icon: 'error',
+            confirmButtonColor: '#dc3545'
+        });
+    } else {
+        alert(message);
     }
-    
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    // Animate in
-    setTimeout(() => {
-        notification.style.transform = 'translateX(0)';
-    }, 100);
-    
-    // Remove after 5 seconds
-    setTimeout(() => {
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 300);
-    }, 5000);
 }
 
-// Export functions for global access
-window.openServiceModal = openServiceModal;
-window.closeServiceModal = closeServiceModal;
-window.openJobModal = openJobModal;
-window.closeJobModal = closeJobModal;
-window.requestService = requestService;
-window.closeServiceRequestModal = closeServiceRequestModal;
-window.acceptJobRequest = acceptJobRequest;
-window.rejectJobRequest = rejectJobRequest;
-window.completeJob = completeJob;
+// ===== DEBUG FUNCTION =====
+
+function debugModals() {
+    console.log('=== MODAL DEBUG ===');
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach((modal, index) => {
+        console.log(`Modal ${index + 1} (${modal.id}):`);
+        console.log('  Display:', window.getComputedStyle(modal).display);
+        console.log('  Classes:', modal.className);
+        console.log('  Active Modal:', activeModal);
+    });
+    console.log('==================');
+}
+
+// Make debug function available globally
+window.debugModals = debugModals;
+
+// Log that the script has loaded
+console.log('Jobs.js loaded successfully - all functions are now available globally');
