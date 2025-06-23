@@ -32,14 +32,14 @@ class ServiceController extends Controller
         if (!$user->isProfi()) {
             return redirect()->route('jobs.index')->with('error', 'Nemate dozvolu za ovu akciju.');
         }
-        
+
         return view('services.create');
     }
 
     public function store(Request $request)
     {
         $user = Auth::user();
-
+        
         if (!$user->isProfi()) {
             return redirect()->route('jobs.index')->with('error', 'Nemate dozvolu za ovu akciju.');
         }
@@ -73,7 +73,7 @@ class ServiceController extends Controller
         if ($service->professional_id !== $user->id) {
             return redirect()->route('jobs.index')->with('error', 'Nemate dozvolu za ovu akciju.');
         }
-        
+
         return view('services.edit', compact('service'));
     }
 
@@ -116,23 +116,34 @@ class ServiceController extends Controller
     public function requestService(Request $request, Service $service)
     {
         $user = Auth::user();
-
+        
         if (!$user->isUser()) {
             return redirect()->back()->with('error', 'Nemate dozvolu za ovu akciju.');
         }
 
+        // Check if user already sent request for this service
+        $existingRequest = ServiceRequest::where('service_id', $service->id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if ($existingRequest) {
+            return redirect()->back()->with('error', 'Već ste poslali zahtev za ovu uslugu.');
+        }
+
+        // Fix: Uklanjam required za latitude i longitude
         $validated = $request->validate([
             'message' => 'required|string',
             'job_description' => 'required|string',
             'budget' => 'nullable|numeric|min:0',
             'location' => 'required|string',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
         ]);
 
         $validated['service_id'] = $service->id;
         $validated['user_id'] = $user->id;
         $validated['status'] = ServiceRequest::STATUS_PENDING;
+        // Set default coordinates to null for now
+        $validated['latitude'] = null;
+        $validated['longitude'] = null;
 
         ServiceRequest::create($validated);
 
@@ -142,7 +153,7 @@ class ServiceController extends Controller
     public function acceptServiceRequest(ServiceRequest $serviceRequest)
     {
         $professional = Auth::user();
-
+        
         if ($serviceRequest->service->professional_id !== $professional->id) {
             return redirect()->back()->with('error', 'Nemate dozvolu za ovu akciju.');
         }
@@ -155,7 +166,7 @@ class ServiceController extends Controller
     public function rejectServiceRequest(ServiceRequest $serviceRequest)
     {
         $professional = Auth::user();
-
+        
         if ($serviceRequest->service->professional_id !== $professional->id) {
             return redirect()->back()->with('error', 'Nemate dozvolu za ovu akciju.');
         }

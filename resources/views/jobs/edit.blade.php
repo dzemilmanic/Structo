@@ -1,5 +1,6 @@
 @extends('layouts.app')
-
+@vite('resources/css/jobs.css');
+@vite('resources/js/jobs.js');
 @section('title', 'Edit Job')
 
 @section('styles')

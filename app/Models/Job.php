@@ -21,8 +21,6 @@ class Job extends Model
         'category',
         'budget',
         'location',
-        'latitude',
-        'longitude',
         'deadline',
         'status',
         'assigned_professional_id',

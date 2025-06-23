@@ -22,16 +22,16 @@ class JobController extends Controller
             $serviceRequests = ServiceRequest::whereHas('service', function ($query) use ($user) {
                 $query->where('professional_id', $user->id);
             })->with('user', 'service')->latest()->get();
-            
+
             return view('jobs.index', compact('services', 'jobRequests', 'assignedJobs', 'serviceRequests'));
         } else {
-            $jobs = $user->jobs()->latest()->get();
+            $jobs = $user->jobs()->with('requests.professional', 'assignedProfessional')->latest()->get();
             $serviceRequests = $user->serviceRequests()->with('service.professional')->latest()->get();
             $availableServices = Service::where('is_active', true)
                 ->with('professional')
                 ->latest()
                 ->get();
-            
+
             return view('jobs.index', compact('jobs', 'serviceRequests', 'availableServices'));
         }
     }
@@ -45,20 +45,21 @@ class JobController extends Controller
     {
         $user = Auth::user();
 
-        // Regular user posting a job
+        // Fix: Uklanjam required za latitude i longitude
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'category' => 'required|string',
             'budget' => 'nullable|numeric|min:0',
             'location' => 'required|string',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
             'deadline' => 'nullable|date|after:today',
         ]);
 
         $validated['user_id'] = $user->id;
         $validated['status'] = Job::STATUS_OPEN;
+        // Set default coordinates to null for now
+        $validated['latitude'] = null;
+        $validated['longitude'] = null;
 
         Job::create($validated);
 
@@ -77,7 +78,7 @@ class JobController extends Controller
         if ($job->user_id !== $user->id) {
             return redirect()->route('jobs.index')->with('error', 'Nemate dozvolu za ovu akciju.');
         }
-        
+
         return view('jobs.edit', compact('job'));
     }
 
@@ -89,14 +90,13 @@ class JobController extends Controller
             return redirect()->route('jobs.index')->with('error', 'Nemate dozvolu za ovu akciju.');
         }
 
+        // Fix: Uklanjam required za latitude i longitude
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'category' => 'required|string',
             'budget' => 'nullable|numeric|min:0',
             'location' => 'required|string',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
             'deadline' => 'nullable|date|after:today',
         ]);
 
@@ -121,9 +121,18 @@ class JobController extends Controller
     public function requestJob(Request $request, Job $job)
     {
         $professional = Auth::user();
-
+        
         if (!$professional->isProfi()) {
             return redirect()->back()->with('error', 'Nemate dozvolu za ovu akciju.');
+        }
+
+        // Check if professional already sent request for this job
+        $existingRequest = JobRequest::where('job_id', $job->id)
+            ->where('professional_id', $professional->id)
+            ->first();
+
+        if ($existingRequest) {
+            return redirect()->back()->with('error', 'Već ste poslali zahtev za ovaj posao.');
         }
 
         $validated = $request->validate([
@@ -143,7 +152,7 @@ class JobController extends Controller
     public function acceptJobRequest(JobRequest $jobRequest)
     {
         $user = Auth::user();
-
+        
         if ($jobRequest->job->user_id !== $user->id) {
             return redirect()->back()->with('error', 'Nemate dozvolu za ovu akciju.');
         }
@@ -168,7 +177,7 @@ class JobController extends Controller
     public function rejectJobRequest(JobRequest $jobRequest)
     {
         $user = Auth::user();
-
+        
         if ($jobRequest->job->user_id !== $user->id) {
             return redirect()->back()->with('error', 'Nemate dozvolu za ovu akciju.');
         }
@@ -181,7 +190,7 @@ class JobController extends Controller
     public function completeJob(Job $job)
     {
         $professional = Auth::user();
-
+        
         if ($job->assigned_professional_id !== $professional->id) {
             return redirect()->back()->with('error', 'Nemate dozvolu za ovu akciju.');
         }
