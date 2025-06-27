@@ -225,91 +225,116 @@
         </div>
     </section>
 
+    <!-- Updated Testimonials Section with User Photos -->
     <section class="testimonials" id="testimonials">
-    <div class="container">
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
+        <div class="container">
+            @if(session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <div class="section-header">
+                <h2>Client Testimonials</h2>
+                <p>What our clients say about the professionals on our platform</p>
             </div>
-        @endif
-
-        <div class="section-header">
-            <h2>Client Testimonials</h2>
-            <p>What our clients say about the professionals on our platform</p>
-        </div>
-        
-        <div class="testimonials-container">
-            <div class="testimonials-wrapper">
-                @if(count($testimonials) > 0)
-                    <div class="testimonials-slider">
-                        {{-- The JavaScript will restructure this into pages with 2 testimonials each --}}
-                        @foreach($testimonials as $testimonial)
-                            <div class="testimonial">
-                                <div class="testimonial-content">
-                                    <p>"{{ $testimonial->content }}"</p>
-                                </div>
-                                <div class="testimonial-author">
-                                    <div class="author-image"></div>
-                                    <div class="author-info">
-                                        <h4>{{ $testimonial->user->name }}</h4>
-                                        <p>{{ $testimonial->title }}</p>
+            
+            <div class="testimonials-container">
+                <div class="testimonials-wrapper">
+                    @if(count($testimonials) > 0)
+                        <div class="testimonials-slider">
+                            {{-- The JavaScript will restructure this into pages with 2 testimonials each --}}
+                            @foreach($testimonials as $testimonial)
+                                <div class="testimonial">
+                                    <div class="testimonial-content">
+                                        <p>"{{ $testimonial->content }}"</p>
                                     </div>
+                                    <div class="testimonial-author">
+                                        <div class="testimonial-avatar-container">
+                                            @if($testimonial->user->photo)
+                                                @php
+                                                    // Check if photo is already a full URL or just a path
+                                                    if (str_contains($testimonial->user->photo, 'amazonaws.com') || str_contains($testimonial->user->photo, 'http')) {
+                                                        $photoUrl = $testimonial->user->photo;
+                                                    } else {
+                                                        // Generate full S3 URL from path
+                                                        // Remove leading slash if present
+                                                        $photoPath = ltrim($testimonial->user->photo, '/');
+                                                        $bucket = config('filesystems.disks.s3.bucket') ?? config('filesystems.disks.profile_photos.bucket');
+                                                        $region = config('filesystems.disks.s3.region') ?? config('filesystems.disks.profile_photos.region');
+                                                        $photoUrl = 'https://' . $bucket . '.s3.' . $region . '.amazonaws.com/' . $photoPath;
+                                                    }
+                                                @endphp
+                                                <img src="{{ $photoUrl }}" alt="Profile Photo" class="testimonial-user-image" onerror="this.src='{{ asset('images/default-avatar.png') }}'; this.onerror=null;">
+                                            @else
+                                                <div class="testimonial-avatar-placeholder">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                        <circle cx="12" cy="7" r="4"></circle>
+                                                    </svg>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="author-info">
+                                            <h4>{{ $testimonial->user->name }}</h4>
+                                            <p>{{ $testimonial->title }}</p>
+                                        </div>
+                                    </div>
+
+                                    @auth
+                                        @if(auth()->user()->isAdmin())
+                                            <form action="{{ route('testimonials.destroy', $testimonial) }}" method="POST" class="delete-testimonial-form">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                            </form>
+                                        @endif
+                                    @endauth
+
                                 </div>
-
-                                @auth
-                                    @if(auth()->user()->isAdmin())
-                                        <form action="{{ route('testimonials.destroy', $testimonial) }}" method="POST" class="delete-testimonial-form">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                        </form>
-                                    @endif
-                                @endauth
-
-                            </div>
-                        @endforeach
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="no-testimonials">No testimonials yet. Be the first to share your experience!</p>
+                    @endif
+                </div>
+                
+                @if(count($testimonials) > 2)
+                    <div class="testimonials-navigation">
+                        <button class="nav-btn prev-btn" aria-label="Previous testimonials"><</button>
+                        <div class="pagination-dots">
+                            @for($i = 0; $i < ceil(count($testimonials) / 2); $i++)
+                                <span class="dot {{ $i == 0 ? 'active' : '' }}" data-index="{{ $i }}"></span>
+                            @endfor
+                        </div>
+                        <button class="nav-btn next-btn" aria-label="Next testimonials">></button>
                     </div>
-                @else
-                    <p class="no-testimonials">No testimonials yet. Be the first to share your experience!</p>
                 @endif
             </div>
             
-            @if(count($testimonials) > 2)
-                <div class="testimonials-navigation">
-                    <button class="nav-btn prev-btn" aria-label="Previous testimonials">&lt;</button>
-                    <div class="pagination-dots">
-                        @for($i = 0; $i < ceil(count($testimonials) / 2); $i++)
-                            <span class="dot {{ $i == 0 ? 'active' : '' }}" data-index="{{ $i }}"></span>
-                        @endfor
+            @auth
+                <div class="testimonial-form-container">
+                    <button id="toggleFormBtn" class="btn btn-primary">Add Your Testimonial</button>
+                    <div id="testimonialFormWrapper" class="form-wrapper">
+                        <form method="POST" action="{{ url('/testimonials') }}" class="testimonial-form">
+                            @csrf
+                            <div class="form-group">
+                                <label for="content">Your Experience</label>
+                                <textarea name="content" id="content" placeholder="Share your experience..." required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="title">Your Role or City (Optional)</label>
+                                <input type="text" name="title" id="title" placeholder="e.g., Homeowner from London">
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="button" class="btn btn-outline cancel-btn">Cancel</button>
+                            </div>
+                        </form>
                     </div>
-                    <button class="nav-btn next-btn" aria-label="Next testimonials">&gt;</button>
                 </div>
-            @endif
+            @endauth
         </div>
-        
-        @auth
-            <div class="testimonial-form-container">
-                <button id="toggleFormBtn" class="btn btn-primary">Add Your Testimonial</button>
-                <div id="testimonialFormWrapper" class="form-wrapper">
-                    <form method="POST" action="{{ url('/testimonials') }}" class="testimonial-form">
-                        @csrf
-                        <div class="form-group">
-                            <label for="content">Your Experience</label>
-                            <textarea name="content" id="content" placeholder="Share your experience..." required></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="title">Your Role or City (Optional)</label>
-                            <input type="text" name="title" id="title" placeholder="e.g., Homeowner from London">
-                        </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                            <button type="button" class="btn btn-outline cancel-btn">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        @endauth
-    </div>
     </section>
 
     <!-- CTA Section -->
@@ -341,6 +366,5 @@
             timer: 3000
         });
     @endif
-</script>
-
+    </script>
 @endsection

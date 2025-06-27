@@ -429,6 +429,7 @@ section {
     font-size: 0.9rem;
     color: var(--neutral-medium);
 }
+
 /* Testimonials Section */
 .testimonials {
     background-color: var(--white);
@@ -472,6 +473,7 @@ section {
     height: 100%;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .testimonial-content {
@@ -510,17 +512,54 @@ section {
     margin-top: auto;
 }
 
-.author-image {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-color: #ddd;
+/* Updated User Avatar Styles with New Class Names */
+.testimonial-avatar-container {
+    width: 60px;
+    height: 60px;
     margin-right: 15px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.testimonial-user-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--white);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: var(--transition);
+}
+
+.testimonial-user-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.testimonial-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    border: 3px solid var(--white);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.testimonial-avatar-placeholder svg {
+    width: 60%;
+    height: 60%;
+    stroke-width: 2;
 }
 
 .author-info h4 {
     margin: 0 0 5px;
     font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--neutral-dark);
 }
 
 .author-info p {
@@ -639,20 +678,6 @@ section {
     gap: 10px;
 }
 
-/* Responsive adjustments for testimonials */
-@media (max-width: 768px) {
-    .testimonial-page {
-        grid-template-columns: 1fr;
-    }
-    
-    .form-actions {
-        flex-direction: column;
-    }
-    
-    .form-actions .btn {
-        width: 100%;
-    }
-}
 /* CTA Section */
 .cta {
     background-color: var(--secondary-color);
@@ -683,7 +708,60 @@ section {
     flex-wrap: wrap;
 }
 
-/* Responsive Adjustments */
+/* Delete Testimonial Button Styles */
+.delete-testimonial-form {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+}
+
+.delete-testimonial-form .btn.btn-danger {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+}
+
+.delete-testimonial-form .btn.btn-danger:hover {
+    background: linear-gradient(135deg, #c82333, #a71e2a);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    opacity: 1;
+}
+
+.delete-testimonial-form .btn.btn-danger:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+}
+
+.delete-testimonial-form .btn.btn-danger:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
+}
+
+/* Hide delete button by default, show on hover */
+.testimonial .delete-testimonial-form {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.testimonial:hover .delete-testimonial-form {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Responsive adjustments for testimonials */
 @media (max-width: 768px) {
     section {
         padding: 60px 0;
@@ -704,8 +782,11 @@ section {
     .services-grid, 
     .steps-container, 
     .professionals-grid, 
-    .projects-grid,
-    .testimonials-slider {
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .testimonial-page {
         grid-template-columns: 1fr;
     }
     
@@ -718,6 +799,11 @@ section {
     
     .btn {
         width: 100%;
+    }
+    
+    .testimonial-avatar-container {
+        width: 50px;
+        height: 50px;
     }
 }
 
@@ -739,91 +825,34 @@ section {
     background-color: var(--primary-color);
     border-radius: 50%;
 }
-/* Delete Testimonial Button Styles */
-.delete-testimonial-form {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 10;
-}
-
-.delete-testimonial-form .btn.btn-danger {
-  background: linear-gradient(135deg, #dc3545, #c82333);
-  border: none;
-  color: white;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  opacity: 0.8;
-}
-
-.delete-testimonial-form .btn.btn-danger:hover {
-  background: linear-gradient(135deg, #c82333, #a71e2a);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
-  opacity: 1;
-}
-
-.delete-testimonial-form .btn.btn-danger:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
-}
-
-.delete-testimonial-form .btn.btn-danger:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
-}
-
-/* Make sure the testimonial container has relative positioning */
-.testimonial {
-  position: relative;
-}
-
-/* Hide delete button by default, show on hover */
-.testimonial .delete-testimonial-form {
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-}
-
-.testimonial:hover .delete-testimonial-form {
-  opacity: 1;
-  visibility: visible;
-}
 
 /* Custom confirmation dialog styles */
 .swal2-popup {
-  border-radius: 12px !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
 }
 
 .swal2-title {
-  color: #2d3748 !important;
-  font-weight: 600 !important;
+    color: #2d3748 !important;
+    font-weight: 600 !important;
 }
 
 .swal2-content {
-  color: #4a5568 !important;
+    color: #4a5568 !important;
 }
 
 .swal2-confirm {
-  background: linear-gradient(135deg, #dc3545, #c82333) !important;
-  border: none !important;
-  border-radius: 6px !important;
-  font-weight: 600 !important;
-  padding: 8px 20px !important;
+    background: linear-gradient(135deg, #dc3545, #c82333) !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    padding: 8px 20px !important;
 }
 
 .swal2-cancel {
-  background: #6c757d !important;
-  border: none !important;
-  border-radius: 6px !important;
-  font-weight: 600 !important;
-  padding: 8px 20px !important;
+    background: #6c757d !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    padding: 8px 20px !important;
 }
