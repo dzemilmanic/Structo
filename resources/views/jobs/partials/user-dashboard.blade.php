@@ -41,7 +41,6 @@
                             <strong>Assigned to:</strong> {{ $job->assignedProfessional->name }}
                         </div>
                     @endif
-                    
                     @if($job->status === 'open' && $job->requests && $job->requests->count() > 0)
                         <div class="job-requests">
                             <h4>Professional Requests ({{ $job->requests->count() }})</h4>
@@ -79,7 +78,6 @@
                             @endforeach
                         </div>
                     @endif
-
                     <div class="job-actions">
                         <button class="btn btn-secondary btn-sm" onclick="editJob({{ $job->id }})">
                             <i class="fas fa-edit"></i> Edit
@@ -99,9 +97,73 @@
         </div>
     </section>
 
-    <!-- Available Services Section -->
+    <!-- Available Services Section with Filters -->
     <section class="dashboard-section">
         <h2>Available Services</h2>
+        
+        <!-- Service Filters -->
+        <div class="filters-section">
+            <button class="btn btn-secondary btn-sm" onclick="toggleFilters('serviceFilters')">
+                <i class="fas fa-filter"></i> Filters
+            </button>
+            <div id="serviceFilters" class="filters-container" style="display: none;">
+                <form method="GET" action="{{ route('jobs.index') }}" class="filters-form">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="service_search">Search</label>
+                            <input type="text" id="service_search" name="service_search" class="form-control" 
+                                   placeholder="Search services..." value="{{ request('service_search') }}">
+                        </div>
+                        <div class="filter-group">
+                            <label for="service_category">Category</label>
+                            <select id="service_category" name="service_category" class="form-control">
+                                <option value="">All Categories</option>
+                                <option value="tiles" {{ request('service_category') == 'tiles' ? 'selected' : '' }}>Tiles</option>
+                                <option value="electrical" {{ request('service_category') == 'electrical' ? 'selected' : '' }}>Electrical</option>
+                                <option value="plumbing" {{ request('service_category') == 'plumbing' ? 'selected' : '' }}>Plumbing</option>
+                                <option value="heating" {{ request('service_category') == 'heating' ? 'selected' : '' }}>Heating</option>
+                                <option value="facade" {{ request('service_category') == 'facade' ? 'selected' : '' }}>Facade Work</option>
+                                <option value="roofing" {{ request('service_category') == 'roofing' ? 'selected' : '' }}>Roofing</option>
+                                <option value="carpentry" {{ request('service_category') == 'carpentry' ? 'selected' : '' }}>Carpentry</option>
+                                <option value="painting" {{ request('service_category') == 'painting' ? 'selected' : '' }}>Painting</option>
+                                <option value="other" {{ request('service_category') == 'other' ? 'selected' : '' }}>Other</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="service_area">Service Area</label>
+                            <input type="text" id="service_area" name="service_area" class="form-control" 
+                                   placeholder="Enter area..." value="{{ request('service_area') }}">
+                        </div>
+                        <div class="filter-group">
+                            <label for="professional_name">Professional Name</label>
+                            <input type="text" id="professional_name" name="professional_name" class="form-control" 
+                                   placeholder="Professional name..." value="{{ request('professional_name') }}">
+                        </div>
+                    </div>
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="service_price_min">Min Price ($)</label>
+                            <input type="number" id="service_price_min" name="service_price_min" class="form-control" 
+                                   min="0" placeholder="0" value="{{ request('service_price_min') }}">
+                        </div>
+                        <div class="filter-group">
+                            <label for="service_price_max">Max Price ($)</label>
+                            <input type="number" id="service_price_max" name="service_price_max" class="form-control" 
+                                   min="0" placeholder="No limit" value="{{ request('service_price_max') }}">
+                        </div>
+                    </div>
+                    <div class="filter-actions">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-search"></i> Apply Filters
+                        </button>
+                        <a href="{{ route('jobs.index') }}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-times"></i> Clear
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <div class="services-grid">
             @forelse($availableServices as $service)
                 <div class="service-card">
@@ -142,7 +204,10 @@
             @empty
                 <div class="empty-state">
                     <i class="fas fa-search"></i>
-                    <p>No services available at the moment</p>
+                    <p>No services match your criteria</p>
+                    @if(request()->hasAny(['service_search', 'service_category', 'service_area', 'professional_name', 'service_price_min', 'service_price_max']))
+                        <a href="{{ route('jobs.index') }}" class="btn btn-secondary">Clear Filters</a>
+                    @endif
                 </div>
             @endforelse
         </div>

@@ -30,7 +30,7 @@ class ServiceController extends Controller
         $user = Auth::user();
         
         if (!$user->isProfi()) {
-            return redirect()->route('jobs.index')->with('error', 'Nemate dozvolu za ovu akciju.');
+            return redirect()->route('jobs.index')->with('error', 'You do not have permission for this action.');
         }
 
         return view('services.create');
@@ -41,7 +41,7 @@ class ServiceController extends Controller
         $user = Auth::user();
         
         if (!$user->isProfi()) {
-            return redirect()->route('jobs.index')->with('error', 'Nemate dozvolu za ovu akciju.');
+            return redirect()->route('jobs.index')->with('error', 'You do not have permission for this action.');
         }
 
         $validated = $request->validate([
@@ -58,7 +58,7 @@ class ServiceController extends Controller
 
         Service::create($validated);
 
-        return redirect()->route('jobs.index')->with('success', 'Usluga je uspešno kreirana!');
+        return redirect()->route('jobs.index')->with('success', 'Service created successfully!');
     }
 
     public function show(Service $service)
@@ -71,7 +71,7 @@ class ServiceController extends Controller
         $user = Auth::user();
         
         if ($service->professional_id !== $user->id) {
-            return redirect()->route('jobs.index')->with('error', 'Nemate dozvolu za ovu akciju.');
+            return redirect()->route('jobs.index')->with('error', 'You do not have permission for this action.');
         }
 
         return view('services.edit', compact('service'));
@@ -82,7 +82,7 @@ class ServiceController extends Controller
         $user = Auth::user();
         
         if ($service->professional_id !== $user->id) {
-            return redirect()->route('jobs.index')->with('error', 'Nemate dozvolu za ovu akciju.');
+            return redirect()->route('jobs.index')->with('error', 'You do not have permission for this action.');
         }
 
         $validated = $request->validate([
@@ -97,7 +97,7 @@ class ServiceController extends Controller
 
         $service->update($validated);
 
-        return redirect()->route('jobs.index')->with('success', 'Usluga je uspešno ažurirana!');
+        return redirect()->route('jobs.index')->with('success', 'Service updated successfully!');
     }
 
     public function destroy(Service $service)
@@ -105,12 +105,12 @@ class ServiceController extends Controller
         $user = Auth::user();
         
         if ($service->professional_id !== $user->id) {
-            return redirect()->route('jobs.index')->with('error', 'Nemate dozvolu za ovu akciju.');
+            return redirect()->route('jobs.index')->with('error', 'You do not have permission for this action.');
         }
 
         $service->delete();
 
-        return redirect()->route('jobs.index')->with('success', 'Usluga je uspešno obrisana!');
+        return redirect()->route('jobs.index')->with('success', 'Service deleted successfully!');
     }
 
     public function requestService(Request $request, Service $service)
@@ -118,7 +118,7 @@ class ServiceController extends Controller
         $user = Auth::user();
         
         if (!$user->isUser()) {
-            return redirect()->back()->with('error', 'Nemate dozvolu za ovu akciju.');
+            return redirect()->back()->with('error', 'You do not have permission for this action.');
         }
 
         // Check if user already sent request for this service
@@ -127,10 +127,9 @@ class ServiceController extends Controller
             ->first();
 
         if ($existingRequest) {
-            return redirect()->back()->with('error', 'Već ste poslali zahtev za ovu uslugu.');
+            return redirect()->back()->with('error', 'You have already sent a request for this service.');
         }
 
-        // Fix: Uklanjam required za latitude i longitude
         $validated = $request->validate([
             'message' => 'required|string',
             'job_description' => 'required|string',
@@ -141,13 +140,12 @@ class ServiceController extends Controller
         $validated['service_id'] = $service->id;
         $validated['user_id'] = $user->id;
         $validated['status'] = ServiceRequest::STATUS_PENDING;
-        // Set default coordinates to null for now
         $validated['latitude'] = null;
         $validated['longitude'] = null;
 
         ServiceRequest::create($validated);
 
-        return redirect()->back()->with('success', 'Zahtev je uspešno poslat!');
+        return redirect()->back()->with('success', 'Request sent successfully!');
     }
 
     public function acceptServiceRequest(ServiceRequest $serviceRequest)
@@ -155,12 +153,12 @@ class ServiceController extends Controller
         $professional = Auth::user();
         
         if ($serviceRequest->service->professional_id !== $professional->id) {
-            return redirect()->back()->with('error', 'Nemate dozvolu za ovu akciju.');
+            return redirect()->back()->with('error', 'You do not have permission for this action.');
         }
 
         $serviceRequest->update(['status' => ServiceRequest::STATUS_ACCEPTED]);
 
-        return redirect()->back()->with('success', 'Zahtev je prihvaćen!');
+        return redirect()->back()->with('success', 'Request accepted!');
     }
 
     public function rejectServiceRequest(ServiceRequest $serviceRequest)
@@ -168,11 +166,11 @@ class ServiceController extends Controller
         $professional = Auth::user();
         
         if ($serviceRequest->service->professional_id !== $professional->id) {
-            return redirect()->back()->with('error', 'Nemate dozvolu za ovu akciju.');
+            return redirect()->back()->with('error', 'You do not have permission for this action.');
         }
 
         $serviceRequest->update(['status' => ServiceRequest::STATUS_REJECTED]);
 
-        return redirect()->back()->with('success', 'Zahtev je odbijen!');
+        return redirect()->back()->with('success', 'Request rejected!');
     }
 }

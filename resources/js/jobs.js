@@ -11,12 +11,17 @@ window.openServiceModal = openServiceModal;
 window.closeServiceModal = closeServiceModal;
 window.openServiceRequestModal = openServiceRequestModal;
 window.closeServiceRequestModal = closeServiceRequestModal;
+window.openJobRequestModal = openJobRequestModal;
+window.closeJobRequestModal = closeJobRequestModal;
 window.editJob = editJob;
 window.deleteJob = deleteJob;
 window.editService = editService;
 window.deleteService = deleteService;
 window.requestService = requestService;
 window.completeJob = completeJob;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.toggleFilters = toggleFilters;
 
 // Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", function () {
@@ -31,6 +36,27 @@ window.addEventListener("load", function () {
         initializeModals();
     }
 });
+
+// ===== FILTER FUNCTIONS =====
+
+function toggleFilters(filterId) {
+    console.log("Toggling filters:", filterId);
+    
+    const filtersContainer = document.getElementById(filterId);
+    if (!filtersContainer) {
+        console.error("Filters container not found:", filterId);
+        return;
+    }
+    
+    if (filtersContainer.style.display === 'none' || filtersContainer.style.display === '') {
+        filtersContainer.style.display = 'block';
+        // Add animation class if available
+        filtersContainer.classList.add('filters-open');
+    } else {
+        filtersContainer.style.display = 'none';
+        filtersContainer.classList.remove('filters-open');
+    }
+}
 
 // ===== MODAL FUNCTIONS =====
 
@@ -190,6 +216,26 @@ function openServiceRequestModal() {
 function closeServiceRequestModal() {
     console.log("closeServiceRequestModal called");
     closeModal("serviceRequestModal");
+}
+
+function openJobRequestModal(jobId) {
+    console.log("openJobRequestModal called with jobId:", jobId);
+    
+    // Set form action
+    const form = document.getElementById('jobRequestForm');
+    if (form) {
+        form.action = `/jobs/${jobId}/request`;
+        console.log("Form action set to:", form.action);
+    } else {
+        console.error("Job request form not found!");
+    }
+    
+    openModal('jobRequestModal');
+}
+
+function closeJobRequestModal() {
+    console.log("closeJobRequestModal called");
+    closeModal('jobRequestModal');
 }
 
 // ===== JOB MANAGEMENT FUNCTIONS =====
@@ -519,7 +565,7 @@ function initializeTextareas() {
 function showSuccessMessage(message) {
     if (typeof Swal !== "undefined") {
         Swal.fire({
-            title: "Succes!",
+            title: "Success!",
             text: message,
             icon: "success",
             confirmButtonColor: "#28a745",
@@ -565,3 +611,5 @@ window.debugModals = debugModals;
 console.log(
     "Jobs.js loaded successfully - all functions are now available globally"
 );
+
+

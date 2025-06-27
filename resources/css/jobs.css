@@ -889,3 +889,359 @@ html {
 .animate-fade-in {
     animation: fadeIn 0.4s ease-out;
 }
+
+/* ===== MODERN FILTERS CSS - ADD TO YOUR EXISTING CSS ===== */
+
+/* Filters Section */
+.filters-section {
+    margin-bottom: var(--space-8);
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(255, 107, 53, 0.08);
+    overflow: hidden;
+    position: relative;
+}
+
+.filters-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+}
+
+/* Filter Toggle Button */
+.filters-section > .btn {
+    margin: var(--space-5);
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: var(--neutral-dark);
+    border: 2px solid var(--neutral-light);
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition-base);
+}
+
+.filters-section > .btn:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 107, 53, 0.15);
+}
+
+.filters-section > .btn:active {
+    transform: translateY(0);
+}
+
+.filters-section > .btn i {
+    transition: transform 0.3s ease;
+}
+
+.filters-section > .btn:hover i {
+    transform: rotate(180deg);
+}
+
+/* Filters Container */
+.filters-container {
+    padding: 0 var(--space-6) var(--space-6) var(--space-6);
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.02) 0%, rgba(255, 140, 95, 0.01) 100%);
+    border-top: 1px solid var(--neutral-light);
+    animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 500px;
+    }
+}
+
+/* Filters Form */
+.filters-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+/* Filter Rows */
+.filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-5);
+    align-items: end;
+}
+
+/* Filter Groups */
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    position: relative;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: var(--neutral-dark);
+    font-size: 0.9rem;
+    letter-spacing: 0.025em;
+    margin-bottom: var(--space-1);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.filter-group label::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* Enhanced Filter Form Controls */
+.filter-group .form-control {
+    padding: var(--space-3) var(--space-4);
+    border: 2px solid var(--neutral-light);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    transition: var(--transition-base);
+    background: var(--white);
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.filter-group .form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1), 0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+}
+
+.filter-group .form-control:hover {
+    border-color: var(--primary-light);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Special styling for select elements */
+.filter-group select.form-control {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
+    appearance: none;
+}
+
+.filter-group select.form-control:focus {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23FF6B35' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+}
+
+/* Input type specific styling */
+.filter-group input[type="number"].form-control {
+    text-align: right;
+}
+
+.filter-group input[type="date"].form-control {
+    position: relative;
+}
+
+.filter-group input[type="text"].form-control::placeholder,
+.filter-group input[type="number"].form-control::placeholder {
+    color: var(--neutral-medium);
+    opacity: 0.7;
+    font-style: italic;
+}
+
+/* Filter Actions */
+.filter-actions {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: flex-end;
+    align-items: center;
+    padding-top: var(--space-5);
+    border-top: 1px solid rgba(255, 107, 53, 0.1);
+    margin-top: var(--space-2);
+}
+
+.filter-actions .btn {
+    min-width: 120px;
+    justify-content: center;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+}
+
+.filter-actions .btn-primary {
+    background: var(--gradient-primary);
+    border: none;
+    color: var(--white);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.filter-actions .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+}
+
+.filter-actions .btn-secondary {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid var(--neutral-light);
+    color: var(--neutral-dark);
+}
+
+.filter-actions .btn-secondary:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    border-color: var(--neutral-medium);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Active Filter Indicators */
+.filter-group .form-control:not(:placeholder-shown),
+.filter-group .form-control[value]:not([value=""]) {
+    border-color: var(--primary-light);
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.05) 0%, rgba(255, 140, 95, 0.02) 100%);
+}
+
+/* Filter Animation States */
+.filters-container[style*="display: none"] {
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 500px;
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+        max-height: 0;
+    }
+}
+
+/* Enhanced Empty State for Filtered Results */
+.empty-state {
+    background: linear-gradient(135deg, rgba(255, 107, 53, 0.02) 0%, rgba(255, 140, 95, 0.01) 100%);
+    border: 2px dashed rgba(255, 107, 53, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.empty-state::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.05), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Responsive Filter Design */
+@media (max-width: 768px) {
+    .filter-row {
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+    }
+    
+    .filters-container {
+        padding: 0 var(--space-4) var(--space-4) var(--space-4);
+    }
+    
+    .filter-actions {
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+    
+    .filter-actions .btn {
+        width: 100%;
+    }
+    
+    .filters-section > .btn {
+        margin: var(--space-4);
+        width: calc(100% - 2rem);
+    }
+}
+
+@media (max-width: 480px) {
+    .filter-group .form-control {
+        padding: var(--space-3);
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    .filter-group label {
+        font-size: 0.85rem;
+    }
+    
+    .filters-form {
+        gap: var(--space-4);
+    }
+}
+
+/* Focus and Accessibility Improvements */
+.filter-group .form-control:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .filters-container {
+        background: var(--white);
+        border: 2px solid var(--neutral-dark);
+    }
+    
+    .filter-group .form-control {
+        border-width: 2px;
+        border-color: var(--neutral-dark);
+    }
+    
+    .filter-group .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px var(--primary-color);
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .filters-container,
+    .filter-group .form-control,
+    .filter-actions .btn {
+        animation: none;
+        transition: none;
+    }
+    
+    .filters-section > .btn i {
+        transition: none;
+    }
+    
+    .empty-state::before {
+        animation: none;
+    }
+}
+
+/* Print styles */
+@media print {
+    .filters-section {
+        display: none;
+    }
+}

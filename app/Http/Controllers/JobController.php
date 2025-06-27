@@ -11,27 +11,108 @@ use Illuminate\Support\Facades\Auth;
 
 class JobController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         
         if ($user->isProfi()) {
+            // Professional Dashboard
             $services = $user->services()->latest()->get();
             $jobRequests = $user->jobRequests()->with('job.user')->latest()->get();
             $assignedJobs = $user->assignedJobs()->with('user')->latest()->get();
             $serviceRequests = ServiceRequest::whereHas('service', function ($query) use ($user) {
                 $query->where('professional_id', $user->id);
             })->with('user', 'service')->latest()->get();
+            
+            // Available jobs for professionals with filters
+            $availableJobsQuery = Job::where('status', Job::STATUS_OPEN)
+                ->where('assigned_professional_id', null)
+                ->whereDoesntHave('requests', function ($query) use ($user) {
+                    $query->where('professional_id', $user->id);
+                })
+                ->with('user');
 
-            return view('jobs.index', compact('services', 'jobRequests', 'assignedJobs', 'serviceRequests'));
+            // Apply filters for available jobs
+            if ($request->filled('job_category')) {
+                $availableJobsQuery->where('category', $request->job_category);
+            }
+
+            if ($request->filled('job_budget_min')) {
+                $availableJobsQuery->where('budget', '>=', $request->job_budget_min);
+            }
+
+            if ($request->filled('job_budget_max')) {
+                $availableJobsQuery->where('budget', '<=', $request->job_budget_max);
+            }
+
+            if ($request->filled('job_location')) {
+                $availableJobsQuery->where('location', 'LIKE', '%' . $request->job_location . '%');
+            }
+
+            if ($request->filled('job_deadline_from')) {
+                $availableJobsQuery->where('deadline', '>=', $request->job_deadline_from);
+            }
+
+            if ($request->filled('job_deadline_to')) {
+                $availableJobsQuery->where('deadline', '<=', $request->job_deadline_to);
+            }
+
+            if ($request->filled('job_search')) {
+                $availableJobsQuery->where(function($query) use ($request) {
+                    $query->where('title', 'LIKE', '%' . $request->job_search . '%')
+                          ->orWhere('description', 'LIKE', '%' . $request->job_search . '%');
+                });
+            }
+
+            $availableJobs = $availableJobsQuery->latest()->get();
+            
+            return view('jobs.index', compact('services', 'jobRequests', 'assignedJobs', 'serviceRequests', 'availableJobs'));
         } else {
+            // Regular User Dashboard
             $jobs = $user->jobs()->with('requests.professional', 'assignedProfessional')->latest()->get();
             $serviceRequests = $user->serviceRequests()->with('service.professional')->latest()->get();
-            $availableServices = Service::where('is_active', true)
-                ->with('professional')
-                ->latest()
-                ->get();
+            
+            // Available services with filters
+            $availableServicesQuery = Service::where('is_active', true)->with('professional');
 
+            // Apply filters for available services
+            if ($request->filled('service_category')) {
+                $availableServicesQuery->where('category', $request->service_category);
+            }
+
+            if ($request->filled('service_price_min')) {
+                $availableServicesQuery->where(function($query) use ($request) {
+                    $query->where('price_from', '>=', $request->service_price_min)
+                          ->orWhere('price_to', '>=', $request->service_price_min);
+                });
+            }
+
+            if ($request->filled('service_price_max')) {
+                $availableServicesQuery->where(function($query) use ($request) {
+                    $query->where('price_from', '<=', $request->service_price_max)
+                          ->orWhere('price_to', '<=', $request->service_price_max);
+                });
+            }
+
+            if ($request->filled('service_area')) {
+                $availableServicesQuery->where('service_area', 'LIKE', '%' . $request->service_area . '%');
+            }
+
+            if ($request->filled('service_search')) {
+                $availableServicesQuery->where(function($query) use ($request) {
+                    $query->where('title', 'LIKE', '%' . $request->service_search . '%')
+                          ->orWhere('description', 'LIKE', '%' . $request->service_search . '%');
+                });
+            }
+
+            if ($request->filled('professional_name')) {
+                $availableServicesQuery->whereHas('professional', function($query) use ($request) {
+                    $query->where('name', 'LIKE', '%' . $request->professional_name . '%');
+                });
+            }
+
+            $availableServices = $availableServicesQuery->latest()->get();
+            
             return view('jobs.index', compact('jobs', 'serviceRequests', 'availableServices'));
         }
     }
@@ -44,8 +125,7 @@ class JobController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-
-        // Fix: Uklanjam required za latitude i longitude
+        
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -57,13 +137,12 @@ class JobController extends Controller
 
         $validated['user_id'] = $user->id;
         $validated['status'] = Job::STATUS_OPEN;
-        // Set default coordinates to null for now
         $validated['latitude'] = null;
         $validated['longitude'] = null;
 
         Job::create($validated);
 
-        return redirect()->route('jobs.index')->with('success', 'Posao je uspešno kreiran!');
+        return redirect()->route('jobs.index')->with('success', 'Job posted successfully!');
     }
 
     public function show(Job $job)
@@ -76,7 +155,7 @@ class JobController extends Controller
         $user = Auth::user();
         
         if ($job->user_id !== $user->id) {
-            return redirect()->route('jobs.index')->with('error', 'Nemate dozvolu za ovu akciju.');
+            return redirect()->route('jobs.index')->with('error', 'You do not have permission for this action.');
         }
 
         return view('jobs.edit', compact('job'));
@@ -87,10 +166,9 @@ class JobController extends Controller
         $user = Auth::user();
         
         if ($job->user_id !== $user->id) {
-            return redirect()->route('jobs.index')->with('error', 'Nemate dozvolu za ovu akciju.');
+            return redirect()->route('jobs.index')->with('error', 'You do not have permission for this action.');
         }
 
-        // Fix: Uklanjam required za latitude i longitude
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -102,7 +180,7 @@ class JobController extends Controller
 
         $job->update($validated);
 
-        return redirect()->route('jobs.index')->with('success', 'Posao je uspešno ažuriran!');
+        return redirect()->route('jobs.index')->with('success', 'Job updated successfully!');
     }
 
     public function destroy(Job $job)
@@ -110,12 +188,12 @@ class JobController extends Controller
         $user = Auth::user();
         
         if ($job->user_id !== $user->id) {
-            return redirect()->route('jobs.index')->with('error', 'Nemate dozvolu za ovu akciju.');
+            return redirect()->route('jobs.index')->with('error', 'You do not have permission for this action.');
         }
 
         $job->delete();
 
-        return redirect()->route('jobs.index')->with('success', 'Posao je uspešno obrisan!');
+        return redirect()->route('jobs.index')->with('success', 'Job deleted successfully!');
     }
 
     public function requestJob(Request $request, Job $job)
@@ -123,7 +201,7 @@ class JobController extends Controller
         $professional = Auth::user();
         
         if (!$professional->isProfi()) {
-            return redirect()->back()->with('error', 'Nemate dozvolu za ovu akciju.');
+            return redirect()->back()->with('error', 'You do not have permission for this action.');
         }
 
         // Check if professional already sent request for this job
@@ -132,7 +210,7 @@ class JobController extends Controller
             ->first();
 
         if ($existingRequest) {
-            return redirect()->back()->with('error', 'Već ste poslali zahtev za ovaj posao.');
+            return redirect()->back()->with('error', 'You have already sent a request for this job.');
         }
 
         $validated = $request->validate([
@@ -146,7 +224,7 @@ class JobController extends Controller
 
         JobRequest::create($validated);
 
-        return redirect()->back()->with('success', 'Zahtev je uspešno poslat!');
+        return redirect()->back()->with('success', 'Request sent successfully!');
     }
 
     public function acceptJobRequest(JobRequest $jobRequest)
@@ -154,11 +232,11 @@ class JobController extends Controller
         $user = Auth::user();
         
         if ($jobRequest->job->user_id !== $user->id) {
-            return redirect()->back()->with('error', 'Nemate dozvolu za ovu akciju.');
+            return redirect()->back()->with('error', 'You do not have permission for this action.');
         }
 
         $jobRequest->update(['status' => JobRequest::STATUS_ACCEPTED]);
-        
+
         $job = $jobRequest->job;
         $job->update([
             'assigned_professional_id' => $jobRequest->professional_id,
@@ -171,7 +249,7 @@ class JobController extends Controller
             ->where('status', JobRequest::STATUS_PENDING)
             ->update(['status' => JobRequest::STATUS_REJECTED]);
 
-        return redirect()->back()->with('success', 'Zahtev je prihvaćen!');
+        return redirect()->back()->with('success', 'Request accepted!');
     }
 
     public function rejectJobRequest(JobRequest $jobRequest)
@@ -179,12 +257,12 @@ class JobController extends Controller
         $user = Auth::user();
         
         if ($jobRequest->job->user_id !== $user->id) {
-            return redirect()->back()->with('error', 'Nemate dozvolu za ovu akciju.');
+            return redirect()->back()->with('error', 'You do not have permission for this action.');
         }
 
         $jobRequest->update(['status' => JobRequest::STATUS_REJECTED]);
 
-        return redirect()->back()->with('success', 'Zahtev je odbijen!');
+        return redirect()->back()->with('success', 'Request rejected!');
     }
 
     public function completeJob(Job $job)
@@ -192,11 +270,11 @@ class JobController extends Controller
         $professional = Auth::user();
         
         if ($job->assigned_professional_id !== $professional->id) {
-            return redirect()->back()->with('error', 'Nemate dozvolu za ovu akciju.');
+            return redirect()->back()->with('error', 'You do not have permission for this action.');
         }
 
         $job->update(['status' => Job::STATUS_COMPLETED]);
 
-        return redirect()->back()->with('success', 'Posao je označen kao završen!');
+        return redirect()->back()->with('success', 'Job marked as completed!');
     }
 }
