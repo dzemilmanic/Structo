@@ -1,10 +1,12 @@
 @extends('layouts.app')
 @vite('resources/css/jobs.css')
+@vite('resources/css/modal-details.css')
 @vite('resources/js/jobs.js')
 @section('title', 'Dashboard')
 
 @section('styles')
     <link rel="stylesheet" href="{{ asset('resources/css/jobs.css') }}">
+    <link rel="stylesheet" href="{{ asset('resources/css/modal-details.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 @endsection
@@ -23,6 +25,8 @@
 @include('jobs.partials.service-modal')
 @include('jobs.partials.service-request-modal')
 @include('jobs.partials.job-request-modal')
+@include('jobs.partials.job-detail-modal')
+@include('jobs.partials.service-detail-modal')
 
 @endsection
 

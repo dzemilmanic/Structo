@@ -12,14 +12,14 @@
         <h2>My Posted Jobs</h2>
         <div class="jobs-grid">
             @forelse($jobs as $job)
-                <div class="job-card">
+                <div class="job-card" title="Click to view details" data-full-description="{{ $job->description }}">
                     <div class="job-header">
                         <h3>{{ $job->title }}</h3>
                         <span class="job-status status-{{ $job->status }}">
                             {{ ucfirst(str_replace('_', ' ', $job->status)) }}
                         </span>
                     </div>
-                    <p class="job-description">{{ Str::limit($job->description, 100) }}</p>
+                    <p class="job-description" data-full-description="{{ $job->description }}">{{ Str::limit($job->description, 100) }}</p>
                     <div class="job-details">
                         <div class="category">{{ ucfirst($job->category) }}</div>
                         @if($job->budget)
@@ -38,7 +38,8 @@
                     </div>
                     @if($job->assignedProfessional)
                         <div class="assigned-professional">
-                            <strong>Assigned to:</strong> {{ $job->assignedProfessional->name }}
+                            <strong>Assigned to:</strong> 
+                            <a href="{{ route('users.show', $job->assignedProfessional) }}" class="user-profile-link">{{ $job->assignedProfessional->name }}</a>
                         </div>
                     @endif
                     @if($job->status === 'open' && $job->requests && $job->requests->count() > 0)
@@ -47,7 +48,9 @@
                             @foreach($job->requests as $request)
                                 <div class="request-item">
                                     <div class="request-header">
-                                        <strong>{{ $request->professional->name }}</strong>
+                                        <strong>
+                                            <a href="{{ route('users.show', $request->professional) }}" class="user-profile-link">{{ $request->professional->name }}</a>
+                                        </strong>
                                         @if($request->professional->specialization)
                                             <span class="specialization">{{ $request->professional->specialization }}</span>
                                         @endif
@@ -79,10 +82,10 @@
                         </div>
                     @endif
                     <div class="job-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="editJob({{ $job->id }})">
+                        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); editJob({{ $job->id }})">
                             <i class="fas fa-edit"></i> Edit
                         </button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteJob({{ $job->id }})">
+                        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteJob({{ $job->id }})">
                             <i class="fas fa-trash"></i> Delete
                         </button>
                     </div>
@@ -118,15 +121,11 @@
                             <label for="service_category">Category</label>
                             <select id="service_category" name="service_category" class="form-control">
                                 <option value="">All Categories</option>
-                                <option value="tiles" {{ request('service_category') == 'tiles' ? 'selected' : '' }}>Tiles</option>
-                                <option value="electrical" {{ request('service_category') == 'electrical' ? 'selected' : '' }}>Electrical</option>
-                                <option value="plumbing" {{ request('service_category') == 'plumbing' ? 'selected' : '' }}>Plumbing</option>
-                                <option value="heating" {{ request('service_category') == 'heating' ? 'selected' : '' }}>Heating</option>
-                                <option value="facade" {{ request('service_category') == 'facade' ? 'selected' : '' }}>Facade Work</option>
-                                <option value="roofing" {{ request('service_category') == 'roofing' ? 'selected' : '' }}>Roofing</option>
-                                <option value="carpentry" {{ request('service_category') == 'carpentry' ? 'selected' : '' }}>Carpentry</option>
-                                <option value="painting" {{ request('service_category') == 'painting' ? 'selected' : '' }}>Painting</option>
-                                <option value="other" {{ request('service_category') == 'other' ? 'selected' : '' }}>Other</option>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->slug }}" {{ request('service_category') == $category->slug ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="filter-group">
@@ -166,17 +165,19 @@
 
         <div class="services-grid">
             @forelse($availableServices as $service)
-                <div class="service-card">
+                <div class="service-card" title="Click to view details" data-full-description="{{ $service->description }}">
                     <div class="service-header">
                         <h3>{{ $service->title }}</h3>
                         <div class="professional-info">
-                            <strong>{{ $service->professional->name }}</strong>
+                            <strong>
+                                <a href="{{ route('users.show', $service->professional) }}" class="user-profile-link">{{ $service->professional->name }}</a>
+                            </strong>
                             @if($service->professional->specialization)
                                 <span class="specialization">{{ $service->professional->specialization }}</span>
                             @endif
                         </div>
                     </div>
-                    <p class="service-description">{{ Str::limit($service->description, 100) }}</p>
+                    <p class="service-description" data-full-description="{{ $service->description }}">{{ Str::limit($service->description, 100) }}</p>
                     <div class="service-details">
                         <span class="category">{{ ucfirst($service->category) }}</span>
                         @if($service->price_from || $service->price_to)
@@ -196,7 +197,7 @@
                         <i class="fas fa-map-marker-alt"></i> {{ $service->service_area }}
                     </div>
                     <div class="service-actions">
-                        <button class="btn btn-primary" onclick="requestService({{ $service->id }})">
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); requestService({{ $service->id }})">
                             <i class="fas fa-envelope"></i> Request Service
                         </button>
                     </div>
@@ -226,7 +227,8 @@
                         </span>
                     </div>
                     <div class="professional-info">
-                        <strong>Professional:</strong> {{ $request->service->professional->name }}
+                        <strong>Professional:</strong> 
+                        <a href="{{ route('users.show', $request->service->professional) }}" class="user-profile-link">{{ $request->service->professional->name }}</a>
                     </div>
                     <p class="request-description">{{ $request->job_description }}</p>
                     <div class="request-details">

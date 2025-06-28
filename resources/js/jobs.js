@@ -13,6 +13,10 @@ window.openServiceRequestModal = openServiceRequestModal;
 window.closeServiceRequestModal = closeServiceRequestModal;
 window.openJobRequestModal = openJobRequestModal;
 window.closeJobRequestModal = closeJobRequestModal;
+window.openJobDetailModal = openJobDetailModal;
+window.closeJobDetailModal = closeJobDetailModal;
+window.openServiceDetailModal = openServiceDetailModal;
+window.closeServiceDetailModal = closeServiceDetailModal;
 window.editJob = editJob;
 window.deleteJob = deleteJob;
 window.editService = editService;
@@ -28,6 +32,8 @@ document.addEventListener("DOMContentLoaded", function () {
     initializeModals();
     initializeFormValidation();
     initializeTextareas();
+    initializeJobCardClicks();
+    initializeServiceCardClicks();
 });
 
 // Fallback initialization
@@ -36,6 +42,217 @@ window.addEventListener("load", function () {
         initializeModals();
     }
 });
+
+// ===== CARD CLICK HANDLERS =====
+
+function initializeJobCardClicks() {
+    // Add click handlers to job cards (excluding action buttons)
+    document.addEventListener('click', function(e) {
+        const jobCard = e.target.closest('.job-card');
+        if (jobCard && !e.target.closest('.job-actions') && !e.target.closest('button') && !e.target.closest('a')) {
+            const jobData = extractJobDataFromCard(jobCard);
+            if (jobData) {
+                openJobDetailModal(jobData);
+            }
+        }
+    });
+}
+
+function initializeServiceCardClicks() {
+    // Add click handlers to service cards (excluding action buttons)
+    document.addEventListener('click', function(e) {
+        const serviceCard = e.target.closest('.service-card');
+        if (serviceCard && !e.target.closest('.service-actions') && !e.target.closest('button') && !e.target.closest('a')) {
+            const serviceData = extractServiceDataFromCard(serviceCard);
+            if (serviceData) {
+                openServiceDetailModal(serviceData);
+            }
+        }
+    });
+}
+
+function extractJobDataFromCard(jobCard) {
+    try {
+        const title = jobCard.querySelector('.job-header h3')?.textContent?.trim();
+        
+        // Get full description from the card - look for the complete text
+        let description = '';
+        const descElement = jobCard.querySelector('.job-description');
+        if (descElement) {
+            // Try to get the full text, not just the limited version
+            description = descElement.textContent?.trim() || '';
+            // If it's truncated, try to get the full description from data attribute or other source
+            const fullDesc = descElement.getAttribute('data-full-description') || 
+                            descElement.getAttribute('title') || 
+                            description;
+            description = fullDesc;
+        }
+        
+        const status = jobCard.querySelector('.job-status')?.textContent?.trim();
+        const clientName = jobCard.querySelector('.client-info')?.textContent?.replace('Client:', '')?.trim();
+        const category = jobCard.querySelector('.category')?.textContent?.trim();
+        const budget = jobCard.querySelector('.budget')?.textContent?.trim();
+        const location = jobCard.querySelector('.location')?.textContent?.trim();
+        const deadline = jobCard.querySelector('.deadline')?.textContent?.trim();
+        const assignedProfessional = jobCard.querySelector('.assigned-professional')?.textContent?.replace('Assigned to:', '')?.trim();
+
+        return {
+            title,
+            description,
+            status,
+            clientName,
+            category,
+            budget,
+            location,
+            deadline,
+            assignedProfessional
+        };
+    } catch (error) {
+        console.error('Error extracting job data:', error);
+        return null;
+    }
+}
+
+function extractServiceDataFromCard(serviceCard) {
+    try {
+        const title = serviceCard.querySelector('.service-header h3')?.textContent?.trim();
+        
+        // Get full description from the card
+        let description = '';
+        const descElement = serviceCard.querySelector('.service-description');
+        if (descElement) {
+            // Try to get the full text, not just the limited version
+            description = descElement.textContent?.trim() || '';
+            // If it's truncated, try to get the full description from data attribute or other source
+            const fullDesc = descElement.getAttribute('data-full-description') || 
+                            descElement.getAttribute('title') || 
+                            description;
+            description = fullDesc;
+        }
+        
+        const status = serviceCard.querySelector('.service-status')?.textContent?.trim();
+        const professionalName = serviceCard.querySelector('.professional-info strong')?.textContent?.trim() || 
+                                serviceCard.querySelector('.professional-info')?.textContent?.replace('Professional:', '')?.trim();
+        const specialization = serviceCard.querySelector('.specialization')?.textContent?.trim();
+        const category = serviceCard.querySelector('.category')?.textContent?.trim();
+        const price = serviceCard.querySelector('.price')?.textContent?.trim();
+        const serviceArea = serviceCard.querySelector('.service-area')?.textContent?.trim();
+
+        return {
+            title,
+            description,
+            status,
+            professionalName,
+            specialization,
+            category,
+            price,
+            serviceArea
+        };
+    } catch (error) {
+        console.error('Error extracting service data:', error);
+        return null;
+    }
+}
+
+// ===== DETAIL MODAL FUNCTIONS =====
+
+function openJobDetailModal(jobData) {
+    console.log('Opening job detail modal with data:', jobData);
+    
+    // Populate modal with job data
+    const modal = document.getElementById('jobDetailModal');
+    if (!modal) {
+        console.error('Job detail modal not found');
+        return;
+    }
+
+    // Update modal content
+    updateElementText(modal, '.modal-job-title', jobData.title);
+    updateElementText(modal, '.modal-job-description', jobData.description);
+    updateElementText(modal, '.modal-job-status', jobData.status);
+    updateElementText(modal, '.modal-job-client', jobData.clientName);
+    updateElementText(modal, '.modal-job-category', jobData.category);
+    updateElementText(modal, '.modal-job-budget', jobData.budget);
+    updateElementText(modal, '.modal-job-location', jobData.location);
+    updateElementText(modal, '.modal-job-deadline', jobData.deadline);
+    updateElementText(modal, '.modal-job-assigned', jobData.assignedProfessional);
+
+    // Handle client name link
+    const clientLink = modal.querySelector('.modal-job-client-link');
+    if (clientLink && jobData.clientName) {
+        clientLink.textContent = jobData.clientName;
+        clientLink.style.display = 'inline';
+        // You can add actual user ID here if available
+        // clientLink.href = `/users/${userId}`;
+    }
+
+    // Handle assigned professional link
+    const assignedLink = modal.querySelector('.modal-job-assigned-link');
+    const assignedSection = modal.querySelector('.modal-job-assigned-section');
+    if (assignedLink && jobData.assignedProfessional) {
+        assignedLink.textContent = jobData.assignedProfessional;
+        assignedLink.style.display = 'inline';
+        assignedSection.style.display = 'block';
+        // You can add actual user ID here if available
+        // assignedLink.href = `/users/${professionalId}`;
+    } else if (assignedSection) {
+        assignedSection.style.display = 'none';
+    }
+
+    openModal('jobDetailModal');
+}
+
+function closeJobDetailModal() {
+    console.log('Closing job detail modal');
+    closeModal('jobDetailModal');
+}
+
+function openServiceDetailModal(serviceData) {
+    console.log('Opening service detail modal with data:', serviceData);
+    
+    // Populate modal with service data
+    const modal = document.getElementById('serviceDetailModal');
+    if (!modal) {
+        console.error('Service detail modal not found');
+        return;
+    }
+
+    // Update modal content
+    updateElementText(modal, '.modal-service-title', serviceData.title);
+    updateElementText(modal, '.modal-service-description', serviceData.description);
+    updateElementText(modal, '.modal-service-status', serviceData.status);
+    updateElementText(modal, '.modal-service-professional', serviceData.professionalName);
+    updateElementText(modal, '.modal-service-specialization', serviceData.specialization);
+    updateElementText(modal, '.modal-service-category', serviceData.category);
+    updateElementText(modal, '.modal-service-price', serviceData.price);
+    updateElementText(modal, '.modal-service-area', serviceData.serviceArea);
+
+    // Handle professional name link
+    const professionalLink = modal.querySelector('.modal-service-professional-link');
+    if (professionalLink && serviceData.professionalName) {
+        professionalLink.textContent = serviceData.professionalName;
+        professionalLink.style.display = 'inline';
+        // You can add actual user ID here if available
+        // professionalLink.href = `/users/${professionalId}`;
+    }
+
+    openModal('serviceDetailModal');
+}
+
+function closeServiceDetailModal() {
+    console.log('Closing service detail modal');
+    closeModal('serviceDetailModal');
+}
+
+function updateElementText(container, selector, text) {
+    const element = container.querySelector(selector);
+    if (element && text) {
+        element.textContent = text;
+        element.style.display = 'block';
+    } else if (element) {
+        element.style.display = 'none';
+    }
+}
 
 // ===== FILTER FUNCTIONS =====
 
@@ -50,7 +267,6 @@ function toggleFilters(filterId) {
     
     if (filtersContainer.style.display === 'none' || filtersContainer.style.display === '') {
         filtersContainer.style.display = 'block';
-        // Add animation class if available
         filtersContainer.classList.add('filters-open');
     } else {
         filtersContainer.style.display = 'none';
@@ -611,5 +827,3 @@ window.debugModals = debugModals;
 console.log(
     "Jobs.js loaded successfully - all functions are now available globally"
 );
-
-

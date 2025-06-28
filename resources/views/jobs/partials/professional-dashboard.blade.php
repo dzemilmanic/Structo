@@ -28,15 +28,11 @@
                             <label for="job_category">Category</label>
                             <select id="job_category" name="job_category" class="form-control">
                                 <option value="">All Categories</option>
-                                <option value="tiles" {{ request('job_category') == 'tiles' ? 'selected' : '' }}>Tiles</option>
-                                <option value="electrical" {{ request('job_category') == 'electrical' ? 'selected' : '' }}>Electrical</option>
-                                <option value="plumbing" {{ request('job_category') == 'plumbing' ? 'selected' : '' }}>Plumbing</option>
-                                <option value="heating" {{ request('job_category') == 'heating' ? 'selected' : '' }}>Heating</option>
-                                <option value="facade" {{ request('job_category') == 'facade' ? 'selected' : '' }}>Facade Work</option>
-                                <option value="roofing" {{ request('job_category') == 'roofing' ? 'selected' : '' }}>Roofing</option>
-                                <option value="carpentry" {{ request('job_category') == 'carpentry' ? 'selected' : '' }}>Carpentry</option>
-                                <option value="painting" {{ request('job_category') == 'painting' ? 'selected' : '' }}>Painting</option>
-                                <option value="other" {{ request('job_category') == 'other' ? 'selected' : '' }}>Other</option>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->slug }}" {{ request('job_category') == $category->slug ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="filter-group">
@@ -81,17 +77,18 @@
 
         <div class="jobs-grid">
             @forelse($availableJobs as $job)
-                <div class="job-card">
+                <div class="job-card" title="Click to view details" data-full-description="{{ $job->description }}">
                     <div class="job-header">
                         <h3>{{ $job->title }}</h3>
                         <span class="job-status status-{{ $job->status }}">
                             {{ ucfirst(str_replace('_', ' ', $job->status)) }}
                         </span>
                     </div>
-                    <p class="job-description">{{ Str::limit($job->description, 150) }}</p>
+                    <p class="job-description" data-full-description="{{ $job->description }}">{{ Str::limit($job->description, 150) }}</p>
                     <div class="job-details">
                         <div class="client-info">
-                            <strong>Client:</strong> {{ $job->user->name }}
+                            <strong>Client:</strong> 
+                            <a href="{{ route('users.show', $job->user) }}" class="user-profile-link">{{ $job->user->name }}</a>
                         </div>
                         <div class="category">{{ ucfirst($job->category) }}</div>
                         @if($job->budget)
@@ -109,7 +106,7 @@
                         @endif
                     </div>
                     <div class="job-actions">
-                        <button class="btn btn-primary" onclick="openJobRequestModal({{ $job->id }})">
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); openJobRequestModal({{ $job->id }})">
                             <i class="fas fa-envelope"></i> Send Request
                         </button>
                     </div>
@@ -131,14 +128,14 @@
         <h2>My Services</h2>
         <div class="services-grid">
             @forelse($services as $service)
-                <div class="service-card">
+                <div class="service-card" title="Click to view details" data-full-description="{{ $service->description }}">
                     <div class="service-header">
                         <h3>{{ $service->title }}</h3>
                         <span class="service-status status-{{ $service->is_active ? 'active' : 'inactive' }}">
                             {{ $service->is_active ? 'Active' : 'Inactive' }}
                         </span>
                     </div>
-                    <p class="service-description">{{ Str::limit($service->description, 100) }}</p>
+                    <p class="service-description" data-full-description="{{ $service->description }}">{{ Str::limit($service->description, 100) }}</p>
                     <div class="service-details">
                         <span class="category">{{ ucfirst($service->category) }}</span>
                         @if($service->price_from || $service->price_to)
@@ -158,10 +155,10 @@
                         <i class="fas fa-map-marker-alt"></i> {{ $service->service_area }}
                     </div>
                     <div class="service-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="editService({{ $service->id }})">
+                        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); editService({{ $service->id }})">
                             <i class="fas fa-edit"></i> Edit
                         </button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteService({{ $service->id }})">
+                        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteService({{ $service->id }})">
                             <i class="fas fa-trash"></i> Delete
                         </button>
                     </div>
@@ -190,7 +187,8 @@
                             </span>
                         </div>
                         <div class="client-info">
-                            <strong>Client:</strong> {{ $request->user->name }}
+                            <strong>Client:</strong> 
+                            <a href="{{ route('users.show', $request->user) }}" class="user-profile-link">{{ $request->user->name }}</a>
                         </div>
                         <p class="request-description">{{ $request->job_description }}</p>
                         <div class="request-details">
@@ -240,7 +238,8 @@
                     <p class="job-description">{{ Str::limit($request->job->description, 150) }}</p>
                     <div class="request-details">
                         <div class="client-info">
-                            <strong>Client:</strong> {{ $request->job->user->name }}
+                            <strong>Client:</strong> 
+                            <a href="{{ route('users.show', $request->job->user) }}" class="user-profile-link">{{ $request->job->user->name }}</a>
                         </div>
                         <div class="location">
                             <i class="fas fa-map-marker-alt"></i> {{ $request->job->location }}
@@ -278,17 +277,18 @@
         <h2>Assigned Jobs</h2>
         <div class="jobs-grid">
             @forelse($assignedJobs as $job)
-                <div class="job-card">
+                <div class="job-card" title="Click to view details" data-full-description="{{ $job->description }}">
                     <div class="job-header">
                         <h3>{{ $job->title }}</h3>
                         <span class="job-status status-{{ $job->status }}">
                             {{ ucfirst(str_replace('_', ' ', $job->status)) }}
                         </span>
                     </div>
-                    <p class="job-description">{{ Str::limit($job->description, 150) }}</p>
+                    <p class="job-description" data-full-description="{{ $job->description }}">{{ Str::limit($job->description, 150) }}</p>
                     <div class="job-details">
                         <div class="client-info">
-                            <strong>Client:</strong> {{ $job->user->name }}
+                            <strong>Client:</strong> 
+                            <a href="{{ route('users.show', $job->user) }}" class="user-profile-link">{{ $job->user->name }}</a>
                         </div>
                         <div class="location">
                             <i class="fas fa-map-marker-alt"></i> {{ $job->location }}
@@ -301,7 +301,7 @@
                     </div>
                     @if($job->status === 'in_progress')
                         <div class="job-actions">
-                            <button class="btn btn-success" onclick="completeJob({{ $job->id }})">
+                            <button class="btn btn-success" onclick="event.stopPropagation(); completeJob({{ $job->id }})">
                                 <i class="fas fa-check"></i> Mark as Completed
                             </button>
                         </div>
