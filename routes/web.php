@@ -12,6 +12,7 @@ use App\Http\Controllers\JobController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ServiceCategoryController;
+use App\Http\Controllers\AdminUserController;
 use App\Http\Services\S3TestService;
 
 Route::get('/', function () {
@@ -158,5 +159,11 @@ Route::middleware(['auth'])->group(function () {
     // Job completion
     Route::post('/jobs/{job}/complete', [JobController::class, 'completeJob'])->name('jobs.complete');
 });
+
+// Admin routes
+Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
+Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+Route::patch('/admin/users/{user}/demote', [AdminUserController::class, 'demoteToUser'])->name('admin.users.demote');
+
 
 require __DIR__.'/auth.php';

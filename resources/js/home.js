@@ -1,185 +1,286 @@
 /**
- * Testimonials Carousel
- * Handles testimonial sliding, pagination, and navigation
+ * Services Carousel
+ * Handles service categories sliding and navigation
  */
-class TestimonialsCarousel {
+class ServicesCarousel {
     constructor() {
-        // DOM elements
-        this.sliderContainer = document.querySelector('.testimonials-slider');
-        this.prevBtn = document.querySelector('.prev-btn');
-        this.nextBtn = document.querySelector('.next-btn');
-        this.dots = document.querySelectorAll('.dot');
+        this.slider = document.getElementById('servicesGrid');
+        this.prevBtn = document.getElementById('servicesPrevBtn');
+        this.nextBtn = document.getElementById('servicesNextBtn');
         
-        // Only initialize if we have testimonials and slider
-        if (!this.sliderContainer) return;
+        if (!this.slider) return;
         
-        // State
-        this.currentPage = 0;
-        this.totalPages = this.dots.length;
-        this.itemsPerPage = 2; // Always show exactly 2 testimonials per page
-        this.isAnimating = false;
+        this.currentIndex = 0;
+        this.itemsToShow = this.getItemsToShow();
+        this.totalItems = this.slider.children.length;
+        this.maxIndex = Math.max(0, this.totalItems - this.itemsToShow);
         
-        // Make the slider layout properly - IMPORTANT FIX
-        this.setupSliderLayout();
-        
-        // Initialize
         this.init();
     }
     
-    setupSliderLayout() {
-        // Fix: Set proper grid template columns for the slider
-        // This makes the testimonials display in a 1x2 grid on each page
-        if (window.innerWidth <= 768) {
-            // On mobile, stack vertically (one per row)
-            this.sliderContainer.style.display = 'grid';
-            this.sliderContainer.style.gridTemplateColumns = '1fr';
-            this.sliderContainer.style.gridTemplateRows = 'repeat(auto-fill, minmax(200px, auto))';
-        } else {
-            // On desktop, show two side by side
-            this.sliderContainer.style.display = 'grid';
-            this.sliderContainer.style.gridTemplateColumns = 'repeat(2, 1fr)';
-            this.sliderContainer.style.gridAutoFlow = 'row';
-        }
-        
-        // Add page wrappers around each set of testimonials
-        const testimonials = Array.from(this.sliderContainer.querySelectorAll('.testimonial'));
-        if (testimonials.length === 0) return;
-        
-        // Clear the container first
-        const originalContent = this.sliderContainer.innerHTML;
-        this.sliderContainer.innerHTML = '';
-        
-        // Group testimonials by pages
-        for (let i = 0; i < testimonials.length; i += this.itemsPerPage) {
-            const pageWrapper = document.createElement('div');
-            pageWrapper.className = 'testimonial-page';
-            pageWrapper.style.display = 'grid';
-            pageWrapper.style.gridTemplateColumns = window.innerWidth <= 768 ? '1fr' : 'repeat(2, 1fr)';
-            pageWrapper.style.gap = '30px';
-            pageWrapper.style.width = '100%';
-            
-            const pageTestimonials = testimonials.slice(i, i + this.itemsPerPage);
-            pageTestimonials.forEach(testimonial => {
-                pageWrapper.appendChild(testimonial.cloneNode(true));
-            });
-            
-            this.sliderContainer.appendChild(pageWrapper);
-        }
-        
-        // Update layout styles for the slider container
-        this.sliderContainer.style.display = 'flex';
-        this.sliderContainer.style.width = '100%';
-        this.sliderContainer.style.transition = 'transform 0.5s ease';
+    getItemsToShow() {
+        const width = window.innerWidth;
+        if (width <= 768) return 1;
+        if (width <= 1024) return 2;
+        if (width <= 1200) return 3;
+        return 4;
     }
     
     init() {
-        if (this.dots.length === 0) return;
-        
-        // Set initial position and state
-        this.updateButtonStates();
+        this.updateButtons();
         this.setupEventListeners();
-        this.goToPage(0, false);
+        this.setupTouchEvents();
         
-        // Listen for window resize to adjust layout
         window.addEventListener('resize', () => {
-            this.setupSliderLayout();
-            this.goToPage(this.currentPage, false);
+            this.itemsToShow = this.getItemsToShow();
+            this.maxIndex = Math.max(0, this.totalItems - this.itemsToShow);
+            this.currentIndex = Math.min(this.currentIndex, this.maxIndex);
+            this.updateSlider();
+            this.updateButtons();
         });
     }
     
     setupEventListeners() {
-        // Navigation buttons
         if (this.prevBtn) {
-            this.prevBtn.addEventListener('click', () => {
-                if (this.currentPage > 0 && !this.isAnimating) {
-                    this.goToPage(this.currentPage - 1);
-                }
-            });
+            this.prevBtn.addEventListener('click', () => this.prev());
         }
         
         if (this.nextBtn) {
-            this.nextBtn.addEventListener('click', () => {
-                if (this.currentPage < this.totalPages - 1 && !this.isAnimating) {
-                    this.goToPage(this.currentPage + 1);
-                }
-            });
+            this.nextBtn.addEventListener('click', () => this.next());
         }
+    }
+    
+    setupTouchEvents() {
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
         
-        // Pagination dots
-        this.dots.forEach((dot, index) => {
-            dot.addEventListener('click', () => {
-                if (this.currentPage !== index && !this.isAnimating) {
-                    this.goToPage(index);
+        this.slider.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+        });
+        
+        this.slider.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            currentX = e.touches[0].clientX;
+        });
+        
+        this.slider.addEventListener('touchend', () => {
+            if (!isDragging) return;
+            
+            const diff = startX - currentX;
+            const threshold = 50;
+            
+            if (Math.abs(diff) > threshold) {
+                if (diff > 0) {
+                    this.next();
+                } else {
+                    this.prev();
                 }
-            });
+            }
+            
+            isDragging = false;
         });
     }
     
-    goToPage(pageIndex, animate = true) {
-        if (pageIndex < 0 || pageIndex >= this.totalPages) return;
-        
-        // Update current page
-        this.currentPage = pageIndex;
-        
-        // Update active dot
-        this.updateActiveDot();
-        
-        // Update button states
-        this.updateButtonStates();
-        
-        // Move slider
-        this.slideToCurrentPage(animate);
-    }
-    
-    slideToCurrentPage(animate) {
-        if (!this.sliderContainer) return;
-        
-        const pageWidth = 100; // 100%
-        const translateX = -pageWidth * this.currentPage + '%';
-        
-        if (animate) {
-            this.isAnimating = true;
-            this.sliderContainer.style.transition = 'transform 0.5s ease';
-            this.sliderContainer.style.transform = `translateX(${translateX})`;
-            
-            // Reset animating flag after transition completes
-            setTimeout(() => {
-                this.isAnimating = false;
-            }, 500);
-        } else {
-            this.sliderContainer.style.transition = 'none';
-            this.sliderContainer.style.transform = `translateX(${translateX})`;
-            
-            // Force reflow to ensure transition is disabled
-            this.sliderContainer.offsetHeight;
-            
-            // Re-enable transitions for future animations
-            setTimeout(() => {
-                this.sliderContainer.style.transition = 'transform 0.5s ease';
-            }, 50);
+    prev() {
+        if (this.currentIndex > 0) {
+            this.currentIndex--;
+            this.updateSlider();
+            this.updateButtons();
         }
     }
     
-    updateActiveDot() {
+    next() {
+        if (this.currentIndex < this.maxIndex) {
+            this.currentIndex++;
+            this.updateSlider();
+            this.updateButtons();
+        }
+    }
+    
+    updateSlider() {
+        const cardWidth = 250 + 30; // card width + gap
+        const translateX = -this.currentIndex * cardWidth;
+        this.slider.style.transform = `translateX(${translateX}px)`;
+    }
+    
+    updateButtons() {
+        if (this.prevBtn) {
+            this.prevBtn.disabled = this.currentIndex === 0;
+        }
+        
+        if (this.nextBtn) {
+            this.nextBtn.disabled = this.currentIndex >= this.maxIndex;
+        }
+    }
+}
+
+/**
+ * Testimonials Carousel
+ * Handles testimonial sliding, pagination, and navigation for mobile
+ */
+class TestimonialsCarousel {
+    constructor() {
+        this.sliderContainer = document.getElementById('testimonialsSlider');
+        this.prevBtn = document.getElementById('testimonialsPrevBtn');
+        this.nextBtn = document.getElementById('testimonialsNextBtn');
+        this.dots = document.querySelectorAll('#testimonialsDots .dot');
+        
+        if (!this.sliderContainer) return;
+        
+        this.currentIndex = 0;
+        this.totalTestimonials = this.sliderContainer.children.length;
+        this.isMobile = window.innerWidth <= 768;
+        
+        this.init();
+    }
+    
+    init() {
+        this.setupLayout();
+        this.updateButtons();
+        this.setupEventListeners();
+        this.setupTouchEvents();
+        
+        window.addEventListener('resize', () => {
+            const wasMobile = this.isMobile;
+            this.isMobile = window.innerWidth <= 768;
+            
+            if (wasMobile !== this.isMobile) {
+                this.setupLayout();
+                this.currentIndex = 0;
+                this.updateSlider();
+                this.updateButtons();
+                this.updateDots();
+            }
+        });
+    }
+    
+    setupLayout() {
+        if (this.isMobile) {
+            // Mobile: Show one testimonial at a time
+            this.sliderContainer.style.display = 'flex';
+            Array.from(this.sliderContainer.children).forEach(testimonial => {
+                testimonial.style.flex = '0 0 100%';
+                testimonial.style.minWidth = '100%';
+            });
+        } else {
+            // Desktop: Show two testimonials side by side
+            this.sliderContainer.style.display = 'grid';
+            this.sliderContainer.style.gridTemplateColumns = 'repeat(2, 1fr)';
+            this.sliderContainer.style.gap = '30px';
+            Array.from(this.sliderContainer.children).forEach(testimonial => {
+                testimonial.style.flex = 'none';
+                testimonial.style.minWidth = 'auto';
+            });
+        }
+    }
+    
+    setupEventListeners() {
+        if (this.prevBtn) {
+            this.prevBtn.addEventListener('click', () => this.prev());
+        }
+        
+        if (this.nextBtn) {
+            this.nextBtn.addEventListener('click', () => this.next());
+        }
+        
         this.dots.forEach((dot, index) => {
-            if (index === this.currentPage) {
+            dot.addEventListener('click', () => this.goToSlide(index));
+        });
+    }
+    
+    setupTouchEvents() {
+        if (!this.isMobile) return;
+        
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+        
+        this.sliderContainer.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+        });
+        
+        this.sliderContainer.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            currentX = e.touches[0].clientX;
+        });
+        
+        this.sliderContainer.addEventListener('touchend', () => {
+            if (!isDragging) return;
+            
+            const diff = startX - currentX;
+            const threshold = 50;
+            
+            if (Math.abs(diff) > threshold) {
+                if (diff > 0) {
+                    this.next();
+                } else {
+                    this.prev();
+                }
+            }
+            
+            isDragging = false;
+        });
+    }
+    
+    prev() {
+        if (this.currentIndex > 0) {
+            this.currentIndex--;
+            this.updateSlider();
+            this.updateButtons();
+            this.updateDots();
+        }
+    }
+    
+    next() {
+        const maxIndex = this.isMobile ? this.totalTestimonials - 1 : Math.ceil(this.totalTestimonials / 2) - 1;
+        if (this.currentIndex < maxIndex) {
+            this.currentIndex++;
+            this.updateSlider();
+            this.updateButtons();
+            this.updateDots();
+        }
+    }
+    
+    goToSlide(index) {
+        this.currentIndex = index;
+        this.updateSlider();
+        this.updateButtons();
+        this.updateDots();
+    }
+    
+    updateSlider() {
+        if (this.isMobile) {
+            const translateX = -this.currentIndex * 100;
+            this.sliderContainer.style.transform = `translateX(${translateX}%)`;
+        } else {
+            // For desktop, we don't need to transform since we're using grid
+            this.sliderContainer.style.transform = 'none';
+        }
+    }
+    
+    updateButtons() {
+        const maxIndex = this.isMobile ? this.totalTestimonials - 1 : Math.ceil(this.totalTestimonials / 2) - 1;
+        
+        if (this.prevBtn) {
+            this.prevBtn.disabled = this.currentIndex === 0;
+        }
+        
+        if (this.nextBtn) {
+            this.nextBtn.disabled = this.currentIndex >= maxIndex;
+        }
+    }
+    
+    updateDots() {
+        this.dots.forEach((dot, index) => {
+            if (index === this.currentIndex) {
                 dot.classList.add('active');
             } else {
                 dot.classList.remove('active');
             }
         });
-    }
-    
-    updateButtonStates() {
-        if (this.prevBtn) {
-            this.prevBtn.disabled = this.currentPage === 0;
-            this.prevBtn.classList.toggle('disabled', this.currentPage === 0);
-        }
-        
-        if (this.nextBtn) {
-            this.nextBtn.disabled = this.currentPage === this.totalPages - 1;
-            this.nextBtn.classList.toggle('disabled', this.currentPage === this.totalPages - 1);
-        }
     }
 }
 
@@ -223,26 +324,18 @@ class TestimonialForm {
 }
 
 /**
- * Initialize all testimonial components when DOM is ready
+ * Initialize all components when DOM is ready
  */
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize services carousel
+    new ServicesCarousel();
+    
     // Initialize testimonials carousel
     new TestimonialsCarousel();
     
     // Initialize testimonial form
     new TestimonialForm();
-});
-/**
- * Initialize all testimonial components when DOM is ready
- */
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize testimonials carousel
-    new TestimonialsCarousel();
     
-    // Initialize testimonial form
-    new TestimonialForm();
-});
-document.addEventListener('DOMContentLoaded', function() {
     // Mobile menu toggle
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const mainNav = document.querySelector('.main-nav');

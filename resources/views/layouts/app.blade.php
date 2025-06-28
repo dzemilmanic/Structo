@@ -46,7 +46,15 @@
                             </ul>
                             @endif
                         </li>
-                        <li class="nav-item"><a href="/users" class="nav-link">Users</a></li>
+                        @auth
+                            @if(Auth::user()->role === 'admin')
+                                <li class="nav-item"><a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">All Users</a></li>
+                            @else
+                                <li class="nav-item"><a href="/users" class="nav-link">Users</a></li>
+                            @endif
+                        @else
+                            <li class="nav-item"><a href="/users" class="nav-link">Users</a></li>
+                        @endauth
                         <li class="nav-item"><a href="/jobs" class="nav-link">Jobs</a></li>
                         <li class="nav-item"><a href="{{ route('questions.index') }}" class="nav-link {{ request()->routeIs('questions.*') ? 'active' : '' }}">Questions</a></li>
                         @auth
@@ -161,7 +169,15 @@
                     <h3>Quick Links</h3>
                     <ul class="footer-links">
                         <li><a href="/">Home</a></li>
-                        <li><a href="/users">Users</a></li>
+                        @auth
+                            @if(Auth::user()->role === 'admin')
+                                <li><a href="{{ route('admin.users.index') }}">All Users</a></li>
+                            @else
+                                <li><a href="/users">Users</a></li>
+                            @endif
+                        @else
+                            <li><a href="/users">Users</a></li>
+                        @endauth
                         <li><a href="/jobs">Jobs</a></li>
                         <li><a href="{{ route('questions.index') }}">Questions</a></li>
                         <li><a href="/about">About Us</a></li>

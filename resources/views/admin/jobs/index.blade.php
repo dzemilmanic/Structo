@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @vite(['resources/css/admin-jobs.css'])
 @vite(['resources/css/jobs.css'])
+@vite(['resources/css/modal-details.css'])
 @vite(['resources/js/admin-jobs.js'])
 @section('title', 'Admin - Jobs & Services Management')
 
@@ -185,9 +186,19 @@
                             @endif
                         </div>
                         <div class="job-actions">
-                            <a href="{{ route('jobs.show', $job) }}" class="btn btn-sm btn-secondary">
+                            <button onclick="openJobDetailModal({{ json_encode([
+                                'title' => $job->title,
+                                'description' => $job->description,
+                                'status' => ucfirst(str_replace('_', ' ', $job->status)),
+                                'clientName' => $job->user->name,
+                                'category' => ucfirst($job->category),
+                                'budget' => $job->budget ? '$' . number_format($job->budget) : 'Not specified',
+                                'location' => $job->location,
+                                'deadline' => $job->deadline ? $job->deadline->format('M d, Y') : 'Not specified',
+                                'assignedProfessional' => $job->assignedProfessional ? $job->assignedProfessional->name : null
+                            ]) }})" class="btn btn-sm btn-secondary">
                                 <i class="fas fa-eye"></i> View
-                            </a>
+                            </button>
                             <button onclick="deleteJob({{ $job->id }})" class="btn btn-sm btn-danger">
                                 <i class="fas fa-trash"></i> Delete
                             </button>
@@ -287,9 +298,24 @@
                             </div>
                         </div>
                         <div class="service-actions">
-                            <a href="{{ route('services.show', $service) }}" class="btn btn-sm btn-secondary">
+                            <button onclick="openServiceDetailModal({{ json_encode([
+                                'title' => $service->title,
+                                'description' => $service->description,
+                                'status' => $service->is_active ? 'Active' : 'Inactive',
+                                'professionalName' => $service->professional->name,
+                                'specialization' => $service->professional->specialization ?? 'Not specified',
+                                'category' => ucfirst($service->category),
+                                'price' => ($service->price_from && $service->price_to) 
+                                    ? '$' . number_format($service->price_from) . ' - $' . number_format($service->price_to)
+                                    : ($service->price_from 
+                                        ? 'From $' . number_format($service->price_from)
+                                        : ($service->price_to 
+                                            ? 'Up to $' . number_format($service->price_to)
+                                            : 'Price not specified')),
+                                'serviceArea' => $service->service_area
+                            ]) }})" class="btn btn-sm btn-secondary">
                                 <i class="fas fa-eye"></i> View
-                            </a>
+                            </button>
                             <button onclick="deleteService({{ $service->id }})" class="btn btn-sm btn-danger">
                                 <i class="fas fa-trash"></i> Delete
                             </button>
@@ -357,6 +383,13 @@
         </div>
     </div>
 </div>
+
+<!-- Job Detail Modal -->
+@include('jobs.partials.job-detail-modal')
+
+<!-- Service Detail Modal -->
+@include('jobs.partials.service-detail-modal')
+
 @endsection
 
 @section('scripts')

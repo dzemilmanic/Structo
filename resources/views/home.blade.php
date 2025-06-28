@@ -23,39 +23,67 @@
                 <h2>Our Services</h2>
                 <p>Connecting quality professionals with clients who value expertise</p>
             </div>
-            <div class="services-grid">
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="icon-architecture"></i>
+            
+            <div class="services-container">
+                <div class="services-scroll-wrapper">
+                    <div class="services-grid" id="servicesGrid">
+                        @forelse($serviceCategories as $category)
+                            <div class="service-card">
+                                <div class="service-icon">
+                                    <i class="icon-{{ strtolower(str_replace(' ', '-', $category->name)) }}"></i>
+                                </div>
+                                <h3>{{ $category->name }}</h3>
+                                <p>{{ $category->description ?: 'Professional ' . strtolower($category->name) . ' services for your projects' }}</p>
+                                <a href="/users?service_category={{ $category->slug }}" class="service-link">Find {{ $category->name }} Professionals</a>
+                            </div>
+                        @empty
+                            <!-- Fallback static services if no categories exist -->
+                            <div class="service-card">
+                                <div class="service-icon">
+                                    <i class="icon-architecture"></i>
+                                </div>
+                                <h3>Architectural Design</h3>
+                                <p>Professional architectural services for residential and commercial projects</p>
+                                <a href="#" class="service-link">Find Architects</a>
+                            </div>
+                            <div class="service-card">
+                                <div class="service-icon">
+                                    <i class="icon-construction"></i>
+                                </div>
+                                <h3>Construction</h3>
+                                <p>Experienced builders and contractors for projects of any scale</p>
+                                <a href="#" class="service-link">Find Builders</a>
+                            </div>
+                            <div class="service-card">
+                                <div class="service-icon">
+                                    <i class="icon-interior"></i>
+                                </div>
+                                <h3>Interior Design</h3>
+                                <p>Transform your spaces with professional interior design expertise</p>
+                                <a href="#" class="service-link">Find Designers</a>
+                            </div>
+                            <div class="service-card">
+                                <div class="service-icon">
+                                    <i class="icon-landscape"></i>
+                                </div>
+                                <h3>Landscaping</h3>
+                                <p>Create beautiful outdoor spaces with landscaping professionals</p>
+                                <a href="#" class="service-link">Find Landscapers</a>
+                            </div>
+                        @endforelse
                     </div>
-                    <h3>Architectural Design</h3>
-                    <p>Professional architectural services for residential and commercial projects</p>
-                    <a href="#" class="service-link">Find Architects</a>
                 </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="icon-construction"></i>
+                
+                @if($serviceCategories->count() > 4)
+                    <div class="services-navigation">
+                        <button class="nav-btn prev-btn" id="servicesPrevBtn" aria-label="Previous services">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="nav-btn next-btn" id="servicesNextBtn" aria-label="Next services">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
-                    <h3>Construction</h3>
-                    <p>Experienced builders and contractors for projects of any scale</p>
-                    <a href="#" class="service-link">Find Builders</a>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="icon-interior"></i>
-                    </div>
-                    <h3>Interior Design</h3>
-                    <p>Transform your spaces with professional interior design expertise</p>
-                    <a href="#" class="service-link">Find Designers</a>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="icon-landscape"></i>
-                    </div>
-                    <h3>Landscaping</h3>
-                    <p>Create beautiful outdoor spaces with landscaping professionals</p>
-                    <a href="#" class="service-link">Find Landscapers</a>
-                </div>
+                @endif
             </div>
         </div>
     </section>
@@ -242,8 +270,7 @@
             <div class="testimonials-container">
                 <div class="testimonials-wrapper">
                     @if(count($testimonials) > 0)
-                        <div class="testimonials-slider">
-                            {{-- The JavaScript will restructure this into pages with 2 testimonials each --}}
+                        <div class="testimonials-slider" id="testimonialsSlider">
                             @foreach($testimonials as $testimonial)
                                 <div class="testimonial">
                                     <div class="testimonial-content">
@@ -299,15 +326,19 @@
                     @endif
                 </div>
                 
-                @if(count($testimonials) > 2)
+                @if(count($testimonials) > 1)
                     <div class="testimonials-navigation">
-                        <button class="nav-btn prev-btn" aria-label="Previous testimonials"><</button>
-                        <div class="pagination-dots">
-                            @for($i = 0; $i < ceil(count($testimonials) / 2); $i++)
+                        <button class="nav-btn prev-btn" id="testimonialsPrevBtn" aria-label="Previous testimonials">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="pagination-dots" id="testimonialsDots">
+                            @for($i = 0; $i < count($testimonials); $i++)
                                 <span class="dot {{ $i == 0 ? 'active' : '' }}" data-index="{{ $i }}"></span>
                             @endfor
                         </div>
-                        <button class="nav-btn next-btn" aria-label="Next testimonials">></button>
+                        <button class="nav-btn next-btn" id="testimonialsNextBtn" aria-label="Next testimonials">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
                 @endif
             </div>
@@ -353,7 +384,7 @@
 @endsection
 
 @section('scripts')
-    <!-- Add testimonials JS via Vite -->
+    <!-- Add home page JS via Vite -->
     @vite('resources/js/home.js')
     <script>
     @if(session('success'))

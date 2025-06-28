@@ -180,10 +180,20 @@ section {
     background-color: var(--white);
 }
 
+.services-container {
+    position: relative;
+}
+
+.services-scroll-wrapper {
+    overflow: hidden;
+    position: relative;
+}
+
 .services-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    display: flex;
     gap: 30px;
+    transition: transform 0.3s ease;
+    min-width: 100%;
 }
 
 .service-card {
@@ -193,6 +203,8 @@ section {
     box-shadow: var(--box-shadow);
     text-align: center;
     transition: var(--transition);
+    flex: 0 0 250px;
+    min-width: 250px;
 }
 
 .service-card:hover {
@@ -232,6 +244,39 @@ section {
 
 .service-link:hover {
     color: var(--primary-dark);
+}
+
+/* Services Navigation */
+.services-navigation {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.nav-btn {
+    background-color: var(--white);
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.nav-btn:hover:not(:disabled) {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.nav-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* How It Works Section */
@@ -457,23 +502,16 @@ section {
     width: 100%;
 }
 
-.testimonial-page {
-    min-width: 100%;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 30px;
-    flex-shrink: 0;
-}
-
 .testimonial {
     background-color: var(--neutral-light);
     border-radius: var(--border-radius);
     padding: 30px;
     box-shadow: var(--box-shadow);
-    height: 100%;
     display: flex;
     flex-direction: column;
     position: relative;
+    flex: 0 0 100%;
+    min-width: 100%;
 }
 
 .testimonial-content {
@@ -575,32 +613,6 @@ section {
     align-items: center;
     margin-top: 30px;
     gap: 15px;
-}
-
-.nav-btn {
-    background-color: var(--white);
-    border: 2px solid var(--primary-color);
-    color: var(--primary-color);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 1.2rem;
-    transition: var(--transition);
-}
-
-.nav-btn:hover:not(:disabled) {
-    background-color: var(--primary-color);
-    color: var(--white);
-}
-
-.nav-btn:disabled,
-.nav-btn.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
 }
 
 .pagination-dots {
@@ -761,7 +773,7 @@ section {
     visibility: visible;
 }
 
-/* Responsive adjustments for testimonials */
+/* Mobile Responsive Design */
 @media (max-width: 768px) {
     section {
         padding: 60px 0;
@@ -779,15 +791,33 @@ section {
         font-size: 2rem;
     }
     
-    .services-grid, 
+    .services-grid {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .service-card {
+        flex: none;
+        width: 100%;
+        max-width: 350px;
+    }
+    
+    .services-navigation {
+        display: none;
+    }
+    
     .steps-container, 
     .professionals-grid, 
     .projects-grid {
         grid-template-columns: 1fr;
     }
     
-    .testimonial-page {
-        grid-template-columns: 1fr;
+    .testimonials-slider {
+        flex-direction: column;
+    }
+    
+    .testimonial {
+        margin-bottom: 20px;
     }
     
     .hero-buttons, 
@@ -808,7 +838,6 @@ section {
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
-    .services-grid, 
     .steps-container {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -818,7 +847,10 @@ section {
 .icon-architecture, 
 .icon-construction, 
 .icon-interior, 
-.icon-landscape {
+.icon-landscape,
+.icon-architectural-design,
+.icon-interior-design,
+.icon-landscaping {
     display: inline-block;
     width: 40px;
     height: 40px;

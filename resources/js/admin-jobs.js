@@ -12,6 +12,10 @@ window.deleteCategory = deleteCategory;
 window.deleteJob = deleteJob;
 window.deleteService = deleteService;
 window.toggleFilters = toggleFilters;
+window.openJobDetailModal = openJobDetailModal;
+window.closeJobDetailModal = closeJobDetailModal;
+window.openServiceDetailModal = openServiceDetailModal;
+window.closeServiceDetailModal = closeServiceDetailModal;
 
 // Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", function () {
@@ -154,6 +158,79 @@ function closeModal(modalId) {
     }
 
     console.log("Modal closed:", modalId);
+}
+
+// ===== JOB AND SERVICE DETAIL MODAL FUNCTIONS =====
+
+function openJobDetailModal(jobData) {
+    console.log('Opening job detail modal with data:', jobData);
+    
+    const modal = document.getElementById('jobDetailModal');
+    if (!modal) {
+        console.error('Job detail modal not found');
+        return;
+    }
+
+    // Update modal content
+    updateElementText(modal, '.modal-job-title', jobData.title);
+    updateElementText(modal, '.modal-job-description', jobData.description);
+    updateElementText(modal, '.modal-job-status', jobData.status);
+    updateElementText(modal, '.modal-job-client', jobData.clientName);
+    updateElementText(modal, '.modal-job-category', jobData.category);
+    updateElementText(modal, '.modal-job-budget', jobData.budget);
+    updateElementText(modal, '.modal-job-location', jobData.location);
+    updateElementText(modal, '.modal-job-deadline', jobData.deadline);
+    updateElementText(modal, '.modal-job-assigned', jobData.assignedProfessional);
+
+    // Handle assigned professional section
+    const assignedSection = modal.querySelector('.modal-job-assigned-section');
+    if (jobData.assignedProfessional) {
+        assignedSection.style.display = 'block';
+    } else {
+        assignedSection.style.display = 'none';
+    }
+
+    openModal('jobDetailModal');
+}
+
+function closeJobDetailModal() {
+    closeModal('jobDetailModal');
+}
+
+function openServiceDetailModal(serviceData) {
+    console.log('Opening service detail modal with data:', serviceData);
+    
+    const modal = document.getElementById('serviceDetailModal');
+    if (!modal) {
+        console.error('Service detail modal not found');
+        return;
+    }
+
+    // Update modal content
+    updateElementText(modal, '.modal-service-title', serviceData.title);
+    updateElementText(modal, '.modal-service-description', serviceData.description);
+    updateElementText(modal, '.modal-service-status', serviceData.status);
+    updateElementText(modal, '.modal-service-professional', serviceData.professionalName);
+    updateElementText(modal, '.modal-service-specialization', serviceData.specialization);
+    updateElementText(modal, '.modal-service-category', serviceData.category);
+    updateElementText(modal, '.modal-service-price', serviceData.price);
+    updateElementText(modal, '.modal-service-area', serviceData.serviceArea);
+
+    openModal('serviceDetailModal');
+}
+
+function closeServiceDetailModal() {
+    closeModal('serviceDetailModal');
+}
+
+function updateElementText(container, selector, text) {
+    const element = container.querySelector(selector);
+    if (element && text) {
+        element.textContent = text;
+        element.style.display = 'block';
+    } else if (element) {
+        element.style.display = 'none';
+    }
 }
 
 // ===== CATEGORY MANAGEMENT FUNCTIONS =====
