@@ -1,6 +1,4 @@
 @extends('layouts.app')
-@vite('resources/css/jobs.css');
-@vite('resources/js/jobs.js');
 @section('title', 'Edit Job')
 
 @section('styles')
@@ -36,15 +34,14 @@
                 <label for="job_category">Category *</label>
                 <select id="job_category" name="category" required class="form-control">
                     <option value="">Select category</option>
-                    <option value="tiles" {{ old('category', $job->category) == 'tiles' ? 'selected' : '' }}>Tiles</option>
-                    <option value="electrical" {{ old('category', $job->category) == 'electrical' ? 'selected' : '' }}>Electrical</option>
-                    <option value="plumbing" {{ old('category', $job->category) == 'plumbing' ? 'selected' : '' }}>Plumbing</option>
-                    <option value="heating" {{ old('category', $job->category) == 'heating' ? 'selected' : '' }}>Heating</option>
-                    <option value="facade" {{ old('category', $job->category) == 'facade' ? 'selected' : '' }}>Facade Work</option>
-                    <option value="roofing" {{ old('category', $job->category) == 'roofing' ? 'selected' : '' }}>Roofing</option>
-                    <option value="carpentry" {{ old('category', $job->category) == 'carpentry' ? 'selected' : '' }}>Carpentry</option>
-                    <option value="painting" {{ old('category', $job->category) == 'painting' ? 'selected' : '' }}>Painting</option>
-                    <option value="other" {{ old('category', $job->category) == 'other' ? 'selected' : '' }}>Other</option>
+                    @php
+                        $categories = \App\Models\ServiceCategory::where('is_active', true)->orderBy('sort_order')->get();
+                    @endphp
+                    @foreach($categories as $category)
+                        <option value="{{ $category->slug }}" {{ old('category', $job->category) == $category->slug ? 'selected' : '' }}>
+                            {{ $category->name }}
+                        </option>
+                    @endforeach
                 </select>
                 @error('category')
                     <div class="error-message">{{ $message }}</div>

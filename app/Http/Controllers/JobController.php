@@ -6,6 +6,7 @@ use App\Models\Job;
 use App\Models\JobRequest;
 use App\Models\Service;
 use App\Models\ServiceRequest;
+use App\Models\ServiceCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,6 +15,13 @@ class JobController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        
+        // ADMIN CHECK - Multiple ways to check if user is admin
+        if ($user->role === 'admin' || 
+            (method_exists($user, 'isAdmin') && $user->isAdmin()) ||
+            (method_exists($user, 'hasRole') && $user->hasRole('admin'))) {
+            return $this->adminJobsPanel($request);
+        }
         
         if ($user->isProfi()) {
             // Professional Dashboard
@@ -115,6 +123,60 @@ class JobController extends Controller
             
             return view('jobs.index', compact('jobs', 'serviceRequests', 'availableServices'));
         }
+    }
+
+    private function adminJobsPanel(Request $request)
+    {
+        // Get all categories for filtering and management
+        $categories = ServiceCategory::orderBy('sort_order')->orderBy('name')->get();
+        
+        // Jobs filtering
+        $jobsQuery = Job::with(['user', 'assignedProfessional', 'requests']);
+        
+        if ($request->filled('job_status')) {
+            $jobsQuery->where('status', $request->job_status);
+        }
+        
+        if ($request->filled('job_category')) {
+            $jobsQuery->where('category', $request->job_category);
+        }
+        
+        if ($request->filled('job_search')) {
+            $jobsQuery->where(function($q) use ($request) {
+                $q->where('title', 'LIKE', '%' . $request->job_search . '%')
+                  ->orWhere('description', 'LIKE', '%' . $request->job_search . '%')
+                  ->orWhereHas('user', function($userQuery) use ($request) {
+                      $userQuery->where('name', 'LIKE', '%' . $request->job_search . '%');
+                  });
+            });
+        }
+        
+        $jobs = $jobsQuery->latest()->paginate(15);
+        
+        // Services filtering
+        $servicesQuery = Service::with('professional');
+        
+        if ($request->filled('service_category')) {
+            $servicesQuery->where('category', $request->service_category);
+        }
+        
+        if ($request->filled('service_status')) {
+            $servicesQuery->where('is_active', $request->service_status);
+        }
+        
+        if ($request->filled('service_search')) {
+            $servicesQuery->where(function($q) use ($request) {
+                $q->where('title', 'LIKE', '%' . $request->service_search . '%')
+                  ->orWhere('description', 'LIKE', '%' . $request->service_search . '%')
+                  ->orWhereHas('professional', function($profQuery) use ($request) {
+                      $profQuery->where('name', 'LIKE', '%' . $request->service_search . '%');
+                  });
+            });
+        }
+        
+        $services = $servicesQuery->latest()->paginate(15);
+        
+        return view('admin.jobs.index', compact('categories', 'jobs', 'services'));
     }
 
     public function create()
@@ -276,5 +338,42 @@ class JobController extends Controller
         $job->update(['status' => Job::STATUS_COMPLETED]);
 
         return redirect()->back()->with('success', 'Job marked as completed!');
+    }
+
+    // Admin-only methods
+    public function adminDestroyJob(Job $job)
+    {
+        $user = Auth::user();
+        
+        if ($user->role !== 'admin' && 
+            !(method_exists($user, 'isAdmin') && $user->isAdmin()) &&
+            !(method_exists($user, 'hasRole') && $user->hasRole('admin'))) {
+            return redirect()->route('jobs.index')->with('error', 'Unauthorized access.');
+        }
+
+        try {
+            $job->delete();
+            return redirect()->back()->with('success', 'Job deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error deleting job: ' . $e->getMessage());
+        }
+    }
+
+    public function adminDestroyService(Service $service)
+    {
+        $user = Auth::user();
+        
+        if ($user->role !== 'admin' && 
+            !(method_exists($user, 'isAdmin') && $user->isAdmin()) &&
+            !(method_exists($user, 'hasRole') && $user->hasRole('admin'))) {
+            return redirect()->route('jobs.index')->with('error', 'Unauthorized access.');
+        }
+
+        try {
+            $service->delete();
+            return redirect()->back()->with('success', 'Service deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error deleting service: ' . $e->getMessage());
+        }
     }
 }

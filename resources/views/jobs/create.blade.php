@@ -33,15 +33,14 @@
                 <label for="job_category">Category *</label>
                 <select id="job_category" name="category" required class="form-control">
                     <option value="">Select category</option>
-                    <option value="tiles" {{ old('category') == 'tiles' ? 'selected' : '' }}>Tiles</option>
-                    <option value="electrical" {{ old('category') == 'electrical' ? 'selected' : '' }}>Electrical</option>
-                    <option value="plumbing" {{ old('category') == 'plumbing' ? 'selected' : '' }}>Plumbing</option>
-                    <option value="heating" {{ old('category') == 'heating' ? 'selected' : '' }}>Heating</option>
-                    <option value="facade" {{ old('category') == 'facade' ? 'selected' : '' }}>Facade Work</option>
-                    <option value="roofing" {{ old('category') == 'roofing' ? 'selected' : '' }}>Roofing</option>
-                    <option value="carpentry" {{ old('category') == 'carpentry' ? 'selected' : '' }}>Carpentry</option>
-                    <option value="painting" {{ old('category') == 'painting' ? 'selected' : '' }}>Painting</option>
-                    <option value="other" {{ old('category') == 'other' ? 'selected' : '' }}>Other</option>
+                    @php
+                        $categories = \App\Models\ServiceCategory::where('is_active', true)->orderBy('sort_order')->get();
+                    @endphp
+                    @foreach($categories as $category)
+                        <option value="{{ $category->slug }}" {{ old('category') == $category->slug ? 'selected' : '' }}>
+                            {{ $category->name }}
+                        </option>
+                    @endforeach
                 </select>
                 @error('category')
                     <div class="error-message">{{ $message }}</div>

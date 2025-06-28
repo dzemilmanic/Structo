@@ -10,6 +10,8 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\ProfiRequestController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ServiceCategoryController;
 use App\Http\Services\S3TestService;
 
 Route::get('/', function () {
@@ -33,10 +35,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     // Add password update route
     Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
-});
-
-Route::get('/jobs', function () {
-    return view('jobs');
 });
 
 Route::get('/contact', function () {
@@ -70,8 +68,6 @@ Route::resource('answers', AnswerController::class)->only([
 
 Route::post('/answers/{answer}/solution', [AnswerController::class, 'markAsSolution'])->name('answers.solution');
 
-Route::get('/jobs', [UsersController::class, 'index'])->name('users.index');
-
 Route::get('/users', [UsersController::class, 'index'])->name('users.index');
 Route::get('/users/{user}', [UsersController::class, 'show'])->name('users.show');
 
@@ -83,6 +79,21 @@ Route::middleware(['auth', 'can:isAdmin'])->group(function () {
     Route::get('/admin/profi-requests', [ProfiRequestController::class, 'index'])->name('admin.profi-requests.index');
     Route::post('/admin/profi-requests/{id}/approve', [ProfiRequestController::class, 'approve'])->name('admin.profi-requests.approve');
     Route::post('/admin/profi-requests/{id}/reject', [ProfiRequestController::class, 'reject'])->name('admin.profi-requests.reject');
+});
+
+// Admin Routes
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminController::class, 'index'])->name('dashboard');
+    Route::get('/jobs', [AdminController::class, 'jobs'])->name('jobs');
+    Route::get('/services', [AdminController::class, 'services'])->name('services');
+    Route::delete('/jobs/{job}', [AdminController::class, 'destroyJob'])->name('jobs.destroy');
+    Route::delete('/services/{service}', [AdminController::class, 'destroyService'])->name('services.destroy');
+    
+    // Service Categories Management
+    Route::get('/categories', [ServiceCategoryController::class, 'index'])->name('categories');
+    Route::post('/categories', [ServiceCategoryController::class, 'store'])->name('categories.store');
+    Route::put('/categories/{category}', [ServiceCategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{category}', [ServiceCategoryController::class, 'destroy'])->name('categories.destroy');
 });
 
 // Testimonials API route
@@ -121,6 +132,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/jobs/{job}/edit', [JobController::class, 'edit'])->name('jobs.edit');
     Route::put('/jobs/{job}', [JobController::class, 'update'])->name('jobs.update');
     Route::delete('/jobs/{job}', [JobController::class, 'destroy'])->name('jobs.destroy');
+    
+    // Admin job and service deletion routes
+    Route::delete('/admin/jobs/{job}', [JobController::class, 'adminDestroyJob'])->name('admin.jobs.destroy');
+    Route::delete('/admin/services/{service}', [JobController::class, 'adminDestroyService'])->name('admin.services.destroy');
     
     // Service management routes
     Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
