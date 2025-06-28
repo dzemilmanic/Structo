@@ -15,7 +15,8 @@ class JobController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        
+        $categories = ServiceCategory::where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+
         // ADMIN CHECK - Multiple ways to check if user is admin
         if ($user->role === 'admin' || 
             (method_exists($user, 'isAdmin') && $user->isAdmin()) ||
@@ -74,7 +75,7 @@ class JobController extends Controller
 
             $availableJobs = $availableJobsQuery->latest()->get();
             
-            return view('jobs.index', compact('services', 'jobRequests', 'assignedJobs', 'serviceRequests', 'availableJobs'));
+            return view('jobs.index', compact('services', 'jobRequests', 'assignedJobs', 'serviceRequests', 'availableJobs', 'categories'));
         } else {
             // Regular User Dashboard
             $jobs = $user->jobs()->with('requests.professional', 'assignedProfessional')->latest()->get();
@@ -121,11 +122,11 @@ class JobController extends Controller
 
             $availableServices = $availableServicesQuery->latest()->get();
             
-            return view('jobs.index', compact('jobs', 'serviceRequests', 'availableServices'));
+            return view('jobs.index', compact('jobs', 'serviceRequests', 'availableServices', 'categories'));
         }
     }
 
-    private function adminJobsPanel(Request $request)
+    public function adminJobsPanel(Request $request)
     {
         // Get all categories for filtering and management
         $categories = ServiceCategory::orderBy('sort_order')->orderBy('name')->get();
@@ -181,7 +182,8 @@ class JobController extends Controller
 
     public function create()
     {
-        return view('jobs.create');
+        $categories = ServiceCategory::where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+        return view('jobs.create', compact('categories'));
     }
 
     public function store(Request $request)
@@ -220,7 +222,8 @@ class JobController extends Controller
             return redirect()->route('jobs.index')->with('error', 'You do not have permission for this action.');
         }
 
-        return view('jobs.edit', compact('job'));
+        $categories = ServiceCategory::where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+        return view('jobs.edit', compact('job', 'categories'));
     }
 
     public function update(Request $request, Job $job)

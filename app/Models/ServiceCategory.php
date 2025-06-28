@@ -20,6 +20,7 @@ class ServiceCategory extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'sort_order' => 'integer'
     ];
 
     public function services()
@@ -34,7 +35,7 @@ class ServiceCategory extends Model
 
     public function getRouteKeyName()
     {
-        return 'slug';
+        return 'id'; // Changed from 'slug' to 'id' for admin operations
     }
 
     protected static function boot()
@@ -44,6 +45,9 @@ class ServiceCategory extends Model
         static::creating(function ($category) {
             if (empty($category->slug)) {
                 $category->slug = Str::slug($category->name);
+            }
+            if (empty($category->sort_order)) {
+                $category->sort_order = (static::max('sort_order') ?? 0) + 1;
             }
         });
         

@@ -160,25 +160,32 @@ function closeModal(modalId) {
 
 function openCategoryModal() {
     console.log("openCategoryModal called");
-    
+
     // Reset form for new category
     const form = document.getElementById('categoryForm');
     const title = document.getElementById('categoryModalTitle');
     const method = document.getElementById('categoryMethod');
-    
+
     if (form) {
-        form.action = form.action.replace(/\/\d+$/, ''); // Remove any ID from URL
+        // Set the correct action URL for creating new category
+        form.action = '/admin/categories';
         form.reset();
+        
+        // Make sure checkbox is unchecked by default
+        const activeCheckbox = document.getElementById('category_is_active');
+        if (activeCheckbox) {
+            activeCheckbox.checked = true; // Default to active
+        }
     }
-    
+
     if (title) {
         title.textContent = 'Add Category';
     }
-    
+
     if (method) {
         method.value = '';
     }
-    
+
     openModal('categoryModal');
 }
 
@@ -189,7 +196,7 @@ function closeCategoryModal() {
 
 function editCategory(categoryId) {
     console.log("Editing category:", categoryId);
-    
+
     // Find category data
     const category = window.categoriesData?.find(cat => cat.id === categoryId);
     if (!category) {
@@ -197,29 +204,33 @@ function editCategory(categoryId) {
         showErrorMessage("Category not found!");
         return;
     }
-    
+
     // Fill form with category data
     const form = document.getElementById('categoryForm');
     const title = document.getElementById('categoryModalTitle');
     const method = document.getElementById('categoryMethod');
-    
+
     if (form) {
-        form.action = form.action.replace(/\/\d*$/, '') + '/' + categoryId;
+        form.action = '/admin/categories/' + categoryId;
     }
-    
+
     if (title) {
         title.textContent = 'Edit Category';
     }
-    
+
     if (method) {
         method.value = 'PUT';
     }
-    
+
     // Fill form fields
-    document.getElementById('category_name').value = category.name || '';
-    document.getElementById('category_description').value = category.description || '';
-    document.getElementById('category_is_active').checked = category.is_active;
-    
+    const nameField = document.getElementById('category_name');
+    const descField = document.getElementById('category_description');
+    const activeField = document.getElementById('category_is_active');
+
+    if (nameField) nameField.value = category.name || '';
+    if (descField) descField.value = category.description || '';
+    if (activeField) activeField.checked = category.is_active;
+
     openModal('categoryModal');
 }
 
@@ -228,7 +239,7 @@ function deleteCategory(categoryId) {
 
     if (typeof Swal === "undefined") {
         if (confirm("Are you sure you want to delete this category?")) {
-            submitDeleteForm("admin/categories", categoryId);
+            submitDeleteForm("/admin/categories", categoryId);
         }
         return;
     }
@@ -253,7 +264,7 @@ function deleteCategory(categoryId) {
                 },
             });
 
-            submitDeleteForm("admin/categories", categoryId);
+            submitDeleteForm("/admin/categories", categoryId);
         }
     });
 }
@@ -265,7 +276,7 @@ function deleteJob(jobId) {
 
     if (typeof Swal === "undefined") {
         if (confirm("Are you sure you want to delete this job?")) {
-            submitDeleteForm("admin/jobs", jobId);
+            submitDeleteForm("/admin/jobs", jobId);
         }
         return;
     }
@@ -281,7 +292,7 @@ function deleteJob(jobId) {
         cancelButtonText: "Cancel",
     }).then((result) => {
         if (result.isConfirmed) {
-            submitDeleteForm("admin/jobs", jobId);
+            submitDeleteForm("/admin/jobs", jobId);
         }
     });
 }
@@ -291,7 +302,7 @@ function deleteService(serviceId) {
 
     if (typeof Swal === "undefined") {
         if (confirm("Are you sure you want to delete this service?")) {
-            submitDeleteForm("admin/services", serviceId);
+            submitDeleteForm("/admin/services", serviceId);
         }
         return;
     }
@@ -307,7 +318,7 @@ function deleteService(serviceId) {
         cancelButtonText: "Cancel",
     }).then((result) => {
         if (result.isConfirmed) {
-            submitDeleteForm("admin/services", serviceId);
+            submitDeleteForm("/admin/services", serviceId);
         }
     });
 }
@@ -316,13 +327,13 @@ function deleteService(serviceId) {
 
 function toggleFilters(filterId) {
     console.log("Toggling filters:", filterId);
-    
+
     const filtersContainer = document.getElementById(filterId);
     if (!filtersContainer) {
         console.error("Filters container not found:", filterId);
         return;
     }
-    
+
     if (filtersContainer.style.display === 'none' || filtersContainer.style.display === '') {
         filtersContainer.style.display = 'block';
         filtersContainer.classList.add('filters-open');
@@ -369,7 +380,7 @@ function submitDeleteForm(type, id) {
 
     const form = document.createElement("form");
     form.method = "POST";
-    form.action = `/${type}/${id}`;
+    form.action = `${type}/${id}`;
     form.style.display = "none";
 
     // Add CSRF token
@@ -387,7 +398,7 @@ function submitDeleteForm(type, id) {
     form.appendChild(methodInput);
 
     document.body.appendChild(form);
-    
+
     try {
         form.submit();
     } catch (error) {

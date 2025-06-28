@@ -5,7 +5,6 @@
 @section('title', 'Admin - Jobs & Services Management')
 
 @section('styles')
-    <link rel="stylesheet" href="{{ asset('resources/css/admin-jobs.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 @endsection
@@ -83,8 +82,8 @@
                                 <p class="category-description">{{ $category->description }}</p>
                             @endif
                             <div class="category-stats">
-                                <span><i class="fas fa-briefcase"></i> {{ $category->jobs()->count() }} jobs</span>
-                                <span><i class="fas fa-tools"></i> {{ $category->services()->count() }} services</span>
+                                <span><i class="fas fa-briefcase"></i> {{ \App\Models\Job::where('category', $category->slug)->count() }} jobs</span>
+                                <span><i class="fas fa-tools"></i> {{ \App\Models\Service::where('category', $category->slug)->count() }} services</span>
                             </div>
                         </div>
                         <div class="category-actions">
@@ -119,7 +118,7 @@
         </div>
         
         <div id="jobFilters" class="filters-container" style="display: none;">
-            <form method="GET" action="{{ route('jobs.index') }}" class="filters-form">
+            <form method="GET" action="{{ route('admin.jobs.index') }}" class="filters-form">
                 <div class="filter-row">
                     <div class="filter-group">
                         <label for="job_status">Status</label>
@@ -152,7 +151,7 @@
                 </div>
 
                 <div class="filter-actions">
-                    <a href="{{ route('jobs.index') }}" class="btn btn-secondary">Clear</a>
+                    <a href="{{ route('admin.jobs.index') }}" class="btn btn-secondary">Clear</a>
                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                 </div>
             </form>
@@ -220,7 +219,7 @@
         </div>
         
         <div id="serviceFilters" class="filters-container" style="display: none;">
-            <form method="GET" action="{{ route('jobs.index') }}" class="filters-form">
+            <form method="GET" action="{{ route('admin.jobs.index') }}" class="filters-form">
                 <div class="filter-row">
                     <div class="filter-group">
                         <label for="service_status">Status</label>
@@ -251,7 +250,7 @@
                 </div>
 
                 <div class="filter-actions">
-                    <a href="{{ route('jobs.index') }}" class="btn btn-secondary">Clear</a>
+                    <a href="{{ route('admin.jobs.index') }}" class="btn btn-secondary">Clear</a>
                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                 </div>
             </form>
@@ -364,6 +363,16 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Pass categories data to JavaScript
-        window.categoriesData = @json($categories);
+        window.categoriesData = [
+            @foreach($categories as $category)
+                {
+                    id: {{ $category->id }},
+                    name: "{{ $category->name }}",
+                    description: "{{ $category->description ?? '' }}",
+                    is_active: {{ $category->is_active ? 'true' : 'false' }},
+                    slug: "{{ $category->slug }}"
+                }@if(!$loop->last),@endif
+            @endforeach
+        ];
     </script>
 @endsection

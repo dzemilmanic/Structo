@@ -84,13 +84,12 @@ Route::middleware(['auth', 'can:isAdmin'])->group(function () {
 // Admin Routes
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('dashboard');
-    Route::get('/jobs', [AdminController::class, 'jobs'])->name('jobs');
+    Route::get('/jobs', [JobController::class, 'adminJobsPanel'])->name('jobs.index');
     Route::get('/services', [AdminController::class, 'services'])->name('services');
-    Route::delete('/jobs/{job}', [AdminController::class, 'destroyJob'])->name('jobs.destroy');
-    Route::delete('/services/{service}', [AdminController::class, 'destroyService'])->name('services.destroy');
+    Route::delete('/jobs/{job}', [JobController::class, 'adminDestroyJob'])->name('jobs.destroy');
+    Route::delete('/services/{service}', [JobController::class, 'adminDestroyService'])->name('services.destroy');
     
-    // Service Categories Management
-    Route::get('/categories', [ServiceCategoryController::class, 'index'])->name('categories');
+    // Service Categories Management - FIXED ROUTES
     Route::post('/categories', [ServiceCategoryController::class, 'store'])->name('categories.store');
     Route::put('/categories/{category}', [ServiceCategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{category}', [ServiceCategoryController::class, 'destroy'])->name('categories.destroy');

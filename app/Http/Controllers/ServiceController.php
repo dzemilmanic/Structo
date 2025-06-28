@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Service;
 use App\Models\ServiceRequest;
+use App\Models\ServiceCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,29 +12,16 @@ class ServiceController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
+        $categories = ServiceCategory::where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+        $services = Service::where('is_active', true)->with('professional')->latest()->paginate(15);
         
-        if ($user->isProfi()) {
-            $services = $user->services()->latest()->get();
-            return view('services.index', compact('services'));
-        } else {
-            $services = Service::where('is_active', true)
-                ->with('professional')
-                ->latest()
-                ->get();
-            return view('services.index', compact('services'));
-        }
+        return view('services.index', compact('services', 'categories'));
     }
 
     public function create()
     {
-        $user = Auth::user();
-        
-        if (!$user->isProfi()) {
-            return redirect()->route('jobs.index')->with('error', 'You do not have permission for this action.');
-        }
-
-        return view('services.create');
+        $categories = ServiceCategory::where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+        return view('services.create', compact('categories'));
     }
 
     public function store(Request $request)
@@ -41,7 +29,7 @@ class ServiceController extends Controller
         $user = Auth::user();
         
         if (!$user->isProfi()) {
-            return redirect()->route('jobs.index')->with('error', 'You do not have permission for this action.');
+            return redirect()->route('jobs.index')->with('error', 'Only professionals can create services.');
         }
 
         $validated = $request->validate([
@@ -74,7 +62,8 @@ class ServiceController extends Controller
             return redirect()->route('jobs.index')->with('error', 'You do not have permission for this action.');
         }
 
-        return view('services.edit', compact('service'));
+        $categories = ServiceCategory::where('is_active', true)->orderBy('sort_order')->orderBy('name')->get();
+        return view('services.edit', compact('service', 'categories'));
     }
 
     public function update(Request $request, Service $service)
@@ -92,7 +81,6 @@ class ServiceController extends Controller
             'price_from' => 'nullable|numeric|min:0',
             'price_to' => 'nullable|numeric|min:0',
             'service_area' => 'required|string',
-            'is_active' => 'boolean',
         ]);
 
         $service->update($validated);
@@ -117,8 +105,8 @@ class ServiceController extends Controller
     {
         $user = Auth::user();
         
-        if (!$user->isUser()) {
-            return redirect()->back()->with('error', 'You do not have permission for this action.');
+        if ($user->isProfi()) {
+            return redirect()->back()->with('error', 'Professionals cannot request services.');
         }
 
         // Check if user already sent request for this service
@@ -132,20 +120,15 @@ class ServiceController extends Controller
 
         $validated = $request->validate([
             'message' => 'required|string',
-            'job_description' => 'required|string',
-            'budget' => 'nullable|numeric|min:0',
-            'location' => 'required|string',
         ]);
 
         $validated['service_id'] = $service->id;
         $validated['user_id'] = $user->id;
         $validated['status'] = ServiceRequest::STATUS_PENDING;
-        $validated['latitude'] = null;
-        $validated['longitude'] = null;
 
         ServiceRequest::create($validated);
 
-        return redirect()->back()->with('success', 'Request sent successfully!');
+        return redirect()->back()->with('success', 'Service request sent successfully!');
     }
 
     public function acceptServiceRequest(ServiceRequest $serviceRequest)
@@ -158,7 +141,7 @@ class ServiceController extends Controller
 
         $serviceRequest->update(['status' => ServiceRequest::STATUS_ACCEPTED]);
 
-        return redirect()->back()->with('success', 'Request accepted!');
+        return redirect()->back()->with('success', 'Service request accepted!');
     }
 
     public function rejectServiceRequest(ServiceRequest $serviceRequest)
@@ -171,6 +154,6 @@ class ServiceController extends Controller
 
         $serviceRequest->update(['status' => ServiceRequest::STATUS_REJECTED]);
 
-        return redirect()->back()->with('success', 'Request rejected!');
+        return redirect()->back()->with('success', 'Service request rejected!');
     }
 }

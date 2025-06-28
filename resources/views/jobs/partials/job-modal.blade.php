@@ -18,15 +18,22 @@
                     <label for="job_category">Category *</label>
                     <select id="job_category" name="category" required class="form-control">
                         <option value="">Select category</option>
-                        <option value="tiles">Tiles</option>
-                        <option value="electrical">Electrical</option>
-                        <option value="plumbing">Plumbing</option>
-                        <option value="heating">Heating</option>
-                        <option value="facade">Facade Work</option>
-                        <option value="roofing">Roofing</option>
-                        <option value="carpentry">Carpentry</option>
-                        <option value="painting">Painting</option>
-                        <option value="other">Other</option>
+                        @if(isset($categories) && $categories->count() > 0)
+                            @foreach($categories as $category)
+                                <option value="{{ $category->slug }}">{{ $category->name }}</option>
+                            @endforeach
+                        @else
+                            <option value="general">General</option>
+                            <option value="tiles">Tiles</option>
+                            <option value="electrical">Electrical</option>
+                            <option value="plumbing">Plumbing</option>
+                            <option value="heating">Heating</option>
+                            <option value="facade">Facade Work</option>
+                            <option value="roofing">Roofing</option>
+                            <option value="carpentry">Carpentry</option>
+                            <option value="painting">Painting</option>
+                            <option value="other">Other</option>
+                        @endif
                     </select>
                 </div>
 

@@ -1,100 +1,94 @@
 @extends('layouts.app')
-@vite('resources/css/jobs.css');
-@vite('resources/js/jobs.js');
-@section('title', 'Add New Service')
 
-@section('styles')
-    <link rel="stylesheet" href="{{ asset('resources/css/jobs.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-@endsection
+@section('title', 'Create New Service')
 
 @section('content')
-<div class="jobs-dashboard">
-    <div class="dashboard-header">
-        <h1>Add New Service</h1>
-        <a href="{{ route('jobs.index') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back
-        </a>
-    </div>
-
-    <div class="form-container">
-        <form action="{{ route('services.store') }}" method="POST" class="service-form">
-            @csrf
-            <div class="form-group">
-                <label for="service_title">Service Title *</label>
-                <input type="text" id="service_title" name="title" required class="form-control" 
-                       placeholder="e.g. Tile Installation Services" value="{{ old('title') }}">
-                @error('title')
-                    <div class="error-message">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="service_category">Category *</label>
-                <select id="service_category" name="category" required class="form-control">
-                    <option value="">Select category</option>
-                    <option value="tiles" {{ old('category') == 'tiles' ? 'selected' : '' }}>Tiles</option>
-                    <option value="electrical" {{ old('category') == 'electrical' ? 'selected' : '' }}>Electrical</option>
-                    <option value="plumbing" {{ old('category') == 'plumbing' ? 'selected' : '' }}>Plumbing</option>
-                    <option value="heating" {{ old('category') == 'heating' ? 'selected' : '' }}>Heating</option>
-                    <option value="facade" {{ old('category') == 'facade' ? 'selected' : '' }}>Facade Work</option>
-                    <option value="roofing" {{ old('category') == 'roofing' ? 'selected' : '' }}>Roofing</option>
-                    <option value="carpentry" {{ old('category') == 'carpentry' ? 'selected' : '' }}>Carpentry</option>
-                    <option value="painting" {{ old('category') == 'painting' ? 'selected' : '' }}>Painting</option>
-                    <option value="other" {{ old('category') == 'other' ? 'selected' : '' }}>Other</option>
-                </select>
-                @error('category')
-                    <div class="error-message">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-group">
-                <label for="service_description">Service Description *</label>
-                <textarea id="service_description" name="description" required class="form-control" rows="4"
-                          placeholder="Describe your service in detail...">{{ old('description') }}</textarea>
-                @error('description')
-                    <div class="error-message">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="price_from">Price From ($)</label>
-                    <input type="number" id="price_from" name="price_from" class="form-control" min="0"
-                           placeholder="Minimum price" value="{{ old('price_from') }}">
-                    @error('price_from')
-                        <div class="error-message">{{ $message }}</div>
-                    @enderror
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Create New Service</h2>
                 </div>
-                <div class="form-group">
-                    <label for="price_to">Price To ($)</label>
-                    <input type="number" id="price_to" name="price_to" class="form-control" min="0"
-                           placeholder="Maximum price" value="{{ old('price_to') }}">
-                    @error('price_to')
-                        <div class="error-message">{{ $message }}</div>
-                    @enderror
+                <div class="card-body">
+                    <form action="{{ route('services.store') }}" method="POST">
+                        @csrf
+                        
+                        <div class="form-group mb-3">
+                            <label for="title" class="form-label">Service Title *</label>
+                            <input type="text" id="title" name="title" class="form-control" 
+                                   value="{{ old('title') }}" required
+                                   placeholder="e.g. Tile Installation Services">
+                            @error('title')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="category" class="form-label">Category *</label>
+                            <select id="category" name="category" class="form-control" required>
+                                <option value="">Select category</option>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->slug }}" {{ old('category') == $category->slug ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('category')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="description" class="form-label">Service Description *</label>
+                            <textarea id="description" name="description" class="form-control" rows="4" required
+                                      placeholder="Describe your service in detail...">{{ old('description') }}</textarea>
+                            @error('description')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="price_from" class="form-label">Price From ($)</label>
+                                    <input type="number" id="price_from" name="price_from" class="form-control" min="0"
+                                           value="{{ old('price_from') }}" placeholder="Minimum price">
+                                    @error('price_from')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="price_to" class="form-label">Price To ($)</label>
+                                    <input type="number" id="price_to" name="price_to" class="form-control" min="0"
+                                           value="{{ old('price_to') }}" placeholder="Maximum price">
+                                    @error('price_to')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="service_area" class="form-label">Service Area *</label>
+                            <input type="text" id="service_area" name="service_area" class="form-control" 
+                                   value="{{ old('service_area') }}" required 
+                                   placeholder="e.g. New York and surrounding areas">
+                            @error('service_area')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-actions">
+                            <a href="{{ route('jobs.index') }}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Create Service</button>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-            <div class="form-group">
-                <label for="service_area">Service Area *</label>
-                <input type="text" id="service_area" name="service_area" required class="form-control"
-                       placeholder="e.g. New York and surrounding areas" value="{{ old('service_area') }}">
-                @error('service_area')
-                    <div class="error-message">{{ $message }}</div>
-                @enderror
-            </div>
-
-            <div class="form-actions">
-                <a href="{{ route('jobs.index') }}" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary">Create Service</button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
-@endsection
-
-@section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection

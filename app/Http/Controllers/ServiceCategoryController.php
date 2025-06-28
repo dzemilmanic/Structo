@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\ServiceCategory;
+use App\Models\Job;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -22,43 +24,74 @@ class ServiceCategoryController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:service_categories,name',
-            'description' => 'nullable|string|max:500',
-            'is_active' => 'boolean'
-        ]);
+        try {
+            // Debug: Log incoming request data
+            \Log::info('Category creation request:', $request->all());
 
-        $validated['slug'] = Str::slug($validated['name']);
-        $validated['is_active'] = $request->has('is_active');
-        $validated['sort_order'] = ServiceCategory::max('sort_order') + 1;
+            $validated = $request->validate([
+                'name' => 'required|string|max:255|unique:service_categories,name',
+                'description' => 'nullable|string|max:500',
+                'is_active' => 'nullable'
+            ]);
 
-        ServiceCategory::create($validated);
+            // Manually handle the checkbox
+            $categoryData = [
+                'name' => $validated['name'],
+                'description' => $validated['description'] ?? null,
+                'slug' => Str::slug($validated['name']),
+                'is_active' => $request->has('is_active') ? 1 : 0,
+                'sort_order' => (ServiceCategory::max('sort_order') ?? 0) + 1
+            ];
 
-        return redirect()->back()->with('success', 'Category created successfully!');
+            // Debug: Log data being inserted
+            \Log::info('Category data to insert:', $categoryData);
+
+            $category = ServiceCategory::create($categoryData);
+
+            // Debug: Log created category
+            \Log::info('Created category:', $category->toArray());
+
+            return redirect()->route('admin.jobs.index')->with('success', 'Category "' . $category->name . '" created successfully!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation error:', $e->errors());
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            \Log::error('Error creating category:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return redirect()->back()->with('error', 'Error creating category: ' . $e->getMessage())->withInput();
+        }
     }
 
     public function update(Request $request, ServiceCategory $category)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:service_categories,name,' . $category->id,
-            'description' => 'nullable|string|max:500',
-            'is_active' => 'boolean'
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255|unique:service_categories,name,' . $category->id,
+                'description' => 'nullable|string|max:500',
+                'is_active' => 'nullable'
+            ]);
 
-        $validated['slug'] = Str::slug($validated['name']);
-        $validated['is_active'] = $request->has('is_active');
+            $updateData = [
+                'name' => $validated['name'],
+                'description' => $validated['description'] ?? null,
+                'slug' => Str::slug($validated['name']),
+                'is_active' => $request->has('is_active') ? 1 : 0
+            ];
 
-        $category->update($validated);
+            $category->update($updateData);
 
-        return redirect()->back()->with('success', 'Category updated successfully!');
+            return redirect()->route('admin.jobs.index')->with('success', 'Category updated successfully!');
+        } catch (\Exception $e) {
+            \Log::error('Error updating category:', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Error updating category: ' . $e->getMessage());
+        }
     }
 
     public function destroy(ServiceCategory $category)
     {
         try {
             // Check if category is being used
-            $jobsCount = $category->jobs()->count();
-            $servicesCount = $category->services()->count();
+            $jobsCount = Job::where('category', $category->slug)->count();
+            $servicesCount = Service::where('category', $category->slug)->count();
             
             if ($jobsCount > 0 || $servicesCount > 0) {
                 return redirect()->back()->with('error', 
@@ -66,8 +99,9 @@ class ServiceCategoryController extends Controller
             }
 
             $category->delete();
-            return redirect()->back()->with('success', 'Category deleted successfully!');
+            return redirect()->route('admin.jobs.index')->with('success', 'Category deleted successfully!');
         } catch (\Exception $e) {
+            \Log::error('Error deleting category:', ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Error deleting category: ' . $e->getMessage());
         }
     }
