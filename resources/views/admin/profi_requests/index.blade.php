@@ -43,8 +43,21 @@
                 <div class="request-header">
                     <div class="user-info">
                         <div class="user-avatar-small">
-                            @if($request->user->avatar)
-                                <img src="{{ Storage::disk('s3')->url($request->user->avatar) }}" alt="{{ $request->user->name }}" class="avatar-image-small">
+                            @if($request->user->photo)
+                                @php
+                                    if (str_contains($request->user->photo, 'amazonaws.com') || str_contains($request->user->photo, 'http')) {
+                                        $photoUrl = $request->user->photo;
+                                    } else {
+                                        $photoPath = ltrim($request->user->photo, '/');
+                                        $bucket = config('filesystems.disks.s3.bucket') ?? config('filesystems.disks.profile_photos.bucket');
+                                        $region = config('filesystems.disks.s3.region') ?? config('filesystems.disks.profile_photos.region');
+                                        $photoUrl = 'https://' . $bucket . '.s3.' . $region . '.amazonaws.com/' . $photoPath;
+                                    }
+                                @endphp
+                                <img src="{{ $photoUrl }}" alt="{{ $request->user->name }}" class="avatar-image-small" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="avatar-placeholder-small" style="display: none;">
+                                    {{ strtoupper(substr($request->user->name, 0, 1)) }}{{ strtoupper(substr($request->user->lastname ?? '', 0, 1)) }}
+                                </div>
                             @else
                                 <div class="avatar-placeholder-small">
                                     {{ strtoupper(substr($request->user->name, 0, 1)) }}{{ strtoupper(substr($request->user->lastname ?? '', 0, 1)) }}
@@ -75,21 +88,49 @@
                         <p class="specialization-text">{{ $request->specialization }}</p>
                     </div>
 
-                    @if($request->image)
-                        <div class="proof-section">
-                            <h4 class="proof-title">
-                                <svg class="proof-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    @if($request->files_with_urls && count($request->files_with_urls) > 0)
+                        <div class="files-section">
+                            <h4 class="files-title">
+                                <svg class="files-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
-                                Professional Proof
+                                Uploaded Documents ({{ count($request->files_with_urls) }})
                             </h4>
-                            <div class="proof-image-container">
-                                <img src="{{ Storage::disk('s3')->url($request->image) }}" alt="Professional proof" class="proof-image" onclick="openImageModal('{{ Storage::disk('s3')->url($request->image) }}')">
-                                <div class="image-overlay">
-                                    <svg class="zoom-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                                    </svg>
-                                </div>
+                            <div class="files-list">
+                                @foreach($request->files_with_urls as $file)
+                                    <div class="file-item">
+                                        <div class="file-info">
+                                            <svg class="file-icon {{ $file['icon_class'] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                @if($file['icon_class'] === 'file-pdf')
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                @elseif($file['icon_class'] === 'file-image')
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                @else
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                @endif
+                                            </svg>
+                                            <div class="file-details">
+                                                <span class="file-name">{{ $file['original_name'] }}</span>
+                                                <span class="file-size">{{ $file['formatted_size'] }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="file-actions">
+                                            @if(str_contains($file['mime_type'], 'image'))
+                                                <button type="button" class="file-action-btn view-btn" onclick="openImageModal('{{ $file['url'] }}', '{{ $file['original_name'] }}')">
+                                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                    </svg>
+                                                </button>
+                                            @endif
+                                            <a href="{{ $file['url'] }}" target="_blank" class="file-action-btn download-btn">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
                     @endif
@@ -136,19 +177,20 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="imageModalLabel">Professional Proof</h5>
+                <h5 class="modal-title" id="imageModalLabel">Document Preview</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-                <img id="modalImage" src="" alt="Professional proof" class="img-fluid">
+                <img id="modalImage" src="" alt="Document preview" class="img-fluid" style="max-height: 70vh;">
             </div>
         </div>
     </div>
 </div>
 
 <script>
-function openImageModal(imageSrc) {
+function openImageModal(imageSrc, fileName) {
     document.getElementById('modalImage').src = imageSrc;
+    document.getElementById('imageModalLabel').textContent = fileName || 'Document Preview';
     new bootstrap.Modal(document.getElementById('imageModal')).show();
 }
 
@@ -186,7 +228,7 @@ function confirmApprove(requestId, userName) {
 function confirmReject(requestId, userName) {
     Swal.fire({
         title: 'Reject Professional Request?',
-        text: `Are you sure you want to reject ${userName}'s professional request? This action cannot be undone and the request will be permanently deleted.`,
+        text: `Are you sure you want to reject ${userName}'s professional request? This action cannot be undone and all uploaded files will be permanently deleted.`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc3545',

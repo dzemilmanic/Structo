@@ -2,6 +2,10 @@
 @vite(['resources/css/users.css', 'resources/js/users.js'])
 @section('title', 'Users - Structo')
 
+@section('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+@endsection
+
 @section('content')
 <div class="professionals-container">
     <div class="professionals-header">
@@ -138,4 +142,20 @@
         @endforelse
     </div>
 </div>
+@endsection
+
+@section('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    @if(session('success'))
+        <meta name="session-success" content="{{ session('success') }}">
+    @endif
+    
+    @if(session('error'))
+        <meta name="session-error" content="{{ session('error') }}">
+    @endif
+    
+    @if($errors->any())
+        <meta name="validation-errors" content="{{ $errors->first() }}">
+    @endif
 @endsection

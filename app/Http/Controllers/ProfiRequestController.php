@@ -42,36 +42,55 @@ class ProfiRequestController extends Controller
 
         $request->validate([
             'specialization' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'files' => 'nullable|array|max:5',
+            'files.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png,gif,webp|max:10240', // 10MB max per file
         ]);
 
-        $path = null;
-        if ($request->hasFile('image')) {
-            try {
-                $file = $request->file('image');
-                
-                // Generate unique filename
-                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                
-                // Store file to S3
-                $path = Storage::disk('s3')->putFileAs('profi_proofs', $file, $filename);
-                
-                // Make file public
-                Storage::disk('s3')->setVisibility($path, 'public');
-                
-                // Log success
-                Log::info('File uploaded successfully to S3', ['path' => $path]);
-                
-            } catch (\Exception $e) {
-                Log::error('S3 Upload Error: ' . $e->getMessage());
-                
-                if ($request->ajax()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Failed to upload image. Please try again.'
-                    ], 500);
+        $uploadedFiles = [];
+        
+        // Handle file uploads
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $file) {
+                try {
+                    // Generate unique filename
+                    $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    
+                    // Store file to S3
+                    $path = Storage::disk('s3')->putFileAs('profi_documents', $file, $filename);
+                    
+                    // Make file public
+                    Storage::disk('s3')->setVisibility($path, 'public');
+                    
+                    $uploadedFiles[] = [
+                        'path' => $path,
+                        'original_name' => $file->getClientOriginalName(),
+                        'size' => $file->getSize(),
+                        'mime_type' => $file->getMimeType()
+                    ];
+                    
+                    Log::info('File uploaded successfully to S3', [
+                        'path' => $path,
+                        'original_name' => $file->getClientOriginalName()
+                    ]);
+                    
+                } catch (\Exception $e) {
+                    Log::error('S3 Upload Error: ' . $e->getMessage(), [
+                        'file' => $file->getClientOriginalName()
+                    ]);
+                    
+                    // Clean up any uploaded files if one fails
+                    foreach ($uploadedFiles as $uploadedFile) {
+                        Storage::disk('s3')->delete($uploadedFile['path']);
+                    }
+                    
+                    if ($request->ajax()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Failed to upload files. Please try again.'
+                        ], 500);
+                    }
+                    return redirect()->back()->with('error', 'Failed to upload files. Please try again.');
                 }
-                return redirect()->back()->with('error', 'Failed to upload image. Please try again.');
             }
         }
 
@@ -79,7 +98,7 @@ class ProfiRequestController extends Controller
             ProfiRequest::create([
                 'user_id' => Auth::id(),
                 'specialization' => $request->specialization,
-                'image' => $path,
+                'files' => json_encode($uploadedFiles), // Store file info as JSON
                 'status' => 'pending'
             ]);
 
@@ -95,9 +114,9 @@ class ProfiRequestController extends Controller
             return redirect()->back()->with('success', $successMessage);
             
         } catch (\Exception $e) {
-            // If database save fails, delete uploaded file
-            if ($path) {
-                Storage::disk('s3')->delete($path);
+            // If database save fails, delete uploaded files
+            foreach ($uploadedFiles as $uploadedFile) {
+                Storage::disk('s3')->delete($uploadedFile['path']);
             }
             
             Log::error('Database Error: ' . $e->getMessage());
@@ -181,15 +200,20 @@ class ProfiRequestController extends Controller
             
             $userName = $profiRequest->user->name . ' ' . ($profiRequest->user->lastname ?? '');
             
-            // Delete the image from S3 if it exists
-            if ($profiRequest->image) {
-                try {
-                    Storage::disk('s3')->delete($profiRequest->image);
-                    Log::info('S3 file deleted successfully', ['file' => $profiRequest->image]);
-                } catch (\Exception $e) {
-                    Log::error('Failed to delete S3 file: ' . $e->getMessage(), [
-                        'file' => $profiRequest->image
-                    ]);
+            // Delete uploaded files from S3
+            if ($profiRequest->files) {
+                $files = json_decode($profiRequest->files, true);
+                if (is_array($files)) {
+                    foreach ($files as $file) {
+                        try {
+                            Storage::disk('s3')->delete($file['path']);
+                            Log::info('S3 file deleted successfully', ['file' => $file['path']]);
+                        } catch (\Exception $e) {
+                            Log::error('Failed to delete S3 file: ' . $e->getMessage(), [
+                                'file' => $file['path']
+                            ]);
+                        }
+                    }
                 }
             }
             
