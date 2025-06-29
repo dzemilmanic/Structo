@@ -45,8 +45,7 @@
                             <ul class="dropdown-menu">
                                 <li><a href="#services" class="dropdown-item">Services</a></li>
                                 <li><a href="#how-it-works" class="dropdown-item">How It Works</a></li>
-                                <li><a href="#professionals" class="dropdown-item">Professionals</a></li>
-                                <li><a href="#projects" class="dropdown-item">Projects</a></li>
+                                <li><a href="#testimonials" class="dropdown-item">Testimonials</a></li>
                             </ul>
                             @endif
                         </li>

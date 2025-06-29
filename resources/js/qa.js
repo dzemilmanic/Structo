@@ -1,15 +1,174 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle search form submission
+    // Live search functionality
+    const searchInput = document.querySelector('.search-input');
     const searchForm = document.querySelector('.search-form');
-    if (searchForm) {
+    let searchTimeout;
+    let isSearching = false;
+
+    if (searchInput && searchForm) {
+        // Add live search functionality
+        searchInput.addEventListener('input', function(e) {
+            const query = e.target.value.trim();
+            
+            // Clear previous timeout
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            
+            // Debounce search - wait 300ms after user stops typing
+            searchTimeout = setTimeout(() => {
+                if (query.length >= 2 || query.length === 0) {
+                    performLiveSearch(query);
+                }
+            }, 300);
+        });
+
+        // Handle form submission (for Enter key)
         searchForm.addEventListener('submit', function(e) {
-            const searchInput = document.querySelector('.search-input');
-            if (searchInput.value.trim() === '') {
+            const query = searchInput.value.trim();
+            if (query === '') {
                 e.preventDefault();
                 searchInput.focus();
+                return;
             }
+            // Allow normal form submission for non-empty queries
         });
     }
+
+    function performLiveSearch(query) {
+        if (isSearching) return;
+        
+        isSearching = true;
+        
+        // Show loading state
+        showSearchLoading();
+        
+        // Build URL with search parameters
+        const currentUrl = new URL(window.location.href);
+        if (query) {
+            currentUrl.searchParams.set('search', query);
+        } else {
+            currentUrl.searchParams.delete('search');
+        }
+        
+        // Keep current sort parameter
+        const currentSort = document.getElementById('sortSelect')?.value;
+        if (currentSort) {
+            currentUrl.searchParams.set('sort', currentSort);
+        }
+        
+        // Perform AJAX request
+        fetch(currentUrl.toString(), {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'text/html'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Parse the response
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Update the questions list
+            const newQuestionList = doc.querySelector('.question-list');
+            const currentQuestionList = document.querySelector('.question-list');
+            
+            if (newQuestionList && currentQuestionList) {
+                currentQuestionList.innerHTML = newQuestionList.innerHTML;
+                
+                // Re-attach event listeners to new question cards
+                attachQuestionCardListeners();
+            }
+            
+            // Update results info
+            const newResultsInfo = doc.querySelector('.results-info');
+            const currentResultsInfo = document.querySelector('.results-info');
+            
+            if (newResultsInfo && currentResultsInfo) {
+                currentResultsInfo.innerHTML = newResultsInfo.innerHTML;
+            }
+            
+            // Update URL without page reload
+            window.history.pushState({}, '', currentUrl.toString());
+            
+            hideSearchLoading();
+            isSearching = false;
+        })
+        .catch(error => {
+            console.error('Search error:', error);
+            hideSearchLoading();
+            isSearching = false;
+        });
+    }
+
+    function showSearchLoading() {
+        // Add loading indicator to search button
+        const searchBtn = document.querySelector('.search-btn');
+        if (searchBtn) {
+            searchBtn.style.opacity = '0.6';
+            searchBtn.style.pointerEvents = 'none';
+            
+            // Add spinner
+            const originalContent = searchBtn.innerHTML;
+            searchBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 6v6l4 2"></path>
+                </svg>
+            `;
+            
+            // Store original content for restoration
+            searchBtn.dataset.originalContent = originalContent;
+        }
+        
+        // Add loading class to question list
+        const questionList = document.querySelector('.question-list');
+        if (questionList) {
+            questionList.style.opacity = '0.7';
+            questionList.style.pointerEvents = 'none';
+        }
+    }
+
+    function hideSearchLoading() {
+        // Restore search button
+        const searchBtn = document.querySelector('.search-btn');
+        if (searchBtn && searchBtn.dataset.originalContent) {
+            searchBtn.innerHTML = searchBtn.dataset.originalContent;
+            searchBtn.style.opacity = '';
+            searchBtn.style.pointerEvents = '';
+            delete searchBtn.dataset.originalContent;
+        }
+        
+        // Restore question list
+        const questionList = document.querySelector('.question-list');
+        if (questionList) {
+            questionList.style.opacity = '';
+            questionList.style.pointerEvents = '';
+        }
+    }
+
+    function attachQuestionCardListeners() {
+        // Re-attach click handlers to question cards
+        const cards = document.querySelectorAll(".question-card");
+        cards.forEach(card => {
+            card.addEventListener("click", function(e) {
+                // Don't redirect if clicking on a link inside the card
+                if (e.target.tagName === 'A' || e.target.closest('a')) {
+                    return;
+                }
+                
+                const questionUrl = card.getAttribute("data-url");
+                if (questionUrl) {
+                    window.location.href = questionUrl;
+                }
+            });
+        });
+    }
+
+    // Initial attachment of question card listeners
+    attachQuestionCardListeners();
 
     // Handle sort selection changes
     const sortSelect = document.querySelector('.sort-select');
@@ -17,8 +176,41 @@ document.addEventListener('DOMContentLoaded', function() {
         sortSelect.addEventListener('change', function() {
             const currentUrl = new URL(window.location.href);
             currentUrl.searchParams.set('sort', this.value);
+            
+            // Keep search parameter if it exists
+            const currentSearch = searchInput?.value?.trim();
+            if (currentSearch) {
+                currentUrl.searchParams.set('search', currentSearch);
+            }
+            
             window.location.href = currentUrl.toString();
         });
+    }
+
+    // Add CSS for spinner animation
+    if (!document.querySelector('#qa-search-styles')) {
+        const style = document.createElement('style');
+        style.id = 'qa-search-styles';
+        style.textContent = `
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+            
+            .search-input:focus {
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+            }
+            
+            .question-list {
+                transition: opacity 0.2s ease;
+            }
+            
+            .search-btn {
+                transition: opacity 0.2s ease;
+            }
+        `;
+        document.head.appendChild(style);
     }
 
     // Smooth scroll to answers section when clicking on answer count
@@ -275,22 +467,6 @@ document.addEventListener('DOMContentLoaded', function() {
             clearFormErrors();
         });
     }
-
-    // Question card click handlers
-    const cards = document.querySelectorAll(".question-card");
-    cards.forEach(card => {
-        card.addEventListener("click", function(e) {
-            // Don't redirect if clicking on a link inside the card
-            if (e.target.tagName === 'A' || e.target.closest('a')) {
-                return;
-            }
-            
-            const questionUrl = card.getAttribute("data-url");
-            if (questionUrl) {
-                window.location.href = questionUrl;
-            }
-        });
-    });
 
     // Delete confirmations
     const deleteQuestionForms = document.querySelectorAll('.delete-question-form');

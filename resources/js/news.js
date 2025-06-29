@@ -18,6 +18,8 @@ class NewsPage {
         this.currentCategory = 'all';
         this.currentSort = 'publishedAt';
         this.articles = [];
+        this.searchTimeout = null;
+        this.isSearching = false;
         
         // DOM Elements
         this.loadingContainer = document.getElementById('loadingContainer');
@@ -43,30 +45,51 @@ class NewsPage {
     init() {
         this.setupEventListeners();
         this.loadNews();
+        this.addSearchStyles();
     }
     
     setupEventListeners() {
-        // Search functionality
-        this.searchBtn.addEventListener('click', () => this.handleSearch());
-        this.searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.handleSearch();
-            }
-        });
+        // Live search functionality
+        if (this.searchInput) {
+            this.searchInput.addEventListener('input', (e) => this.handleLiveSearch(e));
+            this.searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.handleSearch();
+                }
+            });
+        }
+        
+        // Search button click
+        if (this.searchBtn) {
+            this.searchBtn.addEventListener('click', () => this.handleSearch());
+        }
         
         // Filter changes
-        this.categoryFilter.addEventListener('change', () => this.handleFilterChange());
-        this.sortFilter.addEventListener('change', () => this.handleFilterChange());
+        if (this.categoryFilter) {
+            this.categoryFilter.addEventListener('change', () => this.handleFilterChange());
+        }
+        if (this.sortFilter) {
+            this.sortFilter.addEventListener('change', () => this.handleFilterChange());
+        }
         
         // Reset filters
-        this.resetFilters.addEventListener('click', () => this.handleResetFilters());
+        if (this.resetFilters) {
+            this.resetFilters.addEventListener('click', () => this.handleResetFilters());
+        }
         
         // Pagination
-        this.prevBtn.addEventListener('click', () => this.handlePrevPage());
-        this.nextBtn.addEventListener('click', () => this.handleNextPage());
+        if (this.prevBtn) {
+            this.prevBtn.addEventListener('click', () => this.handlePrevPage());
+        }
+        if (this.nextBtn) {
+            this.nextBtn.addEventListener('click', () => this.handleNextPage());
+        }
         
         // Retry button
-        this.retryBtn.addEventListener('click', () => this.loadNews());
+        if (this.retryBtn) {
+            this.retryBtn.addEventListener('click', () => this.loadNews());
+        }
         
         // Topic cards
         document.querySelectorAll('.topic-card').forEach(card => {
@@ -75,6 +98,125 @@ class NewsPage {
                 this.handleTopicClick(topic);
             });
         });
+    }
+    
+    handleLiveSearch(e) {
+        const query = e.target.value.trim();
+        
+        // Clear previous timeout
+        if (this.searchTimeout) {
+            clearTimeout(this.searchTimeout);
+        }
+        
+        // Debounce search - wait 300ms after user stops typing
+        this.searchTimeout = setTimeout(() => {
+            if (query.length >= 2 || query.length === 0) {
+                this.performLiveSearch(query);
+            }
+        }, 300);
+    }
+    
+    performLiveSearch(query) {
+        if (this.isSearching) return;
+        
+        this.isSearching = true;
+        this.currentQuery = query;
+        this.currentPage = 1;
+        
+        // Show loading state
+        this.showSearchLoading();
+        
+        // Load news with new query
+        this.loadNews().finally(() => {
+            this.hideSearchLoading();
+            this.isSearching = false;
+        });
+    }
+    
+    showSearchLoading() {
+        // Add loading indicator to search button
+        if (this.searchBtn) {
+            this.searchBtn.style.opacity = '0.6';
+            this.searchBtn.style.pointerEvents = 'none';
+            
+            // Add spinner
+            const originalContent = this.searchBtn.innerHTML;
+            this.searchBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-spinner">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 6v6l4 2"></path>
+                </svg>
+            `;
+            
+            // Store original content for restoration
+            this.searchBtn.dataset.originalContent = originalContent;
+        }
+        
+        // Add loading class to news grid
+        if (this.newsGrid) {
+            this.newsGrid.style.opacity = '0.7';
+            this.newsGrid.style.pointerEvents = 'none';
+        }
+    }
+    
+    hideSearchLoading() {
+        // Restore search button
+        if (this.searchBtn && this.searchBtn.dataset.originalContent) {
+            this.searchBtn.innerHTML = this.searchBtn.dataset.originalContent;
+            this.searchBtn.style.opacity = '';
+            this.searchBtn.style.pointerEvents = '';
+            delete this.searchBtn.dataset.originalContent;
+        }
+        
+        // Restore news grid
+        if (this.newsGrid) {
+            this.newsGrid.style.opacity = '';
+            this.newsGrid.style.pointerEvents = '';
+        }
+    }
+    
+    addSearchStyles() {
+        if (!document.querySelector('#news-search-styles')) {
+            const style = document.createElement('style');
+            style.id = 'news-search-styles';
+            style.textContent = `
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+                
+                .search-spinner {
+                    animation: spin 1s linear infinite;
+                }
+                
+                .search-input:focus {
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+                }
+                
+                .news-grid {
+                    transition: opacity 0.2s ease;
+                }
+                
+                .search-btn {
+                    transition: opacity 0.2s ease;
+                }
+                
+                .search-box {
+                    position: relative;
+                }
+                
+                .search-input {
+                    transition: all 0.2s ease;
+                }
+                
+                .search-input:focus {
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                }
+            `;
+            document.head.appendChild(style);
+        }
     }
     
     async loadNews() {
@@ -285,6 +427,27 @@ class NewsPage {
             );
         }
         
+        // Apply category filter
+        if (this.currentCategory !== 'all') {
+            const categoryKeywords = {
+                'construction': ['construction', 'building', 'contractor', 'modular'],
+                'architecture': ['architecture', 'architectural', 'design'],
+                'real-estate': ['housing', 'property', 'real estate'],
+                'infrastructure': ['infrastructure', 'urban', 'cities'],
+                'sustainability': ['sustainable', 'green', 'renewable', 'eco'],
+                'technology': ['3D printing', 'AI', 'VR', 'BIM', 'technology']
+            };
+            
+            const keywords = categoryKeywords[this.currentCategory] || [];
+            filteredArticles = filteredArticles.filter(article => {
+                const text = (article.title + ' ' + article.description).toLowerCase();
+                return keywords.some(keyword => text.includes(keyword.toLowerCase()));
+            });
+        }
+        
+        // Update total results
+        this.totalResults = filteredArticles.length;
+        
         // Sort articles
         if (this.currentSort === 'publishedAt') {
             filteredArticles.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
@@ -477,10 +640,10 @@ class NewsPage {
     
     handleTopicClick(topic) {
         const topicQueries = {
-            'green-building': 'green building sustainable construction',
-            'smart-cities': 'smart cities urban planning IoT',
-            '3d-printing': '3D printing construction additive manufacturing',
-            'modular-construction': 'modular construction prefabricated building'
+            'green-building': 'green building ',
+            'smart-cities': 'smart cities ',
+            '3d-printing': '3D printing ',
+            'modular-construction': 'modular construction '
         };
         
         this.searchInput.value = topicQueries[topic] || topic;

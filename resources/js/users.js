@@ -1,5 +1,418 @@
-// ===== PROFESSIONAL REQUEST SYSTEM WITH FILE UPLOAD =====
+// Enhanced Search Functionality - Structo Design System
+document.addEventListener('DOMContentLoaded', function() {
+    const searchContainer = document.querySelector('.professionals-search-container');
+    const searchInput = document.getElementById('professionalsSearchInput');
+    const searchClearBtn = document.querySelector('.search-clear-btn');
+    const searchSubmitBtn = document.querySelector('.search-submit-btn');
+    const searchLoading = document.querySelector('.search-loading');
+    const searchResultsInfo = document.querySelector('.search-results-info');
+    const professionalsGrid = document.getElementById('professionalsGrid');
+    
+    let searchTimeout;
+    let isSearching = false;
 
+    // Initialize search functionality
+    if (searchInput && professionalsGrid) {
+        initializeSearch();
+    }
+
+    function initializeSearch() {
+        // Add event listeners
+        searchInput.addEventListener('input', handleSearchInput);
+        searchInput.addEventListener('keydown', handleKeyDown);
+        
+        if (searchClearBtn) {
+            searchClearBtn.addEventListener('click', clearSearch);
+        }
+        
+        if (searchSubmitBtn) {
+            searchSubmitBtn.addEventListener('click', performSearch);
+        }
+
+        // Initialize clear button visibility
+        updateClearButtonVisibility();
+        
+        // Add search form wrapper if it doesn't exist
+        if (!searchContainer.querySelector('.search-input-wrapper')) {
+            wrapSearchElements();
+        }
+    }
+
+    function wrapSearchElements() {
+        // Create wrapper for search input and actions
+        const wrapper = document.createElement('div');
+        wrapper.className = 'search-input-wrapper';
+        
+        // Create actions container
+        const actionsContainer = document.createElement('div');
+        actionsContainer.className = 'search-actions';
+        
+        // Create clear button if it doesn't exist
+        if (!searchClearBtn) {
+            const clearBtn = document.createElement('button');
+            clearBtn.type = 'button';
+            clearBtn.className = 'search-clear-btn';
+            clearBtn.setAttribute('aria-label', 'Clear search');
+            clearBtn.innerHTML = `
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            `;
+            clearBtn.addEventListener('click', clearSearch);
+            actionsContainer.appendChild(clearBtn);
+        }
+        
+        // Create submit button if it doesn't exist
+        if (!searchSubmitBtn) {
+            const submitBtn = document.createElement('button');
+            submitBtn.type = 'button';
+            submitBtn.className = 'search-submit-btn';
+            submitBtn.setAttribute('aria-label', 'Search professionals');
+            submitBtn.innerHTML = `
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            `;
+            submitBtn.addEventListener('click', performSearch);
+            actionsContainer.appendChild(submitBtn);
+        }
+        
+        // Create loading spinner if it doesn't exist
+        if (!searchLoading) {
+            const loading = document.createElement('div');
+            loading.className = 'search-loading';
+            loading.innerHTML = '<div class="loading-spinner"></div>';
+            actionsContainer.appendChild(loading);
+        }
+        
+        // Wrap the input
+        searchInput.parentNode.insertBefore(wrapper, searchInput);
+        wrapper.appendChild(searchInput);
+        wrapper.appendChild(actionsContainer);
+    }
+
+    function handleSearchInput(e) {
+        const query = e.target.value.trim();
+        
+        // Update clear button visibility
+        updateClearButtonVisibility();
+        
+        // Clear previous timeout
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+        
+        // Debounce search
+        searchTimeout = setTimeout(() => {
+            if (query.length >= 2) {
+                performSearch(query);
+            } else if (query.length === 0) {
+                showAllProfessionals();
+                hideResultsInfo();
+            }
+        }, 300);
+    }
+
+    function handleKeyDown(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            performSearch();
+        } else if (e.key === 'Escape') {
+            clearSearch();
+        }
+    }
+
+    function updateClearButtonVisibility() {
+        const clearBtn = document.querySelector('.search-clear-btn');
+        if (clearBtn) {
+            if (searchInput.value.trim().length > 0) {
+                clearBtn.classList.add('visible');
+            } else {
+                clearBtn.classList.remove('visible');
+            }
+        }
+    }
+
+    function clearSearch() {
+        searchInput.value = '';
+        searchInput.focus();
+        updateClearButtonVisibility();
+        showAllProfessionals();
+        hideResultsInfo();
+        
+        // Add clear animation
+        searchInput.style.transform = 'scale(0.98)';
+        setTimeout(() => {
+            searchInput.style.transform = '';
+        }, 150);
+    }
+
+    function performSearch(query = null) {
+        const searchQuery = query || searchInput.value.trim().toLowerCase();
+        
+        if (!searchQuery) {
+            showAllProfessionals();
+            hideResultsInfo();
+            return;
+        }
+
+        // Show loading state
+        showLoading();
+        
+        // Simulate search delay for better UX
+        setTimeout(() => {
+            const professionals = document.querySelectorAll('.profi-card');
+            let visibleCount = 0;
+            
+            professionals.forEach(card => {
+                const searchData = card.getAttribute('data-search') || '';
+                const isMatch = searchData.includes(searchQuery);
+                
+                if (isMatch) {
+                    showCard(card);
+                    visibleCount++;
+                } else {
+                    hideCard(card);
+                }
+            });
+            
+            // Hide loading and show results
+            hideLoading();
+            showResultsInfo(visibleCount, searchQuery);
+            
+            // Scroll to results if on mobile
+            if (window.innerWidth <= 768 && visibleCount > 0) {
+                professionalsGrid.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }
+        }, 200);
+    }
+
+    function showAllProfessionals() {
+        const professionals = document.querySelectorAll('.profi-card');
+        professionals.forEach(card => showCard(card));
+    }
+
+    function showCard(card) {
+        card.style.display = '';
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        // Trigger animation
+        requestAnimationFrame(() => {
+            card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        });
+    }
+
+    function hideCard(card) {
+        card.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(-10px)';
+        
+        setTimeout(() => {
+            card.style.display = 'none';
+        }, 200);
+    }
+
+    function showLoading() {
+        isSearching = true;
+        const loading = document.querySelector('.search-loading');
+        const submitBtn = document.querySelector('.search-submit-btn');
+        
+        if (loading) {
+            loading.classList.add('visible');
+        }
+        
+        if (submitBtn) {
+            submitBtn.style.opacity = '0.6';
+            submitBtn.style.pointerEvents = 'none';
+        }
+    }
+
+    function hideLoading() {
+        isSearching = false;
+        const loading = document.querySelector('.search-loading');
+        const submitBtn = document.querySelector('.search-submit-btn');
+        
+        if (loading) {
+            loading.classList.remove('visible');
+        }
+        
+        if (submitBtn) {
+            submitBtn.style.opacity = '';
+            submitBtn.style.pointerEvents = '';
+        }
+    }
+
+    function showResultsInfo(count, query) {
+        let resultsInfo = document.querySelector('.search-results-info');
+        
+        if (!resultsInfo) {
+            resultsInfo = document.createElement('div');
+            resultsInfo.className = 'search-results-info';
+            professionalsGrid.parentNode.insertBefore(resultsInfo, professionalsGrid);
+        }
+        
+        const resultText = count === 1 ? 'professional' : 'professionals';
+        resultsInfo.innerHTML = `
+            Found <span class="results-count">${count}</span> ${resultText} 
+            ${query ? `matching "<strong>${query}</strong>"` : ''}
+            ${count === 0 ? '- try adjusting your search terms' : ''}
+        `;
+        
+        resultsInfo.classList.add('visible');
+    }
+
+    function hideResultsInfo() {
+        const resultsInfo = document.querySelector('.search-results-info');
+        if (resultsInfo) {
+            resultsInfo.classList.remove('visible');
+        }
+    }
+
+    // Add search suggestions functionality
+    function initializeSearchSuggestions() {
+        const suggestions = [
+            { text: 'Interior Design', icon: 'home' },
+            { text: 'Architecture', icon: 'building' },
+            { text: 'Construction', icon: 'hammer' },
+            { text: 'Electrical', icon: 'zap' },
+            { text: 'Plumbing', icon: 'droplet' },
+            { text: 'Landscaping', icon: 'tree' }
+        ];
+
+        let suggestionsContainer = document.querySelector('.search-suggestions');
+        
+        searchInput.addEventListener('focus', () => {
+            if (!searchInput.value.trim() && !suggestionsContainer) {
+                createSuggestionsContainer(suggestions);
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!searchContainer.contains(e.target)) {
+                hideSuggestions();
+            }
+        });
+    }
+
+    function createSuggestionsContainer(suggestions) {
+        const container = document.createElement('div');
+        container.className = 'search-suggestions';
+        
+        suggestions.forEach(suggestion => {
+            const item = document.createElement('div');
+            item.className = 'suggestion-item';
+            item.innerHTML = `
+                <svg class="suggestion-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <span class="suggestion-text">${suggestion.text}</span>
+            `;
+            
+            item.addEventListener('click', () => {
+                searchInput.value = suggestion.text;
+                performSearch(suggestion.text.toLowerCase());
+                hideSuggestions();
+            });
+            
+            container.appendChild(item);
+        });
+        
+        searchContainer.appendChild(container);
+        
+        // Show with animation
+        requestAnimationFrame(() => {
+            container.classList.add('visible');
+        });
+    }
+
+    function hideSuggestions() {
+        const suggestions = document.querySelector('.search-suggestions');
+        if (suggestions) {
+            suggestions.classList.remove('visible');
+            setTimeout(() => {
+                suggestions.remove();
+            }, 300);
+        }
+    }
+
+    // Initialize suggestions
+    initializeSearchSuggestions();
+
+    // Add keyboard navigation for accessibility
+    function addKeyboardNavigation() {
+        let currentSuggestionIndex = -1;
+        
+        searchInput.addEventListener('keydown', (e) => {
+            const suggestions = document.querySelectorAll('.suggestion-item');
+            
+            if (suggestions.length === 0) return;
+            
+            switch (e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    currentSuggestionIndex = Math.min(currentSuggestionIndex + 1, suggestions.length - 1);
+                    updateSuggestionHighlight(suggestions);
+                    break;
+                    
+                case 'ArrowUp':
+                    e.preventDefault();
+                    currentSuggestionIndex = Math.max(currentSuggestionIndex - 1, -1);
+                    updateSuggestionHighlight(suggestions);
+                    break;
+                    
+                case 'Enter':
+                    if (currentSuggestionIndex >= 0) {
+                        e.preventDefault();
+                        suggestions[currentSuggestionIndex].click();
+                    }
+                    break;
+                    
+                case 'Escape':
+                    hideSuggestions();
+                    currentSuggestionIndex = -1;
+                    break;
+            }
+        });
+        
+        function updateSuggestionHighlight(suggestions) {
+            suggestions.forEach((suggestion, index) => {
+                if (index === currentSuggestionIndex) {
+                    suggestion.style.background = 'linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 140, 95, 0.05))';
+                    suggestion.style.color = 'var(--primary-color)';
+                } else {
+                    suggestion.style.background = '';
+                    suggestion.style.color = '';
+                }
+            });
+        }
+    }
+
+    addKeyboardNavigation();
+
+    // Prevent search from interfering with profile links
+    document.addEventListener('click', function(e) {
+        // Check if clicked element is a profile link or inside a profile link
+        const profileLink = e.target.closest('a[href*="users.show"]');
+        if (profileLink) {
+            // Allow normal navigation - don't prevent default
+            return;
+        }
+        
+        // Check if clicked element is inside a profi-card but not a link
+        const profiCard = e.target.closest('.profi-card');
+        if (profiCard && !e.target.closest('a')) {
+            // Only handle card clicks that aren't on links
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    });
+});
 // Global variables
 let selectedFiles = [];
 let maxFiles = 5;

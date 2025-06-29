@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@vite(['resources/css/users.css', 'resources/js/users.js'])
+@vite(['resources/css/users.css', 'resources/css/enhanced-search.css', 'resources/js/users.js', 'resources/js/enhanced-search.js'])
 @section('title', 'Users - Structo')
 
 @section('styles')
@@ -48,12 +48,41 @@
         @endauth
     </div>
 
+    <!-- Enhanced Search Container -->
     <div class="professionals-search-container">
         <svg class="professionals-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
-        <input type="text" id="professionalsSearchInput" placeholder="Search professionals by name, specialization, or location..." class="professionals-search-input">
+        
+        <input type="text" 
+               id="professionalsSearchInput" 
+               placeholder="Search professionals by name, specialization, or location..." 
+               class="professionals-search-input"
+               autocomplete="off"
+               spellcheck="false">
+        
+        <div class="search-actions">
+            <button type="button" class="search-clear-btn" aria-label="Clear search">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+            
+            <div class="search-loading">
+                <div class="loading-spinner"></div>
+            </div>
+            
+            <button type="button" class="search-submit-btn" aria-label="Search professionals">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </button>
+        </div>
     </div>
+
+    <!-- Search Results Info (will be dynamically added) -->
+    
+    
 
     <div class="professionals-grid" id="professionalsGrid">
         @forelse($users->where('role', 'profi') as $user)
