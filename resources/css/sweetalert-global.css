@@ -192,21 +192,282 @@
     background: #ffffff !important;
 }
 
-/* TOAST NOTIFICATIONS */
+/* TOAST NOTIFICATIONS - FIXED FOR FULL TEXT DISPLAY AND 5 SECOND TIMER */
 .swal2-toast {
     background: #ffffff !important;
-    color: #333333 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    color: #1a202c !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    max-width: 450px !important;
+    min-width: 350px !important;
+    width: auto !important;
+    min-height: 80px !important;
+    padding: 20px 24px !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    margin: 20px !important;
+    animation: slideInFromRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+    position: relative !important;
+    overflow: visible !important;
+    backdrop-filter: none !important;
+    word-wrap: break-word !important;
+    white-space: normal !important;
+}
+
+/* COMPLETELY REMOVE ANY GRAY BACKGROUND OR OVERLAY */
+.swal2-toast::before,
+.swal2-toast::after {
+    display: none !important;
+    content: none !important;
 }
 
 .swal2-toast .swal2-title {
-    color: #333333 !important;
+    color: #1a202c !important;
     background: transparent !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: left !important;
+    line-height: 1.4 !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    max-width: 100% !important;
+    overflow: visible !important;
 }
 
 .swal2-toast .swal2-html-container {
-    color: #666666 !important;
+    color: #4a5568 !important;
     background: transparent !important;
+    font-size: 0.9rem !important;
+    margin: 4px 0 0 0 !important;
+    padding: 0 !important;
+    text-align: left !important;
+    line-height: 1.4 !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+}
+
+/* SUCCESS TOAST WITH CHECKMARK */
+.swal2-toast.swal2-success {
+    border-left: 4px solid #10b981 !important;
+    background: #ffffff !important;
+}
+
+.swal2-toast.swal2-success .swal2-icon {
+    color: #10b981 !important;
+    border-color: #10b981 !important;
+    width: 28px !important;
+    height: 28px !important;
+    margin: 0 15px 0 0 !important;
+    font-size: 16px !important;
+    background: transparent !important;
+    border: 2px solid #10b981 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.swal2-toast.swal2-success .swal2-icon::before {
+    content: "✓" !important;
+    font-weight: bold !important;
+    font-size: 16px !important;
+    color: #10b981 !important;
+}
+
+/* ERROR TOAST WITH X MARK */
+.swal2-toast.swal2-error {
+    border-left: 4px solid #ef4444 !important;
+    background: #ffffff !important;
+}
+
+.swal2-toast.swal2-error .swal2-icon {
+    color: #ef4444 !important;
+    border-color: #ef4444 !important;
+    width: 28px !important;
+    height: 28px !important;
+    margin: 0 15px 0 0 !important;
+    font-size: 16px !important;
+    background: transparent !important;
+    border: 2px solid #ef4444 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.swal2-toast.swal2-error .swal2-icon::before {
+    content: "✕" !important;
+    font-weight: bold !important;
+    font-size: 16px !important;
+    color: #ef4444 !important;
+}
+
+/* WARNING TOAST */
+.swal2-toast.swal2-warning {
+    border-left: 4px solid #f59e0b !important;
+    background: #ffffff !important;
+}
+
+.swal2-toast.swal2-warning .swal2-icon {
+    color: #f59e0b !important;
+    border-color: #f59e0b !important;
+    width: 28px !important;
+    height: 28px !important;
+    margin: 0 15px 0 0 !important;
+    font-size: 16px !important;
+    background: transparent !important;
+    border: 2px solid #f59e0b !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.swal2-toast.swal2-warning .swal2-icon::before {
+    content: "!" !important;
+    font-weight: bold !important;
+    font-size: 18px !important;
+    color: #f59e0b !important;
+}
+
+/* INFO TOAST */
+.swal2-toast.swal2-info {
+    border-left: 4px solid #3b82f6 !important;
+    background: #ffffff !important;
+}
+
+.swal2-toast.swal2-info .swal2-icon {
+    color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+    width: 28px !important;
+    height: 28px !important;
+    margin: 0 15px 0 0 !important;
+    font-size: 16px !important;
+    background: transparent !important;
+    border: 2px solid #3b82f6 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.swal2-toast.swal2-info .swal2-icon::before {
+    content: "i" !important;
+    font-weight: bold !important;
+    font-size: 16px !important;
+    color: #3b82f6 !important;
+}
+
+/* TOAST CLOSE BUTTON - FIXED TO WORK PROPERLY */
+.swal2-toast .swal2-close {
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 20px !important;
+    line-height: 1 !important;
+    color: #9ca3af !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 10 !important;
+    pointer-events: auto !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.swal2-toast .swal2-close:hover {
+    background: rgba(156, 163, 175, 0.1) !important;
+    color: #6b7280 !important;
+    transform: scale(1.1) !important;
+}
+
+.swal2-toast .swal2-close:active {
+    transform: scale(0.95) !important;
+}
+
+/* TOAST TIMER PROGRESS BAR - ENSURE IT'S VISIBLE AND WORKING */
+.swal2-toast .swal2-timer-progress-bar {
+    background: #FF6B35 !important;
+    height: 4px !important;
+    border-radius: 0 0 12px 12px !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 5 !important;
+    width: 100% !important;
+    animation: swal2-timer-progress-bar 5s linear !important;
+}
+
+/* TOAST CONTENT LAYOUT - ENSURE PROPER SPACING */
+.swal2-toast .swal2-content {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 15px !important;
+    padding: 0 35px 0 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* TOAST TEXT CONTAINER */
+.swal2-toast .swal2-html-container,
+.swal2-toast .swal2-title {
+    flex: 1 !important;
+    min-width: 0 !important;
+    word-break: break-word !important;
+    hyphens: auto !important;
+}
+
+/* TOAST POSITIONING - TOP RIGHT */
+.swal2-top-end {
+    top: 20px !important;
+    right: 20px !important;
+}
+
+/* REMOVE ANY BACKDROP FOR TOAST */
+.swal2-container.swal2-top-end {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    pointer-events: none !important;
+}
+
+/* ENSURE TOAST ITSELF CAN RECEIVE CLICKS */
+.swal2-container.swal2-top-end .swal2-toast {
+    pointer-events: auto !important;
+}
+
+/* TOAST ANIMATION */
+@keyframes slideInFromRight {
+    0% {
+        opacity: 0;
+        transform: translateX(100%) scale(0.95);
+    }
+    50% {
+        opacity: 0.9;
+        transform: translateX(-8px) scale(0.98);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
 }
 
 /* MOBILE RESPONSIVE */
@@ -251,12 +512,61 @@
         min-width: auto !important;
         order: unset !important;
     }
+
+    /* MOBILE TOAST - FULL WIDTH */
+    .swal2-toast {
+        max-width: calc(100vw - 40px) !important;
+        min-width: calc(100vw - 40px) !important;
+        width: calc(100vw - 40px) !important;
+        margin: 20px !important;
+        font-size: 0.9rem !important;
+        padding: 18px 20px !important;
+        min-height: 70px !important;
+    }
+
+    .swal2-toast .swal2-title {
+        font-size: 0.9rem !important;
+    }
+
+    .swal2-toast .swal2-html-container {
+        font-size: 0.85rem !important;
+    }
+
+    .swal2-toast .swal2-content {
+        padding: 0 30px 0 0 !important;
+        gap: 12px !important;
+    }
+
+    .swal2-toast .swal2-close {
+        top: 14px !important;
+        right: 14px !important;
+        width: 26px !important;
+        height: 26px !important;
+        font-size: 18px !important;
+    }
+
+    .swal2-toast .swal2-icon {
+        width: 24px !important;
+        height: 24px !important;
+        margin: 0 12px 0 0 !important;
+    }
+
+    .swal2-top-end {
+        top: 20px !important;
+        right: 20px !important;
+        left: 20px !important;
+    }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
     .swal2-popup {
         max-width: 420px !important;
         padding: 35px 30px !important;
+    }
+
+    .swal2-toast {
+        max-width: 400px !important;
+        min-width: 320px !important;
     }
 }
 
@@ -322,4 +632,35 @@
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
     box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3) !important;
+}
+
+/* ENSURE TOAST NOTIFICATIONS ALWAYS SHOW FULL TEXT */
+.swal2-toast-custom {
+    max-width: 500px !important;
+    min-width: 400px !important;
+    width: auto !important;
+    min-height: 90px !important;
+    padding: 24px 28px !important;
+    word-wrap: break-word !important;
+    white-space: normal !important;
+    overflow: visible !important;
+}
+
+.swal2-toast-custom .swal2-title,
+.swal2-toast-custom .swal2-html-container {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow: visible !important;
+    max-width: 100% !important;
+}
+
+/* MOBILE TOAST CUSTOM */
+@media (max-width: 768px) {
+    .swal2-toast-custom {
+        max-width: calc(100vw - 40px) !important;
+        min-width: calc(100vw - 40px) !important;
+        width: calc(100vw - 40px) !important;
+        padding: 20px 24px !important;
+        min-height: 80px !important;
+    }
 }

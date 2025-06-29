@@ -61,6 +61,7 @@
                         @endauth
                         <li class="nav-item"><a href="/jobs" class="nav-link">Jobs</a></li>
                         <li class="nav-item"><a href="{{ route('questions.index') }}" class="nav-link {{ request()->routeIs('questions.*') ? 'active' : '' }}">Questions</a></li>
+                        <li class="nav-item"><a href="/news" class="nav-link {{ request()->is('news*') ? 'active' : '' }}">News</a></li>
                         @auth
                             @if(Auth::user()->role === 'admin')
                                 <li class="nav-item"><a href="/admin/profi-requests" class="nav-link {{ request()->is('admin/profi-requests*') ? 'active' : '' }}">Role Requests</a></li>
@@ -184,6 +185,7 @@
                         @endauth
                         <li><a href="/jobs">Jobs</a></li>
                         <li><a href="{{ route('questions.index') }}">Questions</a></li>
+                        <li><a href="/news">News</a></li>
                         <li><a href="/about">About Us</a></li>
                     </ul>
                 </div>

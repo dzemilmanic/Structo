@@ -7,11 +7,18 @@
 @endsection
 
 @section('content')
+<!-- Users Hero Section -->
+<section class="users-hero">
+    <div class="container">
+        <div class="users-hero-content">
+            <h1>Professional Users</h1>
+            <p>Connect with verified construction and architecture professionals for your next project</p>
+        </div>
+    </div>
+</section>
+
 <div class="professionals-container">
     <div class="professionals-header">
-        <h1 class="professionals-title">Professional Users</h1>
-        <p class="professionals-subtitle">Meet our verified professionals</p>
-        
         @auth
             @if(auth()->user()->role !== 'profi' && auth()->user()->role !== 'admin')
                 @php

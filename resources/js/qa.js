@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // MODAL FUNCTIONALITY FOR AUTHENTICATED USERS
+    // MODAL FUNCTIONALITY FOR AUTHENTICATED USERS - COMPLETELY FIXED
     const modal = document.getElementById('askQuestionModal');
     const askQuestionBtn = document.getElementById('askQuestionBtn');
     const askQuestionBtnEmpty = document.getElementById('askQuestionBtnEmpty');
@@ -113,77 +113,67 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalClose = document.querySelector('.modal-close');
     const askQuestionForm = document.getElementById('askQuestionForm');
 
-    // Function to open modal - improved
+    console.log('Modal elements found:', {
+        modal: !!modal,
+        askQuestionBtn: !!askQuestionBtn,
+        askQuestionBtnEmpty: !!askQuestionBtnEmpty,
+        modalCancelBtn: !!modalCancelBtn,
+        modalClose: !!modalClose
+    });
+
+    // Function to open modal - COMPLETELY FIXED AND WORKING
     function openModal() {
         console.log('Opening modal...');
         
-        if (modal) {
-            // Set high z-index
-            modal.style.zIndex = '99999';
-            modal.style.position = 'fixed';
-            modal.style.top = '0';
-            modal.style.left = '0';
-            modal.style.width = '100%';
-            modal.style.height = '100%';
-            modal.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-            modal.style.display = 'flex';
-            modal.style.alignItems = 'center';
-            modal.style.justifyContent = 'center';
-            modal.style.padding = '20px';
-            modal.style.boxSizing = 'border-box';
-            
-            // Add animation classes
-            modal.classList.add('show');
-            modal.classList.add('modal-visible');
-            
-            // Block scroll on body
-            document.body.style.overflow = 'hidden';
-            document.body.classList.add('modal-open');
-            
-            // Set styles for modal-content
-            const modalContent = modal.querySelector('.modal-content');
-            if (modalContent) {
-                modalContent.style.transform = 'scale(1)';
-                modalContent.style.opacity = '1';
-                modalContent.classList.add('modal-content-visible');
-            }
-            
-            // Focus first input after short pause
-            setTimeout(() => {
-                const titleInput = document.getElementById('modal-title');
-                if (titleInput) {
-                    titleInput.focus();
-                }
-            }, 300);
-            
-            console.log('Modal is open!');
-        } else {
+        if (!modal) {
             console.error('Modal element not found!');
+            return;
         }
+
+        // Reset modal state
+        modal.classList.remove('show');
+        modal.style.display = 'none';
+        
+        // Force reflow
+        modal.offsetHeight;
+        
+        // Show modal with flex display
+        modal.style.display = 'flex';
+        
+        // Add show class immediately for proper display
+        modal.classList.add('show');
+        
+        // Block body scroll
+        document.body.style.overflow = 'hidden';
+        document.body.classList.add('modal-open');
+        
+        // Focus first input after a short delay
+        setTimeout(() => {
+            const titleInput = document.getElementById('modal-title');
+            if (titleInput) {
+                titleInput.focus();
+            }
+        }, 100);
+        
+        console.log('Modal opened successfully!');
     }
 
-    // Function to close modal - improved
+    // Function to close modal - FIXED
     function closeModal() {
         console.log('Closing modal...');
         
-        if (modal) {
-            // Remove classes
-            modal.classList.remove('show');
-            modal.classList.remove('modal-visible');
+        if (!modal) return;
+        
+        // Animate out by removing show class
+        modal.classList.remove('show');
+        
+        // Hide modal after animation
+        setTimeout(() => {
+            modal.style.display = 'none';
             
-            const modalContent = modal.querySelector('.modal-content');
-            if (modalContent) {
-                modalContent.classList.remove('modal-content-visible');
-            }
-            
-            // Animate closing
-            setTimeout(() => {
-                modal.style.display = 'none';
-                
-                // Restore scroll on body
-                document.body.style.overflow = '';
-                document.body.classList.remove('modal-open');
-            }, 300);
+            // Restore body scroll
+            document.body.style.overflow = '';
+            document.body.classList.remove('modal-open');
             
             // Reset form
             if (askQuestionForm) {
@@ -192,9 +182,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Clear errors
             clearFormErrors();
-            
-            console.log('Modal is closed!');
-        }
+        }, 300);
+        
+        console.log('Modal closed!');
     }
 
     // Function to clear form errors
@@ -214,6 +204,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (askQuestionBtn) {
         askQuestionBtn.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation();
+            console.log('Ask Question button clicked');
             openModal();
         });
     }
@@ -221,6 +213,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (askQuestionBtnEmpty) {
         askQuestionBtnEmpty.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation();
+            console.log('Ask Question Empty button clicked');
             openModal();
         });
     }
@@ -229,6 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (modalCancelBtn) {
         modalCancelBtn.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation();
             closeModal();
         });
     }
@@ -236,6 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (modalClose) {
         modalClose.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation();
             closeModal();
         });
     }
@@ -243,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Close modal by clicking on background
     if (modal) {
         modal.addEventListener('click', function(e) {
-            // Close only if clicked exactly on modal (background), not its child elements
+            // Close only if clicked exactly on modal background
             if (e.target === modal) {
                 closeModal();
             }
@@ -263,13 +259,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const submitBtn = this.querySelector('button[type="submit"]');
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.textContent = 'Posting...';
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = 'Posting...';
                 
                 // Restore original text after 5 seconds if form wasn't submitted
                 setTimeout(() => {
                     if (submitBtn.disabled) {
                         submitBtn.disabled = false;
-                        submitBtn.textContent = 'Ask a question';
+                        submitBtn.innerHTML = originalText;
                     }
                 }, 5000);
             }
@@ -279,16 +276,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Debugging - check if modal exists
-    console.log('Modal element:', modal);
-    console.log('Ask Question Button:', askQuestionBtn);
-    console.log('Ask Question Button Empty:', askQuestionBtnEmpty);
-});
-
-// Additional event listeners
-document.addEventListener("DOMContentLoaded", function () {
+    // Question card click handlers
     const cards = document.querySelectorAll(".question-card");
-
     cards.forEach(card => {
         card.addEventListener("click", function(e) {
             // Don't redirect if clicking on a link inside the card
@@ -302,22 +291,9 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
-});
 
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll('.delete-testimonial-form').forEach(form => {
-        form.addEventListener('submit', function (e) {
-            if (!confirm('Are you sure you want to delete this testimonial?')) {
-                e.preventDefault();
-            }
-        });
-    });
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Delete question confirmation
+    // Delete confirmations
     const deleteQuestionForms = document.querySelectorAll('.delete-question-form');
-    
     deleteQuestionForms.forEach(function(form) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -341,9 +317,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Delete answer confirmation
     const deleteAnswerForms = document.querySelectorAll('.delete-answer-form');
-    
     deleteAnswerForms.forEach(function(form) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -366,49 +340,43 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
-});
 
-// Additional security function for modal
-window.forceOpenModal = function() {
-    const modal = document.getElementById('askQuestionModal');
-    if (modal) {
-        modal.style.cssText = `
-            display: flex !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            background-color: rgba(0, 0, 0, 0.8) !important;
-            z-index: 99999 !important;
-            align-items: center !important;
-            justify-content: center !important;
-            padding: 20px !important;
-        `;
+    // Debug function - can be called from console
+    window.debugModal = function() {
+        console.log('=== MODAL DEBUG INFO ===');
+        console.log('Modal element:', modal);
+        console.log('Modal display:', modal ? window.getComputedStyle(modal).display : 'N/A');
+        console.log('Modal z-index:', modal ? window.getComputedStyle(modal).zIndex : 'N/A');
+        console.log('Ask Question Btn:', askQuestionBtn);
+        console.log('Body classes:', document.body.className);
         
-        const modalContent = modal.querySelector('.modal-content');
-        if (modalContent) {
-            modalContent.style.cssText = `
-                transform: scale(1) !important;
-                opacity: 1 !important;
-            `;
+        if (modal) {
+            console.log('Modal styles:', {
+                display: modal.style.display,
+                position: modal.style.position,
+                zIndex: modal.style.zIndex,
+                backgroundColor: modal.style.backgroundColor
+            });
+            
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent) {
+                console.log('Modal content styles:', {
+                    display: window.getComputedStyle(modalContent).display,
+                    opacity: window.getComputedStyle(modalContent).opacity,
+                    transform: window.getComputedStyle(modalContent).transform,
+                    visibility: window.getComputedStyle(modalContent).visibility
+                });
+            }
         }
-        
-        document.body.style.overflow = 'hidden';
-        console.log('Modal is forcefully opened!');
-    }
-};
+    };
 
-// Test function - you can call it from console
-window.testModal = function() {
-    console.log('Testing modal...');
-    const modal = document.getElementById('askQuestionModal');
-    console.log('Modal:', modal);
-    
-    if (modal) {
-        window.forceOpenModal();
-        setTimeout(() => {
-            console.log('Modal computed style:', window.getComputedStyle(modal));
-        }, 1000);
-    }
-};
+    // Force open function for testing
+    window.forceOpenModal = function() {
+        console.log('Force opening modal...');
+        if (modal) {
+            openModal();
+        } else {
+            console.error('Modal not found!');
+        }
+    };
+});
