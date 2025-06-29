@@ -77,10 +77,10 @@
                 @if($serviceCategories->count() > 4)
                     <div class="services-navigation">
                         <button class="nav-btn prev-btn" id="servicesPrevBtn" aria-label="Previous services">
-                            <i class="fas fa-chevron-left"></i>
+                            &#8249;
                         </button>
                         <button class="nav-btn next-btn" id="servicesNextBtn" aria-label="Next services">
-                            <i class="fas fa-chevron-right"></i>
+                            &#8250;
                         </button>
                     </div>
                 @endif
@@ -329,15 +329,13 @@
                 @if(count($testimonials) > 1)
                     <div class="testimonials-navigation">
                         <button class="nav-btn prev-btn" id="testimonialsPrevBtn" aria-label="Previous testimonials">
-                            <i class="fas fa-chevron-left"></i>
+                            &#8249;
                         </button>
                         <div class="pagination-dots" id="testimonialsDots">
-                            @for($i = 0; $i < count($testimonials); $i++)
-                                <span class="dot {{ $i == 0 ? 'active' : '' }}" data-index="{{ $i }}"></span>
-                            @endfor
+                            <!-- Dots will be dynamically created by JavaScript -->
                         </div>
                         <button class="nav-btn next-btn" id="testimonialsNextBtn" aria-label="Next testimonials">
-                            <i class="fas fa-chevron-right"></i>
+                            &#8250;
                         </button>
                     </div>
                 @endif
@@ -384,7 +382,7 @@
 @endsection
 
 @section('scripts')
-    <!-- Add home page JS via Vite -->
+    <!-- Add testimonials JS via Vite -->
     @vite('resources/js/home.js')
     <script>
     @if(session('success'))

@@ -20,7 +20,7 @@ class ServicesCarousel {
     
     getItemsToShow() {
         const width = window.innerWidth;
-        if (width <= 768) return 1;
+        if (width <= 768) return this.totalItems; // Show all on mobile (no carousel)
         if (width <= 1024) return 2;
         if (width <= 1200) return 3;
         return 4;
@@ -30,14 +30,37 @@ class ServicesCarousel {
         this.updateButtons();
         this.setupEventListeners();
         this.setupTouchEvents();
+        this.checkNavigationVisibility();
         
         window.addEventListener('resize', () => {
+            const oldItemsToShow = this.itemsToShow;
             this.itemsToShow = this.getItemsToShow();
             this.maxIndex = Math.max(0, this.totalItems - this.itemsToShow);
             this.currentIndex = Math.min(this.currentIndex, this.maxIndex);
             this.updateSlider();
             this.updateButtons();
+            this.checkNavigationVisibility();
         });
+    }
+    
+    checkNavigationVisibility() {
+        const navigation = document.querySelector('.services-navigation');
+        if (!navigation) return;
+        
+        const width = window.innerWidth;
+        
+        // Hide navigation on mobile completely
+        if (width <= 768) {
+            navigation.style.display = 'none';
+            return;
+        }
+        
+        // Show navigation only if there are more items than can be displayed
+        if (this.totalItems > this.itemsToShow) {
+            navigation.style.display = 'flex';
+        } else {
+            navigation.style.display = 'none';
+        }
     }
     
     setupEventListeners() {
@@ -56,17 +79,20 @@ class ServicesCarousel {
         let isDragging = false;
         
         this.slider.addEventListener('touchstart', (e) => {
+            // Only enable touch on desktop/tablet
+            if (window.innerWidth <= 768) return;
+            
             startX = e.touches[0].clientX;
             isDragging = true;
         });
         
         this.slider.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
+            if (!isDragging || window.innerWidth <= 768) return;
             currentX = e.touches[0].clientX;
         });
         
         this.slider.addEventListener('touchend', () => {
-            if (!isDragging) return;
+            if (!isDragging || window.innerWidth <= 768) return;
             
             const diff = startX - currentX;
             const threshold = 50;
@@ -100,8 +126,22 @@ class ServicesCarousel {
     }
     
     updateSlider() {
-        const cardWidth = 250 + 30; // card width + gap
-        const translateX = -this.currentIndex * cardWidth;
+        const width = window.innerWidth;
+        
+        // No transform on mobile - let CSS handle the layout
+        if (width <= 768) {
+            this.slider.style.transform = 'none';
+            return;
+        }
+        
+        // FIXED: Better calculation for desktop sliding
+        const containerWidth = this.slider.parentElement.offsetWidth;
+        const gap = 30;
+        const availableWidth = containerWidth - (gap * (this.itemsToShow - 1));
+        const cardWidth = availableWidth / this.itemsToShow;
+        const slideDistance = cardWidth + gap;
+        
+        const translateX = -this.currentIndex * slideDistance;
         this.slider.style.transform = `translateX(${translateX}px)`;
     }
     
@@ -117,15 +157,15 @@ class ServicesCarousel {
 }
 
 /**
- * Testimonials Carousel
- * Handles testimonial sliding, pagination, and navigation for mobile
+ * Testimonials Carousel - FINAL FIX FOR MOBILE POSITIONING
+ * Handles testimonial sliding with perfect mobile support
  */
 class TestimonialsCarousel {
     constructor() {
         this.sliderContainer = document.getElementById('testimonialsSlider');
         this.prevBtn = document.getElementById('testimonialsPrevBtn');
         this.nextBtn = document.getElementById('testimonialsNextBtn');
-        this.dots = document.querySelectorAll('#testimonialsDots .dot');
+        this.dots = [];
         
         if (!this.sliderContainer) return;
         
@@ -137,42 +177,53 @@ class TestimonialsCarousel {
     }
     
     init() {
-        this.setupLayout();
         this.updateButtons();
         this.setupEventListeners();
         this.setupTouchEvents();
+        this.createDynamicDots();
         
         window.addEventListener('resize', () => {
             const wasMobile = this.isMobile;
             this.isMobile = window.innerWidth <= 768;
             
             if (wasMobile !== this.isMobile) {
-                this.setupLayout();
                 this.currentIndex = 0;
                 this.updateSlider();
                 this.updateButtons();
+                this.createDynamicDots();
                 this.updateDots();
             }
         });
     }
     
-    setupLayout() {
+    createDynamicDots() {
+        const dotsContainer = document.getElementById('testimonialsDots');
+        if (!dotsContainer) return;
+        
+        // Clear existing dots
+        dotsContainer.innerHTML = '';
+        
+        // Calculate number of pages
+        const totalPages = this.getTotalPages();
+        
+        // Create new dots
+        for (let i = 0; i < totalPages; i++) {
+            const dot = document.createElement('span');
+            dot.className = `dot ${i === 0 ? 'active' : ''}`;
+            dot.setAttribute('data-index', i);
+            dot.addEventListener('click', () => this.goToSlide(i));
+            dotsContainer.appendChild(dot);
+        }
+        
+        // Update dots reference
+        this.dots = dotsContainer.querySelectorAll('.dot');
+    }
+    
+    getTotalPages() {
         if (this.isMobile) {
-            // Mobile: Show one testimonial at a time
-            this.sliderContainer.style.display = 'flex';
-            Array.from(this.sliderContainer.children).forEach(testimonial => {
-                testimonial.style.flex = '0 0 100%';
-                testimonial.style.minWidth = '100%';
-            });
+            return this.totalTestimonials;
         } else {
-            // Desktop: Show two testimonials side by side
-            this.sliderContainer.style.display = 'grid';
-            this.sliderContainer.style.gridTemplateColumns = 'repeat(2, 1fr)';
-            this.sliderContainer.style.gap = '30px';
-            Array.from(this.sliderContainer.children).forEach(testimonial => {
-                testimonial.style.flex = 'none';
-                testimonial.style.minWidth = 'auto';
-            });
+            return Math.max(1, this.totalTestimonials - 1); // Desktop: total - 1 because we show 2 at a time
         }
     }
     
@@ -184,15 +235,9 @@ class TestimonialsCarousel {
         if (this.nextBtn) {
             this.nextBtn.addEventListener('click', () => this.next());
         }
-        
-        this.dots.forEach((dot, index) => {
-            dot.addEventListener('click', () => this.goToSlide(index));
-        });
     }
     
     setupTouchEvents() {
-        if (!this.isMobile) return;
-        
         let startX = 0;
         let currentX = 0;
         let isDragging = false;
@@ -205,6 +250,7 @@ class TestimonialsCarousel {
         this.sliderContainer.addEventListener('touchmove', (e) => {
             if (!isDragging) return;
             currentX = e.touches[0].clientX;
+            e.preventDefault(); // Prevent scrolling
         });
         
         this.sliderContainer.addEventListener('touchend', () => {
@@ -235,7 +281,7 @@ class TestimonialsCarousel {
     }
     
     next() {
-        const maxIndex = this.isMobile ? this.totalTestimonials - 1 : Math.ceil(this.totalTestimonials / 2) - 1;
+        const maxIndex = this.getMaxIndex();
         if (this.currentIndex < maxIndex) {
             this.currentIndex++;
             this.updateSlider();
@@ -245,24 +291,38 @@ class TestimonialsCarousel {
     }
     
     goToSlide(index) {
-        this.currentIndex = index;
+        const maxIndex = this.getMaxIndex();
+        this.currentIndex = Math.min(index, maxIndex);
         this.updateSlider();
         this.updateButtons();
         this.updateDots();
     }
     
+    getMaxIndex() {
+        if (this.isMobile) {
+            return this.totalTestimonials - 1;
+        } else {
+            // Desktop: show 2 at a time, so max index is total - 2
+            return Math.max(0, this.totalTestimonials - 2);
+        }
+    }
+    
     updateSlider() {
         if (this.isMobile) {
-            const translateX = -this.currentIndex * 100;
-            this.sliderContainer.style.transform = `translateX(${translateX}%)`;
+            // FINAL FIX: Mobile sliding - use container width instead of viewport width
+            const wrapper = this.sliderContainer.parentElement;
+            const containerWidth = wrapper.offsetWidth;
+            const translateX = -this.currentIndex * containerWidth;
+            this.sliderContainer.style.transform = `translateX(${translateX}px)`;
         } else {
-            // For desktop, we don't need to transform since we're using grid
-            this.sliderContainer.style.transform = 'none';
+            // Desktop: slide by 50% + gap for each pair
+            const translateX = -this.currentIndex * (50 + 1.5); // 50% width + gap
+            this.sliderContainer.style.transform = `translateX(${translateX}%)`;
         }
     }
     
     updateButtons() {
-        const maxIndex = this.isMobile ? this.totalTestimonials - 1 : Math.ceil(this.totalTestimonials / 2) - 1;
+        const maxIndex = this.getMaxIndex();
         
         if (this.prevBtn) {
             this.prevBtn.disabled = this.currentIndex === 0;

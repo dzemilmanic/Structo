@@ -13,18 +13,12 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ServiceCategoryController;
 use App\Http\Controllers\AdminUserController;
-use App\Http\Services\S3TestService;
+use App\Http\Controllers\HomeController;
+use App\Services\S3TestService;
+use Illuminate\Http\Request;
 
-Route::get('/', function () {
-    // This gets ALL testimonials, but we'll use JavaScript to paginate them client-side
-    $testimonials = Testimonial::with('user')->latest()->get();
-    
-    // Calculate the number of pages needed for pagination
-    $testimonialsPerPage = 2;
-    $totalPages = ceil($testimonials->count() / $testimonialsPerPage);
-    
-    return view('home', compact('testimonials', 'totalPages'));
-});
+// Home route
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -53,12 +47,23 @@ Route::get('/services/{type}', function ($type) {
 Route::view('/privacy', 'policy.privacy')->name('privacy');
 Route::view('/terms', 'policy.terms')->name('terms');
 Route::view('/cookies', 'policy.cookies')->name('cookies');
-Route::view('/users', 'users')->name('users');
+
+// Users routes - accessible without authentication
+Route::get('/users', function () {
+    if (auth()->check() && auth()->user()->isAdmin()) {
+        return redirect()->route('admin.users.index');
+    }
+    return app(UsersController::class)->index();
+})->name('users.index');
+
+// Public user profile route
+Route::get('/users/{user}', [UsersController::class, 'show'])->name('users.show');
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Questions routes - accessible without authentication
 Route::get('/questions', [QuestionsController::class, 'index'])->name('questions.index');
 Route::resource('questions', QuestionsController::class);
 Route::resource('questions.answers', AnswerController::class)->shallow();
@@ -69,38 +74,91 @@ Route::resource('answers', AnswerController::class)->only([
 
 Route::post('/answers/{answer}/solution', [AnswerController::class, 'markAsSolution'])->name('answers.solution');
 
-Route::get('/users', [UsersController::class, 'index'])->name('users.index');
-Route::get('/users/{user}', [UsersController::class, 'show'])->name('users.show');
-
 Route::middleware('auth')->group(function () {
     Route::post('/profi-requests', [ProfiRequestController::class, 'store'])->name('profi-requests.store');
 });
 
-Route::middleware(['auth', 'can:isAdmin'])->group(function () {
-    Route::get('/admin/profi-requests', [ProfiRequestController::class, 'index'])->name('admin.profi-requests.index');
-    Route::post('/admin/profi-requests/{id}/approve', [ProfiRequestController::class, 'approve'])->name('admin.profi-requests.approve');
-    Route::post('/admin/profi-requests/{id}/reject', [ProfiRequestController::class, 'reject'])->name('admin.profi-requests.reject');
+// Admin profi requests routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/profi-requests', function () {
+        if (!auth()->user()->isAdmin()) {
+            return redirect()->route('jobs.index')->with('error', 'Unauthorized access.');
+        }
+        return app(ProfiRequestController::class)->index();
+    })->name('admin.profi-requests.index');
+    
+    Route::post('/admin/profi-requests/{id}/approve', function ($id) {
+        if (!auth()->user()->isAdmin()) {
+            return redirect()->route('jobs.index')->with('error', 'Unauthorized access.');
+        }
+        return app(ProfiRequestController::class)->approve($id);
+    })->name('admin.profi-requests.approve');
+    
+    Route::post('/admin/profi-requests/{id}/reject', function ($id) {
+        if (!auth()->user()->isAdmin()) {
+            return redirect()->route('jobs.index')->with('error', 'Unauthorized access.');
+        }
+        return app(ProfiRequestController::class)->reject($id);
+    })->name('admin.profi-requests.reject');
 });
 
 // Admin Routes
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [AdminController::class, 'index'])->name('dashboard');
-    Route::get('/jobs', [JobController::class, 'adminJobsPanel'])->name('jobs.index');
-    Route::get('/services', [AdminController::class, 'services'])->name('services');
-    Route::delete('/jobs/{job}', [JobController::class, 'adminDestroyJob'])->name('jobs.destroy');
-    Route::delete('/services/{service}', [JobController::class, 'adminDestroyService'])->name('services.destroy');
+    Route::get('/', function () {
+        if (!auth()->user()->isAdmin()) {
+            return redirect()->route('jobs.index')->with('error', 'Unauthorized access.');
+        }
+        return app(AdminController::class)->index();
+    })->name('dashboard');
     
-    // Service Categories Management - FIXED ROUTES
+    // FIXED: Pass Request object to adminJobsPanel method
+    Route::get('/jobs', function (Request $request) {
+        if (!auth()->user()->isAdmin()) {
+            return redirect()->route('jobs.index')->with('error', 'Unauthorized access.');
+        }
+        return app(JobController::class)->adminJobsPanel($request);
+    })->name('jobs.index');
+    
+    Route::get('/services', function () {
+        if (!auth()->user()->isAdmin()) {
+            return redirect()->route('jobs.index')->with('error', 'Unauthorized access.');
+        }
+        return app(AdminController::class)->services();
+    })->name('services');
+    
+    Route::delete('/jobs/{job}', function ($job) {
+        if (!auth()->user()->isAdmin()) {
+            return redirect()->route('jobs.index')->with('error', 'Unauthorized access.');
+        }
+        return app(JobController::class)->adminDestroyJob($job);
+    })->name('jobs.destroy');
+    
+    Route::delete('/services/{service}', function ($service) {
+        if (!auth()->user()->isAdmin()) {
+            return redirect()->route('jobs.index')->with('error', 'Unauthorized access.');
+        }
+        return app(JobController::class)->adminDestroyService($service);
+    })->name('services.destroy');
+    
+    // Service Categories Management
     Route::post('/categories', [ServiceCategoryController::class, 'store'])->name('categories.store');
     Route::put('/categories/{category}', [ServiceCategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{category}', [ServiceCategoryController::class, 'destroy'])->name('categories.destroy');
+    
+    // Admin Users Management
+    Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+    Route::patch('/users/{user}/demote', [AdminUserController::class, 'demoteToUser'])->name('users.demote');
 });
 
-// Testimonials API route
-Route::get('/testimonials', [TestimonialController::class, 'getTestimonials']);
-Route::delete('/testimonials/{testimonial}', [TestimonialController::class, 'destroy'])->name('testimonials.destroy');
+// Testimonials routes
+Route::middleware('auth')->group(function () {
+    Route::post('/testimonials', [TestimonialController::class, 'store'])->name('testimonials.store');
+    Route::delete('/testimonials/{testimonial}', [TestimonialController::class, 'destroy'])->name('testimonials.destroy');
+});
 
-Route::post('/testimonials', [TestimonialController::class, 'store'])->middleware('auth');
+// Testimonials API routes
+Route::get('/testimonials', [TestimonialController::class, 'getTestimonials']);
 Route::get('/testimonials/load', [TestimonialController::class, 'getTestimonials']);
 
 Route::get('/test-s3', function (S3TestService $s3Test) {
@@ -122,7 +180,7 @@ Route::get('/test-s3', function (S3TestService $s3Test) {
     }
 })->middleware('auth');
 
-// Job management routes
+// Job management routes - REQUIRE AUTHENTICATION
 Route::middleware(['auth'])->group(function () {
     // Dashboard and main job routes
     Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
@@ -159,11 +217,5 @@ Route::middleware(['auth'])->group(function () {
     // Job completion
     Route::post('/jobs/{job}/complete', [JobController::class, 'completeJob'])->name('jobs.complete');
 });
-
-// Admin routes
-Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
-Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
-Route::patch('/admin/users/{user}/demote', [AdminUserController::class, 'demoteToUser'])->name('admin.users.demote');
-
 
 require __DIR__.'/auth.php';
