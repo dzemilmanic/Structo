@@ -1,3 +1,11 @@
+<section class="jobs-services-hero">
+    <div class="container">
+        <div class="jobs-services-hero-content">
+            <h1>Professional Dashboard</h1>
+            <p>Manage your services, find new opportunities, and grow your business</p>
+        </div>
+    </div>
+</section>
 <!-- Professional Dashboard -->
 <div class="professional-dashboard">
     <div class="dashboard-header">

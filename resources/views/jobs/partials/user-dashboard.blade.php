@@ -1,3 +1,11 @@
+<section class="jobs-services-hero">
+    <div class="container">
+        <div class="jobs-services-hero-content">
+            <h1>Jobs & Services</h1>
+            <p>Find the perfect professional for your project or post your job</p>
+        </div>
+    </div>
+</section>
 <!-- User Dashboard -->
 <div class="user-dashboard">
     <div class="dashboard-header">

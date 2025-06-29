@@ -10,7 +10,7 @@
         <p>Find verified experts for your building projects or showcase your professional services</p>
         <div class="hero-buttons">
             <a href="users" class="btn btn-primary">Find Professionals</a>
-            <a href="#" class="btn btn-outline">List Your Services</a>
+            <a href="jobs" class="btn btn-outline">List Your Services</a>
         </div>
     </div>
     <div class="hero-overlay"></div>
@@ -120,72 +120,6 @@
     </div>
 </section>
 
-<!-- Featured Professionals Section -->
-<section class="professionals" id="professionals">
-    <div class="container">
-        <div class="section-header">
-            <h2>Featured Professionals</h2>
-            <p>Top-rated experts in construction and architecture</p>
-        </div>
-        <div class="professionals-grid">
-            <div class="professional-card">
-                <div class="professional-image"></div>
-                <div class="professional-info">
-                    <h3>Robert Johnson</h3>
-                    <p class="professional-title">Architectural Designer</p>
-                    <div class="rating">
-                        <span class="stars">★★★★★</span>
-                        <span class="count">(48 reviews)</span>
-                    </div>
-                    <p class="professional-location">London, UK</p>
-                    <a href="#" class="btn btn-outline btn-sm">View Profile</a>
-                </div>
-            </div>
-            <div class="professional-card">
-                <div class="professional-image"></div>
-                <div class="professional-info">
-                    <h3>Sarah Williams</h3>
-                    <p class="professional-title">Interior Designer</p>
-                    <div class="rating">
-                        <span class="stars">★★★★★</span>
-                        <span class="count">(36 reviews)</span>
-                    </div>
-                    <p class="professional-location">Manchester, UK</p>
-                    <a href="#" class="btn btn-outline btn-sm">View Profile</a>
-                </div>
-            </div>
-            <div class="professional-card">
-                <div class="professional-image"></div>
-                <div class="professional-info">
-                    <h3>David Miller</h3>
-                    <p class="professional-title">Construction Manager</p>
-                    <div class="rating">
-                        <span class="stars">★★★★☆</span>
-                        <span class="count">(29 reviews)</span>
-                    </div>
-                    <p class="professional-location">Birmingham, UK</p>
-                    <a href="#" class="btn btn-outline btn-sm">View Profile</a>
-                </div>
-            </div>
-            <div class="professional-card">
-                <div class="professional-image"></div>
-                <div class="professional-info">
-                    <h3>Emma Thompson</h3>
-                    <p class="professional-title">Landscape Architect</p>
-                    <div class="rating">
-                        <span class="stars">★★★★☆</span>
-                        <span class="count">(22 reviews)</span>
-                    </div>
-                    <p class="professional-location">Edinburgh, UK</p>
-                    <a href="#" class="btn btn-outline btn-sm">View Profile</a>
-                </div>
-            </div>
-        </div>
-        <div class="view-all">
-            <a href="users" class="btn btn-primary">View All Professionals</a>
-        </div>
-    </div>
-</section>
 
 <!-- Updated Testimonials Section with User Photos -->
 <section class="testimonials" id="testimonials">
@@ -308,7 +242,7 @@
             <p>Connect with top professionals in construction and architecture today</p>
             <div class="cta-buttons">
                 <a href="users" class="btn btn-light">Find Professionals</a>
-                <a href="#" class="btn btn-outline-light">List Your Services</a>
+                <a href="jobs" class="btn btn-outline-light">List Your Services</a>
             </div>
         </div>
     </div>

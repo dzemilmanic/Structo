@@ -186,25 +186,24 @@
                         <li><a href="/jobs">Jobs</a></li>
                         <li><a href="{{ route('questions.index') }}">Questions</a></li>
                         <li><a href="/news">News</a></li>
-                        <li><a href="/about">About Us</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-column">
                     <h3>Services</h3>
                     <ul class="footer-links">
-                        <li><a href="/services/architectural">Architectural Design</a></li>
-                        <li><a href="/services/construction">Construction</a></li>
-                        <li><a href="/services/interior">Interior Design</a></li>
-                        <li><a href="/services/landscape">Landscaping</a></li>
-                        <li><a href="/services">View All Services</a></li>
+                        <li><a href="jobs">Architectural Design</a></li>
+                        <li><a href="jobs">Construction</a></li>
+                        <li><a href="jobs">Interior Design</a></li>
+                        <li><a href="jobs">Landscaping</a></li>
+                        <li><a href="jobs">View All Services</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-column">
                     <h3>Contact Us</h3>
                     <address>
-                        <p>123 Building Street<br>London, UK</p>
+                        <p>Velje Polje 27<br>Tutin, Serbia</p>
                         <p>Email: <a href="mailto:dzemilmanic@hotmail.com">info@structo.com</a></p>
                         <p>Phone: <a href="tel:+381637248930">+381 63 7248 930</a></p>
                     </address>
