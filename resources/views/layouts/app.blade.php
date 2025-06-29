@@ -13,9 +13,13 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     
+    <!-- Global SweetAlert CSS -->
+    @vite(['resources/css/sweetalert-global.css'])
+    
     <!-- Styles -->
     @vite(['resources/js/app.js', 'resources/js/home.js', 'resources/css/app.css'])
     
+    <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Additional styles specific to pages -->

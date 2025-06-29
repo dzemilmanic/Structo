@@ -175,7 +175,7 @@ section {
     gap: 16px;
 }
 
-/* Services Section - FIXED FOR DESKTOP VISIBILITY */
+/* Services Section */
 .services {
     background-color: var(--white);
     padding: 80px 0;
@@ -193,7 +193,6 @@ section {
     overflow: hidden;
     position: relative;
     width: 100%;
-    /* FIXED: Removed extra padding that was causing issues */
 }
 
 .services-grid {
@@ -202,7 +201,6 @@ section {
     transition: transform 0.3s ease;
     width: 100%;
     justify-content: flex-start;
-    /* FIXED: Removed problematic padding-right */
 }
 
 .service-card {
@@ -212,8 +210,7 @@ section {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
     text-align: center;
     transition: var(--transition);
-    /* FIXED: Made cards responsive to container */
-    flex: 0 0 calc(25% - 22.5px); /* 4 cards with gaps */
+    flex: 0 0 calc(25% - 22.5px);
     min-width: 250px;
     max-width: 300px;
     position: relative;
@@ -303,9 +300,9 @@ section {
     transform: translateX(5px);
 }
 
-/* Services Navigation - ENHANCED  */
+/* Services Navigation */
 .services-navigation {
-    display: none; /* Hidden by default, shown by JavaScript when needed */
+    display: none;
     justify-content: center;
     align-items: center;
     gap: 20px;
@@ -561,7 +558,7 @@ section {
     color: var(--neutral-medium);
 }
 
-/* Testimonials Section - FINAL FIX FOR MOBILE POSITIONING */
+/* Testimonials Section */
 .testimonials {
     background-color: var(--white);
     position: relative;
@@ -581,7 +578,6 @@ section {
     width: 100%;
     overflow: hidden;
     position: relative;
-    /* FIXED: Added padding for mobile */
     padding: 0 10px;
 }
 
@@ -599,7 +595,7 @@ section {
     display: flex;
     flex-direction: column;
     position: relative;
-    flex: 0 0 calc(50% - 15px); /* Show 2 testimonials on desktop */
+    flex: 0 0 calc(50% - 15px);
     min-width: calc(50% - 15px);
 }
 
@@ -639,7 +635,6 @@ section {
     margin-top: auto;
 }
 
-/* Updated User Avatar Styles with New Class Names */
 .testimonial-avatar-container {
     width: 60px;
     height: 60px;
@@ -695,7 +690,7 @@ section {
     font-size: 0.9rem;
 }
 
-/* Testimonial Navigation - Enhanced with arrows */
+/* Testimonial Navigation */
 .testimonials-navigation {
     display: flex;
     justify-content: center;
@@ -733,7 +728,6 @@ section {
     background-color: var(--primary-light);
 }
 
-/* Navigation buttons for testimonials */
 .testimonials-navigation .nav-btn {
     order: 1;
 }
@@ -828,15 +822,15 @@ section {
     flex-wrap: wrap;
 }
 
-/* Delete Testimonial Button Styles */
-.delete-testimonial-form {
+/* Delete Testimonial Button Styles - FIXED CLASS NAMES */
+.testimonial-delete-form {
     position: absolute;
     top: 10px;
     right: 10px;
     z-index: 10;
 }
 
-.delete-testimonial-form .btn.btn-danger {
+.testimonial-delete-btn {
     background: linear-gradient(135deg, #dc3545, #c82333);
     border: none;
     color: white;
@@ -852,74 +846,210 @@ section {
     opacity: 0.8;
 }
 
-.delete-testimonial-form .btn.btn-danger:hover {
+.testimonial-delete-btn:hover {
     background: linear-gradient(135deg, #c82333, #a71e2a);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
     opacity: 1;
 }
 
-.delete-testimonial-form .btn.btn-danger:active {
+.testimonial-delete-btn:active {
     transform: translateY(0);
     box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
 }
 
-.delete-testimonial-form .btn.btn-danger:focus {
+.testimonial-delete-btn:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
 }
 
 /* Hide delete button by default, show on hover */
-.testimonial .delete-testimonial-form {
+.testimonial .testimonial-delete-form {
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
 }
 
-.testimonial:hover .delete-testimonial-form {
+.testimonial:hover .testimonial-delete-form {
     opacity: 1;
     visibility: visible;
 }
 
-/* Mobile Responsive Design - FINAL FIX FOR TESTIMONIALS */
+/* FIXED SWEETALERT2 STYLING - PROPER TEXT LAYOUT */
+.structo-swal-container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+.structo-swal-popup {
+    border-radius: 16px !important;
+    padding: 40px 35px !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+    border: 2px solid rgba(255, 107, 53, 0.1) !important;
+    max-width: 450px !important;
+    width: 90% !important;
+}
+
+.structo-swal-title {
+    color: #1a202c !important;
+    font-size: 1.8rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 20px !important;
+    text-align: center !important;
+    line-height: 1.3 !important;
+    letter-spacing: normal !important;
+    word-spacing: normal !important;
+    white-space: normal !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+.structo-swal-content {
+    color: #4a5568 !important;
+    font-size: 1.1rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 30px !important;
+    text-align: center !important;
+    padding: 0 !important;
+    font-weight: 500 !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+.structo-swal-confirm {
+    background: linear-gradient(135deg, #dc3545, #c82333) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 14px 28px !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    min-width: 140px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3) !important;
+}
+
+.structo-swal-confirm:hover {
+    background: linear-gradient(135deg, #c82333, #a71e2a) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4) !important;
+}
+
+.structo-swal-cancel {
+    background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 14px 28px !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    min-width: 140px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3) !important;
+}
+
+.structo-swal-cancel:hover {
+    background: linear-gradient(135deg, #5a6268, #495057) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4) !important;
+}
+
+/* Custom confirmation dialog styles */
+.structo-confirm-dialog {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.structo-confirm-content h3 {
+    color: #1a202c;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-align: center;
+    line-height: 1.3;
+}
+
+.structo-confirm-content p {
+    color: #4a5568;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.structo-confirm-btn {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 140px;
+}
+
+/* Universal Icon Styles */
+.service-icon i,
+.service-icon::before,
+.service-icon::after {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    content: '';
+}
+
+[class*="icon-"] {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+}
+
+/* Mobile Responsive Design */
 @media (max-width: 768px) {
     section {
         padding: 60px 0;
     }
-    
+
     .hero h1 {
         font-size: 2.5rem;
     }
-    
+
     .hero p {
         font-size: 1.2rem;
     }
-    
+
     .section-header h2 {
         font-size: 2rem;
     }
-    
-    /* MOBILE SERVICES - COMPLETELY FIXED */
+
     .services {
         padding: 60px 0;
     }
-    
+
     .services-container {
         padding: 0 15px;
     }
-    
+
     .services-scroll-wrapper {
         overflow: visible;
         padding: 0;
     }
-    
+
     .services-grid {
         flex-direction: column;
         align-items: center;
         gap: 20px;
         transform: none !important;
     }
-    
+
     .service-card {
         flex: none;
         width: 100%;
@@ -927,82 +1057,97 @@ section {
         min-width: auto;
         margin: 0 auto;
     }
-    
+
     .services-navigation {
-        display: none !important; /* Force hide on mobile */
+        display: none !important;
     }
-    
+
     .steps-container, 
     .professionals-grid, 
     .projects-grid {
         grid-template-columns: 1fr;
     }
-    
-    /* FINAL FIX: Mobile testimonials - perfect positioning */
+
     .testimonials-container {
-        padding: 0 20px; /* Consistent padding */
+        padding: 0 20px;
         max-width: 100%;
         overflow: hidden;
     }
-    
+
     .testimonials-wrapper {
-        padding: 0; /* Remove wrapper padding */
+        padding: 0;
         width: 100%;
         max-width: 100%;
         overflow: hidden;
         position: relative;
     }
-    
+
     .testimonials-slider {
-        gap: 0; /* Remove gap on mobile to prevent overflow */
+        gap: 0;
         width: 100%;
     }
-    
+
     .testimonial {
-        /* FINAL FIX: Perfect mobile sizing */
-        flex: 0 0 100%; /* Full width of container */
+        flex: 0 0 100%;
         min-width: 100%;
         max-width: 100%;
-        margin: 0; /* Remove margins */
-        padding: 20px; /* Reduced padding on mobile */
-        box-sizing: border-box; /* Include padding in width calculation */
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
     }
-    
+
     .testimonials-navigation {
         margin-top: 20px;
         padding: 0 10px;
         gap: 15px;
     }
-    
+
     .pagination-dots {
         gap: 6px;
     }
-    
+
     .dot {
         width: 10px;
         height: 10px;
     }
-    
+
     .nav-btn {
         width: 40px;
         height: 40px;
         font-size: 1.2rem;
     }
-    
+
     .hero-buttons, 
     .cta-buttons,
     .form-actions {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .btn {
         width: 100%;
     }
-    
+
     .testimonial-avatar-container {
         width: 50px;
         height: 50px;
+    }
+
+    /* Mobile SweetAlert adjustments */
+    .structo-swal-popup {
+        padding: 30px 25px !important;
+        max-width: calc(100vw - 40px) !important;
+        width: calc(100vw - 40px) !important;
+    }
+
+    .structo-swal-title {
+        font-size: 1.5rem !important;
+        margin-bottom: 15px !important;
+    }
+
+    .structo-swal-content {
+        font-size: 1rem !important;
+        margin-bottom: 25px !important;
     }
 }
 
@@ -1010,12 +1155,11 @@ section {
     .steps-container {
         grid-template-columns: repeat(2, 1fr);
     }
-    
-    /* Tablet services layout */
+
     .services-grid {
         gap: 20px;
     }
-    
+
     .service-card {
         flex: 0 0 calc(50% - 10px);
         min-width: 250px;
@@ -1033,81 +1177,4 @@ section {
     .service-card {
         flex: 0 0 calc(25% - 22.5px);
     }
-}
-
-/* FIXED: Universal Icon Styles - Covers ALL Service Names */
-.service-icon i,
-.service-icon::before,
-.service-icon::after {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    background-color: var(--primary-color);
-    border-radius: 50%;
-    content: '';
-}
-
-/* Fallback for any icon class that starts with icon- */
-[class*="icon-"] {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    background-color: var(--primary-color);
-    border-radius: 50%;
-}
-
-/* Specific icon styles - covers all possible variations */
-.icon-architecture, 
-.icon-construction, 
-.icon-interior, 
-.icon-landscape,
-.icon-architectural-design,
-.icon-interior-design,
-.icon-landscaping,
-.icon-dzemil-manic,
-.icon-engineering,
-.icon-planning,
-.icon-consulting,
-.icon-renovation,
-.icon-design,
-.icon-building,
-.icon-management,
-.icon-supervision,
-.icon-inspection {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    background-color: var(--primary-color);
-    border-radius: 50%;
-}
-
-/* Custom confirmation dialog styles */
-.swal2-popup {
-    border-radius: 12px !important;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
-}
-
-.swal2-title {
-    color: #2d3748 !important;
-    font-weight: 600 !important;
-}
-
-.swal2-content {
-    color: #4a5568 !important;
-}
-
-.swal2-confirm {
-    background: linear-gradient(135deg, #dc3545, #c82333) !important;
-    border: none !important;
-    border-radius: 6px !important;
-    font-weight: 600 !important;
-    padding: 8px 20px !important;
-}
-
-.swal2-cancel {
-    background: #6c757d !important;
-    border: none !important;
-    border-radius: 6px !important;
-    font-weight: 600 !important;
-    padding: 8px 20px !important;
 }

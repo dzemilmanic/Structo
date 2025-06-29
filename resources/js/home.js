@@ -1,13 +1,13 @@
-/**
- * Services Carousel
- * Handles service categories sliding and navigation
- */
+/*
+Services Carousel
+Handles service categories sliding and navigation
+*/
 class ServicesCarousel {
     constructor() {
         this.slider = document.getElementById('servicesGrid');
         this.prevBtn = document.getElementById('servicesPrevBtn');
         this.nextBtn = document.getElementById('servicesNextBtn');
-        
+
         if (!this.slider) return;
         
         this.currentIndex = 0;
@@ -17,7 +17,7 @@ class ServicesCarousel {
         
         this.init();
     }
-    
+
     getItemsToShow() {
         const width = window.innerWidth;
         if (width <= 768) return this.totalItems; // Show all on mobile (no carousel)
@@ -25,13 +25,13 @@ class ServicesCarousel {
         if (width <= 1200) return 3;
         return 4;
     }
-    
+
     init() {
         this.updateButtons();
         this.setupEventListeners();
         this.setupTouchEvents();
         this.checkNavigationVisibility();
-        
+
         window.addEventListener('resize', () => {
             const oldItemsToShow = this.itemsToShow;
             this.itemsToShow = this.getItemsToShow();
@@ -42,11 +42,11 @@ class ServicesCarousel {
             this.checkNavigationVisibility();
         });
     }
-    
+
     checkNavigationVisibility() {
         const navigation = document.querySelector('.services-navigation');
         if (!navigation) return;
-        
+
         const width = window.innerWidth;
         
         // Hide navigation on mobile completely
@@ -62,22 +62,22 @@ class ServicesCarousel {
             navigation.style.display = 'none';
         }
     }
-    
+
     setupEventListeners() {
         if (this.prevBtn) {
             this.prevBtn.addEventListener('click', () => this.prev());
         }
-        
+
         if (this.nextBtn) {
             this.nextBtn.addEventListener('click', () => this.next());
         }
     }
-    
+
     setupTouchEvents() {
         let startX = 0;
         let currentX = 0;
         let isDragging = false;
-        
+
         this.slider.addEventListener('touchstart', (e) => {
             // Only enable touch on desktop/tablet
             if (window.innerWidth <= 768) return;
@@ -108,7 +108,7 @@ class ServicesCarousel {
             isDragging = false;
         });
     }
-    
+
     prev() {
         if (this.currentIndex > 0) {
             this.currentIndex--;
@@ -116,7 +116,7 @@ class ServicesCarousel {
             this.updateButtons();
         }
     }
-    
+
     next() {
         if (this.currentIndex < this.maxIndex) {
             this.currentIndex++;
@@ -124,17 +124,17 @@ class ServicesCarousel {
             this.updateButtons();
         }
     }
-    
+
     updateSlider() {
         const width = window.innerWidth;
-        
+
         // No transform on mobile - let CSS handle the layout
         if (width <= 768) {
             this.slider.style.transform = 'none';
             return;
         }
         
-        // FIXED: Better calculation for desktop sliding
+        // Better calculation for desktop sliding
         const containerWidth = this.slider.parentElement.offsetWidth;
         const gap = 30;
         const availableWidth = containerWidth - (gap * (this.itemsToShow - 1));
@@ -144,12 +144,12 @@ class ServicesCarousel {
         const translateX = -this.currentIndex * slideDistance;
         this.slider.style.transform = `translateX(${translateX}px)`;
     }
-    
+
     updateButtons() {
         if (this.prevBtn) {
             this.prevBtn.disabled = this.currentIndex === 0;
         }
-        
+
         if (this.nextBtn) {
             this.nextBtn.disabled = this.currentIndex >= this.maxIndex;
         }
@@ -157,7 +157,7 @@ class ServicesCarousel {
 }
 
 /**
- * Testimonials Carousel - FINAL FIX FOR MOBILE POSITIONING
+ * Testimonials Carousel - Enhanced for Mobile
  * Handles testimonial sliding with perfect mobile support
  */
 class TestimonialsCarousel {
@@ -166,7 +166,7 @@ class TestimonialsCarousel {
         this.prevBtn = document.getElementById('testimonialsPrevBtn');
         this.nextBtn = document.getElementById('testimonialsNextBtn');
         this.dots = [];
-        
+
         if (!this.sliderContainer) return;
         
         this.currentIndex = 0;
@@ -175,13 +175,13 @@ class TestimonialsCarousel {
         
         this.init();
     }
-    
+
     init() {
         this.updateButtons();
         this.setupEventListeners();
         this.setupTouchEvents();
         this.createDynamicDots();
-        
+
         window.addEventListener('resize', () => {
             const wasMobile = this.isMobile;
             this.isMobile = window.innerWidth <= 768;
@@ -195,11 +195,11 @@ class TestimonialsCarousel {
             }
         });
     }
-    
+
     createDynamicDots() {
         const dotsContainer = document.getElementById('testimonialsDots');
         if (!dotsContainer) return;
-        
+
         // Clear existing dots
         dotsContainer.innerHTML = '';
         
@@ -218,7 +218,7 @@ class TestimonialsCarousel {
         // Update dots reference
         this.dots = dotsContainer.querySelectorAll('.dot');
     }
-    
+
     getTotalPages() {
         if (this.isMobile) {
             return this.totalTestimonials;
@@ -226,22 +226,22 @@ class TestimonialsCarousel {
             return Math.max(1, this.totalTestimonials - 1); // Desktop: total - 1 because we show 2 at a time
         }
     }
-    
+
     setupEventListeners() {
         if (this.prevBtn) {
             this.prevBtn.addEventListener('click', () => this.prev());
         }
-        
+
         if (this.nextBtn) {
             this.nextBtn.addEventListener('click', () => this.next());
         }
     }
-    
+
     setupTouchEvents() {
         let startX = 0;
         let currentX = 0;
         let isDragging = false;
-        
+
         this.sliderContainer.addEventListener('touchstart', (e) => {
             startX = e.touches[0].clientX;
             isDragging = true;
@@ -270,7 +270,7 @@ class TestimonialsCarousel {
             isDragging = false;
         });
     }
-    
+
     prev() {
         if (this.currentIndex > 0) {
             this.currentIndex--;
@@ -279,7 +279,7 @@ class TestimonialsCarousel {
             this.updateDots();
         }
     }
-    
+
     next() {
         const maxIndex = this.getMaxIndex();
         if (this.currentIndex < maxIndex) {
@@ -289,7 +289,7 @@ class TestimonialsCarousel {
             this.updateDots();
         }
     }
-    
+
     goToSlide(index) {
         const maxIndex = this.getMaxIndex();
         this.currentIndex = Math.min(index, maxIndex);
@@ -297,7 +297,7 @@ class TestimonialsCarousel {
         this.updateButtons();
         this.updateDots();
     }
-    
+
     getMaxIndex() {
         if (this.isMobile) {
             return this.totalTestimonials - 1;
@@ -306,10 +306,10 @@ class TestimonialsCarousel {
             return Math.max(0, this.totalTestimonials - 2);
         }
     }
-    
+
     updateSlider() {
         if (this.isMobile) {
-            // FINAL FIX: Mobile sliding - use container width instead of viewport width
+            // Mobile sliding - use container width instead of viewport width
             const wrapper = this.sliderContainer.parentElement;
             const containerWidth = wrapper.offsetWidth;
             const translateX = -this.currentIndex * containerWidth;
@@ -320,10 +320,10 @@ class TestimonialsCarousel {
             this.sliderContainer.style.transform = `translateX(${translateX}%)`;
         }
     }
-    
+
     updateButtons() {
         const maxIndex = this.getMaxIndex();
-        
+
         if (this.prevBtn) {
             this.prevBtn.disabled = this.currentIndex === 0;
         }
@@ -332,7 +332,7 @@ class TestimonialsCarousel {
             this.nextBtn.disabled = this.currentIndex >= maxIndex;
         }
     }
-    
+
     updateDots() {
         this.dots.forEach((dot, index) => {
             if (index === this.currentIndex) {
@@ -353,13 +353,13 @@ class TestimonialForm {
         this.toggleBtn = document.getElementById('toggleFormBtn');
         this.formWrapper = document.getElementById('testimonialFormWrapper');
         this.cancelBtn = document.querySelector('.cancel-btn');
-        
+
         this.init();
     }
-    
+
     init() {
         if (!this.toggleBtn || !this.formWrapper) return;
-        
+
         this.toggleBtn.addEventListener('click', () => {
             this.showForm();
         });
@@ -371,15 +371,228 @@ class TestimonialForm {
             });
         }
     }
-    
+
     showForm() {
         this.formWrapper.classList.add('active');
         this.toggleBtn.style.display = 'none';
     }
-    
+
     hideForm() {
         this.formWrapper.classList.remove('active');
         this.toggleBtn.style.display = 'block';
+    }
+}
+
+/**
+ * Testimonial Delete Confirmation - COMPLETELY FIXED
+ * Handles delete confirmation with proper cleanup
+ */
+class TestimonialDeleteHandler {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        // Handle delete button clicks - prevent form submission and show confirmation
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('testimonial-delete-btn')) {
+                e.preventDefault();
+                const form = e.target.closest('.testimonial-delete-form');
+                this.showDeleteConfirmation(form);
+            }
+        });
+    }
+
+    showDeleteConfirmation(form) {
+        // Check if SweetAlert is available
+        if (typeof Swal !== 'undefined') {
+            this.showSweetAlertConfirmation(form);
+        } else {
+            this.showCustomConfirmation(form);
+        }
+    }
+
+    showSweetAlertConfirmation(form) {
+        // Close any existing SweetAlert instances first
+        if (Swal.isVisible()) {
+            Swal.close();
+        }
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This testimonial will be permanently deleted. This action cannot be undone!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            focusCancel: true,
+            allowOutsideClick: true,
+            allowEscapeKey: true,
+            buttonsStyling: true,
+            backdrop: true,
+            heightAuto: false,
+            customClass: {
+                container: 'structo-swal-container',
+                popup: 'structo-swal-popup',
+                title: 'structo-swal-title',
+                content: 'structo-swal-content',
+                confirmButton: 'structo-swal-confirm',
+                cancelButton: 'structo-swal-cancel'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading state
+                Swal.fire({
+                    title: 'Deleting...',
+                    text: 'Please wait while we delete the testimonial.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    heightAuto: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Submit the form
+                form.submit();
+            }
+        }).catch((error) => {
+            console.error('SweetAlert error:', error);
+            // Fallback to custom confirmation if SweetAlert fails
+            this.showCustomConfirmation(form);
+        });
+    }
+
+    showCustomConfirmation(form) {
+        // Create custom confirmation dialog as fallback
+        const dialog = document.createElement('div');
+        dialog.className = 'structo-confirm-dialog';
+        dialog.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999999;
+            padding: 20px;
+            box-sizing: border-box;
+        `;
+
+        dialog.innerHTML = `
+            <div class="structo-confirm-content" style="
+                background: white;
+                border-radius: 20px;
+                padding: 40px;
+                max-width: 480px;
+                width: 100%;
+                text-align: center;
+                box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            ">
+                <div style="
+                    width: 80px;
+                    height: 80px;
+                    border: 4px solid #ff9800;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 25px;
+                    font-size: 40px;
+                    color: #ff9800;
+                ">⚠</div>
+                <h3 style="
+                    color: #1a202c;
+                    font-size: 2rem;
+                    font-weight: 800;
+                    margin: 0 0 20px 0;
+                ">Are you sure?</h3>
+                <p style="
+                    color: #4a5568;
+                    font-size: 1.1rem;
+                    line-height: 1.6;
+                    margin: 0 0 35px 0;
+                ">This testimonial will be permanently deleted. This action cannot be undone!</p>
+                <div style="
+                    display: flex;
+                    gap: 20px;
+                    justify-content: center;
+                ">
+                    <button class="structo-confirm-btn structo-cancel" style="
+                        background: linear-gradient(135deg, #6c757d, #5a6268);
+                        color: white;
+                        border: none;
+                        border-radius: 12px;
+                        padding: 18px 35px;
+                        font-size: 1.1rem;
+                        font-weight: 800;
+                        cursor: pointer;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                        transition: all 0.3s ease;
+                    ">Cancel</button>
+                    <button class="structo-confirm-btn structo-confirm" style="
+                        background: linear-gradient(135deg, #dc3545, #c82333);
+                        color: white;
+                        border: none;
+                        border-radius: 12px;
+                        padding: 18px 35px;
+                        font-size: 1.1rem;
+                        font-weight: 800;
+                        cursor: pointer;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                        transition: all 0.3s ease;
+                    ">Yes, delete it!</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(dialog);
+        
+        // Add event listeners
+        const confirmBtn = dialog.querySelector('.structo-confirm');
+        const cancelBtn = dialog.querySelector('.structo-cancel');
+        
+        const cleanup = () => {
+            if (document.body.contains(dialog)) {
+                document.body.removeChild(dialog);
+            }
+        };
+        
+        confirmBtn.addEventListener('click', () => {
+            cleanup();
+            form.submit();
+        });
+        
+        cancelBtn.addEventListener('click', cleanup);
+        
+        // Close on outside click
+        dialog.addEventListener('click', (e) => {
+            if (e.target === dialog) {
+                cleanup();
+            }
+        });
+        
+        // Close on escape key
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                cleanup();
+                document.removeEventListener('keydown', handleEscape);
+            }
+        };
+        
+        document.addEventListener('keydown', handleEscape);
+        
+        // Focus cancel button by default
+        setTimeout(() => cancelBtn.focus(), 100);
     }
 }
 
@@ -389,21 +602,24 @@ class TestimonialForm {
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize services carousel
     new ServicesCarousel();
-    
+
     // Initialize testimonials carousel
     new TestimonialsCarousel();
-    
+
     // Initialize testimonial form
     new TestimonialForm();
-    
+
+    // Initialize testimonial delete handler
+    new TestimonialDeleteHandler();
+
     // Mobile menu toggle
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const mainNav = document.querySelector('.main-nav');
-    
+
     if (mobileMenuToggle && mainNav) {
         mobileMenuToggle.addEventListener('click', function() {
             mainNav.classList.toggle('active');
-            
+
             // Toggle hamburger to X
             const spans = this.querySelectorAll('span');
             if (mainNav.classList.contains('active')) {
@@ -417,13 +633,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     // Mobile dropdown toggle
     const dropdownItems = document.querySelectorAll('.nav-item-dropdown');
-    
+
     dropdownItems.forEach(item => {
         const link = item.querySelector('.nav-link');
-        
+
         if (window.innerWidth <= 768 && link) {
             link.addEventListener('click', function(e) {
                 // Only prevent default if we're on mobile
@@ -434,12 +650,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
-    
+
     // Smooth scroll for anchor links
     document.querySelectorAll('.dropdown-menu a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
             e.preventDefault();
-            
+
             const targetId = this.getAttribute('href');
             const targetElement = document.querySelector(targetId);
             
@@ -468,10 +684,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Header scroll effect
     const header = document.querySelector('.site-header');
-    
+
     if (header) {
         window.addEventListener('scroll', function() {
             if (window.scrollY > 50) {
@@ -485,18 +701,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     // Projects filter functionality
     const filterButtons = document.querySelectorAll('.filter-btn');
     const projectCards = document.querySelectorAll('.project-card');
-    
+
     if (filterButtons.length > 0 && projectCards.length > 0) {
         filterButtons.forEach(button => {
             button.addEventListener('click', function() {
                 // Update active filter button
                 filterButtons.forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
-                
+
                 // Get filter value
                 const filter = this.getAttribute('data-filter');
                 
@@ -511,40 +727,4 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-});
-
-// Delete Testimonial Confirmation Script
-document.addEventListener('DOMContentLoaded', function() {
-    // Add event listener to all delete forms
-    const deleteForms = document.querySelectorAll('.delete-testimonial-form');
-    
-    deleteForms.forEach(function(form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevent immediate form submission
-            
-            // Show confirmation dialog
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "This testimonial will be permanently deleted. This action cannot be undone!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel',
-                reverseButtons: true,
-                focusCancel: true,
-                customClass: {
-                    popup: 'swal2-popup-custom',
-                    confirmButton: 'swal2-confirm-custom',
-                    cancelButton: 'swal2-cancel-custom'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // If confirmed, submit the form
-                    form.submit();
-                }
-            });
-        });
-    });
 });
