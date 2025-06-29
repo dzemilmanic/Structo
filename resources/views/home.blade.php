@@ -87,38 +87,38 @@
         </div>
     </div>
 </section>
-
 <!-- How It Works Section -->
 <section class="how-it-works" id="how-it-works">
     <div class="container">
         <div class="section-header">
             <h2>How It Works</h2>
-            <p>Simple steps to connect with the right professionals</p>
+            <p>Simple steps to connect clients with professionals</p>
         </div>
         <div class="steps-container">
             <div class="step">
                 <div class="step-number">1</div>
-                <h3>Search Services</h3>
-                <p>Browse through various categories to find the service you need</p>
+                <h3>Post Job or Browse Services</h3>
+                <p>Post your project for professionals to bid on, or browse available services from verified professionals</p>
             </div>
             <div class="step">
                 <div class="step-number">2</div>
-                <h3>Compare Professionals</h3>
-                <p>Review profiles, portfolios, and client ratings to make informed decisions</p>
+                <h3>Receive or Send Proposals</h3>
+                <p>Get proposals from interested professionals, or send requests to service providers with your requirements</p>
             </div>
             <div class="step">
                 <div class="step-number">3</div>
-                <h3>Request Quotes</h3>
-                <p>Contact professionals directly and receive detailed quotes</p>
+                <h3>Accept & Start Working</h3>
+                <p>Review proposals and profiles, then accept the best offer to begin your collaboration</p>
             </div>
             <div class="step">
                 <div class="step-number">4</div>
-                <h3>Hire & Collaborate</h3>
-                <p>Work with your chosen professional to bring your project to life</p>
+                <h3>Complete & Mark Finished</h3>
+                <p>Work together to complete the project, then mark it as finished when all requirements are met</p>
             </div>
         </div>
     </div>
 </section>
+
 
 
 <!-- Updated Testimonials Section with User Photos -->

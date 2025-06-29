@@ -18,7 +18,7 @@
     color: var(--white);
     position: relative;
     overflow: hidden;
-}
+} 
 
 .admin-header::before {
     content: '';
