@@ -1,284 +1,684 @@
-// ===== ADMIN JOBS JAVASCRIPT =====
+/**
+ * Admin Jobs Management JavaScript
+ * Handles delete confirmations and modal management for jobs, services, and categories
+ */
 
-// Global variables
-let activeModal = null;
-let isInitialized = false;
-
-// Ensure all functions are available globally immediately
-window.openCategoryModal = openCategoryModal;
-window.closeCategoryModal = closeCategoryModal;
-window.editCategory = editCategory;
-window.deleteCategory = deleteCategory;
-window.deleteJob = deleteJob;
-window.deleteService = deleteService;
-window.toggleFilters = toggleFilters;
-window.openJobDetailModal = openJobDetailModal;
-window.closeJobDetailModal = closeJobDetailModal;
-window.openServiceDetailModal = openServiceDetailModal;
-window.closeServiceDetailModal = closeServiceDetailModal;
-
-// Initialize when DOM is ready
-document.addEventListener("DOMContentLoaded", function () {
-    initializeModals();
-    initializeFormValidation();
-    initializeTextareas();
-    console.log("Admin Jobs JS initialized successfully");
-});
-
-// Fallback initialization
-window.addEventListener("load", function () {
-    if (!isInitialized) {
-        initializeModals();
+/**
+ * Category Delete Confirmation Handler - Clean Dialog Without Icons
+ * Shows a clean, professional confirmation dialog for category deletion
+ */
+class CategoryDeleteHandler {
+    constructor() {
+        this.init();
     }
-});
 
-// ===== MODAL FUNCTIONS =====
-
-function initializeModals() {
-    console.log("Initializing admin jobs modals...");
-
-    // Force hide all modals on load
-    const modals = document.querySelectorAll(".modal");
-    modals.forEach((modal) => {
-        modal.style.display = "none";
-        modal.classList.remove("modal-open");
-        modal.setAttribute("aria-hidden", "true");
-    });
-
-    // Setup event listeners
-    setupModalEventListeners();
-
-    // Reset body state
-    document.body.style.overflow = "";
-    document.body.classList.remove("modal-open");
-
-    isInitialized = true;
-    console.log("Admin jobs modals initialized successfully");
-}
-
-function setupModalEventListeners() {
-    // Close modal when clicking outside
-    document.addEventListener("click", function (e) {
-        if (
-            e.target.classList.contains("modal") &&
-            e.target.style.display === "flex"
-        ) {
-            closeModal(e.target.id);
-        }
-    });
-
-    // Close modal with Escape key
-    document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape" && activeModal) {
-            closeModal(activeModal);
-        }
-    });
-
-    // Setup close buttons
-    const closeButtons = document.querySelectorAll(".modal-close");
-    closeButtons.forEach((button) => {
-        button.addEventListener("click", function (e) {
-            e.preventDefault();
-            const modal = this.closest(".modal");
-            if (modal) {
-                closeModal(modal.id);
+    init() {
+        // Handle delete button clicks using event delegation
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('category-delete-btn') || 
+                e.target.closest('.category-delete-btn')) {
+                e.preventDefault();
+                
+                // Get the button or closest button element
+                const button = e.target.classList.contains('category-delete-btn') 
+                    ? e.target 
+                    : e.target.closest('.category-delete-btn');
+                
+                const categoryId = button.getAttribute('data-category-id');
+                const categoryName = button.getAttribute('data-category-name');
+                
+                this.showDeleteConfirmation(categoryId, categoryName);
             }
         });
-    });
-}
-
-function openModal(modalId) {
-    console.log("Opening modal:", modalId);
-
-    // Close any open modal first
-    if (activeModal) {
-        closeModal(activeModal);
     }
 
-    const modal = document.getElementById(modalId);
-    if (!modal) {
-        console.error("Modal not found:", modalId);
-        return;
-    }
-
-    // Show modal
-    modal.style.display = "flex";
-    modal.classList.add("modal-open");
-    modal.setAttribute("aria-hidden", "false");
-
-    // Prevent body scroll
-    document.body.style.overflow = "hidden";
-    document.body.classList.add("modal-open");
-
-    activeModal = modalId;
-
-    // Focus first input
-    setTimeout(() => {
-        const firstInput = modal.querySelector("input, textarea, select");
-        if (firstInput) {
-            firstInput.focus();
+    showDeleteConfirmation(categoryId, categoryName) {
+        // Check if SweetAlert is available
+        if (typeof Swal !== 'undefined') {
+            this.showSweetAlertDeleteConfirmation(categoryId, categoryName);
+        } else {
+            // Fallback to native confirm
+            if (confirm(`Are you sure you want to delete "${categoryName}"? This action cannot be undone and will permanently remove the category.`)) {
+                this.submitDeleteForm(categoryId);
+            }
         }
-    }, 100);
-
-    console.log("Modal opened:", modalId);
-}
-
-function closeModal(modalId) {
-    console.log("Closing modal:", modalId);
-
-    const modal = document.getElementById(modalId);
-    if (!modal) {
-        console.error("Modal not found:", modalId);
-        return;
     }
 
-    // Hide modal
-    modal.style.display = "none";
-    modal.classList.remove("modal-open");
-    modal.setAttribute("aria-hidden", "true");
-
-    // Reset body scroll
-    document.body.style.overflow = "";
-    document.body.classList.remove("modal-open");
-
-    if (activeModal === modalId) {
-        activeModal = null;
-    }
-
-    // Clear form if exists
-    const form = modal.querySelector("form");
-    if (form) {
-        form.reset();
-        // Remove error states
-        const errorFields = form.querySelectorAll(".error");
-        errorFields.forEach((field) => {
-            field.classList.remove("error");
-            field.style.borderColor = "";
+    showSweetAlertDeleteConfirmation(categoryId, categoryName) {
+        // Clean SweetAlert without any icons - just text and buttons
+        Swal.fire({
+            title: 'Delete Category?',
+            text: `Are you sure you want to delete "${categoryName}"? This action cannot be undone and will permanently remove the category.`,
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, Delete Category',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            focusCancel: true,
+            allowOutsideClick: true,
+            allowEscapeKey: true,
+            buttonsStyling: true,
+            // CRITICAL: Remove the icon completely
+            icon: false,
+            iconHtml: '',
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown animate__faster'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp animate__faster'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading state without icon
+                Swal.fire({
+                    title: 'Deleting Category...',
+                    text: 'Please wait while we delete the category.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    icon: false, // No icon for loading either
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Submit the delete form
+                this.submitDeleteForm(categoryId);
+            }
+        }).catch((error) => {
+            console.error('SweetAlert error:', error);
+            // Fallback to native confirm if SweetAlert fails
+            if (confirm(`Are you sure you want to delete "${categoryName}"? This action cannot be undone and will permanently remove the category.`)) {
+                this.submitDeleteForm(categoryId);
+            }
         });
     }
 
-    console.log("Modal closed:", modalId);
-}
+    submitDeleteForm(categoryId) {
+        const csrfToken = this.getFreshCSRFToken();
+        if (!csrfToken) {
+            Swal.fire({
+                title: 'Error',
+                text: 'CSRF token not found. Please refresh the page and try again.',
+                icon: false,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc3545'
+            });
+            return;
+        }
 
-// ===== JOB AND SERVICE DETAIL MODAL FUNCTIONS =====
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/categories/${categoryId}`;
+        form.style.display = 'none';
 
-function openJobDetailModal(jobData) {
-    console.log('Opening job detail modal with data:', jobData);
-    
-    const modal = document.getElementById('jobDetailModal');
-    if (!modal) {
-        console.error('Job detail modal not found');
-        return;
-    }
+        // Add CSRF token
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
 
-    // Update modal content
-    updateElementText(modal, '.modal-job-title', jobData.title);
-    updateElementText(modal, '.modal-job-description', jobData.description);
-    updateElementText(modal, '.modal-job-status', jobData.status);
-    updateElementText(modal, '.modal-job-client', jobData.clientName);
-    updateElementText(modal, '.modal-job-category', jobData.category);
-    updateElementText(modal, '.modal-job-budget', jobData.budget);
-    updateElementText(modal, '.modal-job-location', jobData.location);
-    updateElementText(modal, '.modal-job-deadline', jobData.deadline);
-    updateElementText(modal, '.modal-job-assigned', jobData.assignedProfessional);
+        // Add method spoofing for DELETE
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
 
-    // Handle assigned professional section
-    const assignedSection = modal.querySelector('.modal-job-assigned-section');
-    if (jobData.assignedProfessional) {
-        assignedSection.style.display = 'block';
-    } else {
-        assignedSection.style.display = 'none';
-    }
+        document.body.appendChild(form);
 
-    openModal('jobDetailModal');
-}
-
-function closeJobDetailModal() {
-    closeModal('jobDetailModal');
-}
-
-function openServiceDetailModal(serviceData) {
-    console.log('Opening service detail modal with data:', serviceData);
-    
-    const modal = document.getElementById('serviceDetailModal');
-    if (!modal) {
-        console.error('Service detail modal not found');
-        return;
-    }
-
-    // Update modal content
-    updateElementText(modal, '.modal-service-title', serviceData.title);
-    updateElementText(modal, '.modal-service-description', serviceData.description);
-    updateElementText(modal, '.modal-service-status', serviceData.status);
-    updateElementText(modal, '.modal-service-professional', serviceData.professionalName);
-    updateElementText(modal, '.modal-service-specialization', serviceData.specialization);
-    updateElementText(modal, '.modal-service-category', serviceData.category);
-    updateElementText(modal, '.modal-service-price', serviceData.price);
-    updateElementText(modal, '.modal-service-area', serviceData.serviceArea);
-
-    openModal('serviceDetailModal');
-}
-
-function closeServiceDetailModal() {
-    closeModal('serviceDetailModal');
-}
-
-function updateElementText(container, selector, text) {
-    const element = container.querySelector(selector);
-    if (element && text) {
-        element.textContent = text;
-        element.style.display = 'block';
-    } else if (element) {
-        element.style.display = 'none';
-    }
-}
-
-// ===== CATEGORY MANAGEMENT FUNCTIONS =====
-
-function openCategoryModal() {
-    console.log("openCategoryModal called");
-
-    // Reset form for new category
-    const form = document.getElementById('categoryForm');
-    const title = document.getElementById('categoryModalTitle');
-    const method = document.getElementById('categoryMethod');
-
-    if (form) {
-        // Set the correct action URL for creating new category
-        form.action = '/admin/categories';
-        form.reset();
-        
-        // Make sure checkbox is unchecked by default
-        const activeCheckbox = document.getElementById('category_is_active');
-        if (activeCheckbox) {
-            activeCheckbox.checked = true; // Default to active
+        try {
+            form.submit();
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'An error occurred while deleting. Please try again.',
+                icon: false,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc3545'
+            });
         }
     }
 
-    if (title) {
-        title.textContent = 'Add Category';
-    }
+    getFreshCSRFToken() {
+        const metaToken = document.querySelector('meta[name="csrf-token"]');
+        if (metaToken) {
+            return metaToken.getAttribute('content');
+        }
 
-    if (method) {
-        method.value = '';
-    }
+        const existingForm = document.querySelector('form input[name="_token"]');
+        if (existingForm) {
+            return existingForm.value;
+        }
 
-    openModal('categoryModal');
+        console.error('CSRF token not found!');
+        return null;
+    }
 }
 
-function closeCategoryModal() {
-    console.log("closeCategoryModal called");
-    closeModal('categoryModal');
+/**
+ * Job Delete Confirmation Handler - Clean Dialog Without Icons
+ * Shows a clean, professional confirmation dialog for job deletion
+ */
+class JobDeleteHandler {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        // Handle delete button clicks using event delegation
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('job-delete-btn') || 
+                e.target.closest('.job-delete-btn')) {
+                e.preventDefault();
+                
+                // Get the button or closest button element
+                const button = e.target.classList.contains('job-delete-btn') 
+                    ? e.target 
+                    : e.target.closest('.job-delete-btn');
+                
+                const jobId = button.getAttribute('data-job-id');
+                const jobTitle = button.getAttribute('data-job-title');
+                
+                this.showDeleteConfirmation(jobId, jobTitle);
+            }
+        });
+    }
+
+    showDeleteConfirmation(jobId, jobTitle) {
+        // Check if SweetAlert is available
+        if (typeof Swal !== 'undefined') {
+            this.showSweetAlertDeleteConfirmation(jobId, jobTitle);
+        } else {
+            // Fallback to native confirm
+            if (confirm(`Are you sure you want to delete "${jobTitle}"? This action cannot be undone and will permanently remove the job and all its requests.`)) {
+                this.submitDeleteForm(jobId);
+            }
+        }
+    }
+
+    showSweetAlertDeleteConfirmation(jobId, jobTitle) {
+        // Clean SweetAlert without any icons - just text and buttons
+        Swal.fire({
+            title: 'Delete Job?',
+            text: `Are you sure you want to delete "${jobTitle}"? This action cannot be undone and will permanently remove the job and all its requests.`,
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, Delete Job',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            focusCancel: true,
+            allowOutsideClick: true,
+            allowEscapeKey: true,
+            buttonsStyling: true,
+            // CRITICAL: Remove the icon completely
+            icon: false,
+            iconHtml: '',
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown animate__faster'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp animate__faster'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading state without icon
+                Swal.fire({
+                    title: 'Deleting Job...',
+                    text: 'Please wait while we delete the job.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    icon: false, // No icon for loading either
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Submit the delete form
+                this.submitDeleteForm(jobId);
+            }
+        }).catch((error) => {
+            console.error('SweetAlert error:', error);
+            // Fallback to native confirm if SweetAlert fails
+            if (confirm(`Are you sure you want to delete "${jobTitle}"? This action cannot be undone and will permanently remove the job and all its requests.`)) {
+                this.submitDeleteForm(jobId);
+            }
+        });
+    }
+
+    submitDeleteForm(jobId) {
+        const csrfToken = this.getFreshCSRFToken();
+        if (!csrfToken) {
+            Swal.fire({
+                title: 'Error',
+                text: 'CSRF token not found. Please refresh the page and try again.',
+                icon: false,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc3545'
+            });
+            return;
+        }
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/jobs/${jobId}`;
+        form.style.display = 'none';
+
+        // Add CSRF token
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        // Add method spoofing for DELETE
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
+
+        document.body.appendChild(form);
+
+        try {
+            form.submit();
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'An error occurred while deleting. Please try again.',
+                icon: false,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc3545'
+            });
+        }
+    }
+
+    getFreshCSRFToken() {
+        const metaToken = document.querySelector('meta[name="csrf-token"]');
+        if (metaToken) {
+            return metaToken.getAttribute('content');
+        }
+
+        const existingForm = document.querySelector('form input[name="_token"]');
+        if (existingForm) {
+            return existingForm.value;
+        }
+
+        console.error('CSRF token not found!');
+        return null;
+    }
 }
 
-function editCategory(categoryId) {
-    console.log("Editing category:", categoryId);
+/**
+ * Service Delete Confirmation Handler - Clean Dialog Without Icons
+ * Shows a clean, professional confirmation dialog for service deletion
+ */
+class ServiceDeleteHandler {
+    constructor() {
+        this.init();
+    }
 
+    init() {
+        // Handle delete button clicks using event delegation
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('service-delete-btn') || 
+                e.target.closest('.service-delete-btn')) {
+                e.preventDefault();
+                
+                // Get the button or closest button element
+                const button = e.target.classList.contains('service-delete-btn') 
+                    ? e.target 
+                    : e.target.closest('.service-delete-btn');
+                
+                const serviceId = button.getAttribute('data-service-id');
+                const serviceTitle = button.getAttribute('data-service-title');
+                
+                this.showDeleteConfirmation(serviceId, serviceTitle);
+            }
+        });
+    }
+
+    showDeleteConfirmation(serviceId, serviceTitle) {
+        // Check if SweetAlert is available
+        if (typeof Swal !== 'undefined') {
+            this.showSweetAlertDeleteConfirmation(serviceId, serviceTitle);
+        } else {
+            // Fallback to native confirm
+            if (confirm(`Are you sure you want to delete "${serviceTitle}"? This action cannot be undone and will permanently remove the service and all its requests.`)) {
+                this.submitDeleteForm(serviceId);
+            }
+        }
+    }
+
+    showSweetAlertDeleteConfirmation(serviceId, serviceTitle) {
+        // Clean SweetAlert without any icons - just text and buttons
+        Swal.fire({
+            title: 'Delete Service?',
+            text: `Are you sure you want to delete "${serviceTitle}"? This action cannot be undone and will permanently remove the service and all its requests.`,
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, Delete Service',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            focusCancel: true,
+            allowOutsideClick: true,
+            allowEscapeKey: true,
+            buttonsStyling: true,
+            // CRITICAL: Remove the icon completely
+            icon: false,
+            iconHtml: '',
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown animate__faster'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp animate__faster'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading state without icon
+                Swal.fire({
+                    title: 'Deleting Service...',
+                    text: 'Please wait while we delete the service.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    icon: false, // No icon for loading either
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Submit the delete form
+                this.submitDeleteForm(serviceId);
+            }
+        }).catch((error) => {
+            console.error('SweetAlert error:', error);
+            // Fallback to native confirm if SweetAlert fails
+            if (confirm(`Are you sure you want to delete "${serviceTitle}"? This action cannot be undone and will permanently remove the service and all its requests.`)) {
+                this.submitDeleteForm(serviceId);
+            }
+        });
+    }
+
+    submitDeleteForm(serviceId) {
+        const csrfToken = this.getFreshCSRFToken();
+        if (!csrfToken) {
+            Swal.fire({
+                title: 'Error',
+                text: 'CSRF token not found. Please refresh the page and try again.',
+                icon: false,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc3545'
+            });
+            return;
+        }
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/services/${serviceId}`;
+        form.style.display = 'none';
+
+        // Add CSRF token
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        // Add method spoofing for DELETE
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
+
+        document.body.appendChild(form);
+
+        try {
+            form.submit();
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'An error occurred while deleting. Please try again.',
+                icon: false,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc3545'
+            });
+        }
+    }
+
+    getFreshCSRFToken() {
+        const metaToken = document.querySelector('meta[name="csrf-token"]');
+        if (metaToken) {
+            return metaToken.getAttribute('content');
+        }
+
+        const existingForm = document.querySelector('form input[name="_token"]');
+        if (existingForm) {
+            return existingForm.value;
+        }
+
+        console.error('CSRF token not found!');
+        return null;
+    }
+}
+
+/**
+ * Session Message Handler
+ * Displays success/error messages using SweetAlert toasts
+ */
+class SessionMessageHandler {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        // Check for session messages and display them
+        this.displaySessionMessages();
+    }
+
+    displaySessionMessages() {
+        // Success messages
+        const successMessage = this.getSessionMessage('success');
+        if (successMessage) {
+            this.showSuccessToast(successMessage);
+        }
+
+        // Error messages
+        const errorMessage = this.getSessionMessage('error');
+        if (errorMessage) {
+            this.showErrorToast(errorMessage);
+        }
+    }
+
+    getSessionMessage(type) {
+        // This will be populated by the Blade template
+        const element = document.querySelector(`[data-session-${type}]`);
+        return element ? element.getAttribute(`data-session-${type}`) : null;
+    }
+
+    showSuccessToast(message) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: message,
+                timer: 5000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end',
+                showCloseButton: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        }
+    }
+
+    showErrorToast(message) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: message,
+                timer: 8000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end',
+                showCloseButton: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        }
+    }
+}
+
+/**
+ * Modal Management
+ * Handles opening and closing of modals
+ */
+class ModalManager {
+    constructor() {
+        this.activeModal = null;
+        this.init();
+    }
+
+    init() {
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        // Close modal when clicking outside
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal') && e.target.style.display === 'flex') {
+                this.closeModal(e.target.id);
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.activeModal) {
+                this.closeModal(this.activeModal);
+            }
+        });
+
+        // Setup close buttons
+        const closeButtons = document.querySelectorAll('.modal-close');
+        closeButtons.forEach((button) => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const modal = button.closest('.modal');
+                if (modal) {
+                    this.closeModal(modal.id);
+                }
+            });
+        });
+    }
+
+    openModal(modalId) {
+        // Close any open modal first
+        if (this.activeModal) {
+            this.closeModal(this.activeModal);
+        }
+
+        const modal = document.getElementById(modalId);
+        if (!modal) {
+            console.error('Modal not found:', modalId);
+            return;
+        }
+
+        // Show modal
+        modal.style.display = 'flex';
+        modal.classList.add('modal-open');
+        modal.setAttribute('aria-hidden', 'false');
+
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
+        document.body.classList.add('modal-open');
+
+        this.activeModal = modalId;
+
+        // Focus first input
+        setTimeout(() => {
+            const firstInput = modal.querySelector('input, textarea, select');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        }, 100);
+    }
+
+    closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) {
+            console.error('Modal not found:', modalId);
+            return;
+        }
+
+        // Hide modal
+        modal.style.display = 'none';
+        modal.classList.remove('modal-open');
+        modal.setAttribute('aria-hidden', 'true');
+
+        // Reset body scroll
+        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open');
+
+        if (this.activeModal === modalId) {
+            this.activeModal = null;
+        }
+
+        // Clear form if exists
+        const form = modal.querySelector('form');
+        if (form) {
+            form.reset();
+            // Remove error states
+            const errorFields = form.querySelectorAll('.error');
+            errorFields.forEach((field) => {
+                field.classList.remove('error');
+                field.style.borderColor = '';
+            });
+        }
+    }
+}
+
+// Global instances
+let modalManager;
+let categoryDeleteHandler;
+let jobDeleteHandler;
+let serviceDeleteHandler;
+let sessionMessageHandler;
+
+// Global functions for backward compatibility
+window.openCategoryModal = function() {
+    if (modalManager) {
+        modalManager.openModal('categoryModal');
+    }
+};
+
+window.closeCategoryModal = function() {
+    if (modalManager) {
+        modalManager.closeModal('categoryModal');
+    }
+};
+
+window.editCategory = function(categoryId) {
     // Find category data
     const category = window.categoriesData?.find(cat => cat.id === categoryId);
     if (!category) {
-        console.error("Category not found:", categoryId);
-        showErrorMessage("Category not found!");
+        console.error('Category not found:', categoryId);
         return;
     }
 
@@ -308,106 +708,15 @@ function editCategory(categoryId) {
     if (descField) descField.value = category.description || '';
     if (activeField) activeField.checked = category.is_active;
 
-    openModal('categoryModal');
-}
-
-function deleteCategory(categoryId) {
-    console.log("Deleting category:", categoryId);
-
-    if (typeof Swal === "undefined") {
-        if (confirm("Are you sure you want to delete this category?")) {
-            submitDeleteForm("/admin/categories", categoryId);
-        }
-        return;
+    if (modalManager) {
+        modalManager.openModal('categoryModal');
     }
+};
 
-    Swal.fire({
-        title: "Are you sure?",
-        text: "This will permanently delete the category. You won't be able to undo this action!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Yes, Delete!",
-        cancelButtonText: "Cancel",
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Show loading state
-            Swal.fire({
-                title: "Deleting...",
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                },
-            });
-
-            submitDeleteForm("/admin/categories", categoryId);
-        }
-    });
-}
-
-// ===== JOB AND SERVICE MANAGEMENT =====
-
-function deleteJob(jobId) {
-    console.log("Deleting job:", jobId);
-
-    if (typeof Swal === "undefined") {
-        if (confirm("Are you sure you want to delete this job?")) {
-            submitDeleteForm("/admin/jobs", jobId);
-        }
-        return;
-    }
-
-    Swal.fire({
-        title: "Are you sure?",
-        text: "This will permanently delete the job and all its requests!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Yes, Delete!",
-        cancelButtonText: "Cancel",
-    }).then((result) => {
-        if (result.isConfirmed) {
-            submitDeleteForm("/admin/jobs", jobId);
-        }
-    });
-}
-
-function deleteService(serviceId) {
-    console.log("Deleting service:", serviceId);
-
-    if (typeof Swal === "undefined") {
-        if (confirm("Are you sure you want to delete this service?")) {
-            submitDeleteForm("/admin/services", serviceId);
-        }
-        return;
-    }
-
-    Swal.fire({
-        title: "Are you sure?",
-        text: "This will permanently delete the service and all its requests!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Yes, Delete!",
-        cancelButtonText: "Cancel",
-    }).then((result) => {
-        if (result.isConfirmed) {
-            submitDeleteForm("/admin/services", serviceId);
-        }
-    });
-}
-
-// ===== FILTER FUNCTIONS =====
-
-function toggleFilters(filterId) {
-    console.log("Toggling filters:", filterId);
-
+window.toggleFilters = function(filterId) {
     const filtersContainer = document.getElementById(filterId);
     if (!filtersContainer) {
-        console.error("Filters container not found:", filterId);
+        console.error('Filters container not found:', filterId);
         return;
     }
 
@@ -418,204 +727,137 @@ function toggleFilters(filterId) {
         filtersContainer.style.display = 'none';
         filtersContainer.classList.remove('filters-open');
     }
-}
+};
 
-// ===== HELPER FUNCTIONS =====
-
-function getFreshCSRFToken() {
-    const metaToken = document.querySelector('meta[name="csrf-token"]');
-    if (metaToken) {
-        return metaToken.getAttribute("content");
-    }
-
-    const existingForm = document.querySelector('form input[name="_token"]');
-    if (existingForm) {
-        return existingForm.value;
-    }
-
-    console.error("CSRF token not found!");
-    return null;
-}
-
-function submitDeleteForm(type, id) {
-    console.log(`Submitting delete form for ${type} with ID: ${id}`);
-
-    const csrfToken = getFreshCSRFToken();
-    if (!csrfToken) {
-        if (typeof Swal !== "undefined") {
-            Swal.fire({
-                title: "Error!",
-                text: "CSRF token not found. Please refresh the page and try again.",
-                icon: "error",
-                confirmButtonColor: "#d33",
-            });
-        } else {
-            alert("CSRF token not found. Please refresh the page and try again.");
-        }
+window.openJobDetailModal = function(jobData) {
+    const modal = document.getElementById('jobDetailModal');
+    if (!modal) {
+        console.error('Job detail modal not found');
         return;
     }
 
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.action = `${type}/${id}`;
-    form.style.display = "none";
+    // Update modal content
+    updateElementText(modal, '.modal-job-title', jobData.title);
+    updateElementText(modal, '.modal-job-description', jobData.description);
+    updateElementText(modal, '.modal-job-status', jobData.status);
+    updateElementText(modal, '.modal-job-client', jobData.clientName);
+    updateElementText(modal, '.modal-job-category', jobData.category);
+    updateElementText(modal, '.modal-job-budget', jobData.budget);
+    updateElementText(modal, '.modal-job-location', jobData.location);
+    updateElementText(modal, '.modal-job-deadline', jobData.deadline);
+    updateElementText(modal, '.modal-job-assigned', jobData.assignedProfessional);
 
-    // Add CSRF token
-    const csrfInput = document.createElement("input");
-    csrfInput.type = "hidden";
-    csrfInput.name = "_token";
-    csrfInput.value = csrfToken;
-    form.appendChild(csrfInput);
+    // Handle assigned professional section
+    const assignedSection = modal.querySelector('.modal-job-assigned-section');
+    if (jobData.assignedProfessional) {
+        assignedSection.style.display = 'block';
+    } else {
+        assignedSection.style.display = 'none';
+    }
 
-    // Add method spoofing for DELETE
-    const methodInput = document.createElement("input");
-    methodInput.type = "hidden";
-    methodInput.name = "_method";
-    methodInput.value = "DELETE";
-    form.appendChild(methodInput);
+    if (modalManager) {
+        modalManager.openModal('jobDetailModal');
+    }
+};
 
-    document.body.appendChild(form);
+window.closeJobDetailModal = function() {
+    if (modalManager) {
+        modalManager.closeModal('jobDetailModal');
+    }
+};
 
-    try {
-        form.submit();
-    } catch (error) {
-        console.error("Error submitting form:", error);
-        if (typeof Swal !== "undefined") {
-            Swal.fire({
-                title: "Error!",
-                text: "An error occurred while deleting. Please try again.",
-                icon: "error",
-                confirmButtonColor: "#d33",
-            });
-        } else {
-            alert("An error occurred while deleting. Please try again.");
-        }
+window.openServiceDetailModal = function(serviceData) {
+    const modal = document.getElementById('serviceDetailModal');
+    if (!modal) {
+        console.error('Service detail modal not found');
+        return;
+    }
+
+    // Update modal content
+    updateElementText(modal, '.modal-service-title', serviceData.title);
+    updateElementText(modal, '.modal-service-description', serviceData.description);
+    updateElementText(modal, '.modal-service-status', serviceData.status);
+    updateElementText(modal, '.modal-service-professional', serviceData.professionalName);
+    updateElementText(modal, '.modal-service-specialization', serviceData.specialization);
+    updateElementText(modal, '.modal-service-category', serviceData.category);
+    updateElementText(modal, '.modal-service-price', serviceData.price);
+    updateElementText(modal, '.modal-service-area', serviceData.serviceArea);
+
+    if (modalManager) {
+        modalManager.openModal('serviceDetailModal');
+    }
+};
+
+window.closeServiceDetailModal = function() {
+    if (modalManager) {
+        modalManager.closeModal('serviceDetailModal');
+    }
+};
+
+function updateElementText(container, selector, text) {
+    const element = container.querySelector(selector);
+    if (element && text) {
+        element.textContent = text;
+        element.style.display = 'block';
+    } else if (element) {
+        element.style.display = 'none';
     }
 }
 
-// ===== FORM VALIDATION =====
+/**
+ * Initialize all components when DOM is ready
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize modal manager
+    modalManager = new ModalManager();
 
-function initializeFormValidation() {
-    const forms = document.querySelectorAll("form");
+    // Initialize delete handlers
+    categoryDeleteHandler = new CategoryDeleteHandler();
+    jobDeleteHandler = new JobDeleteHandler();
+    serviceDeleteHandler = new ServiceDeleteHandler();
 
-    forms.forEach((form) => {
-        const requiredFields = form.querySelectorAll("[required]");
+    // Initialize session message handler
+    sessionMessageHandler = new SessionMessageHandler();
 
-        // Real-time validation
-        requiredFields.forEach((field) => {
-            field.addEventListener("blur", function () {
-                validateField(this);
-            });
+    // Auto-focus search input if present
+    const searchInput = document.querySelector('.search-input');
+    if (searchInput && window.innerWidth > 768) {
+        // Only auto-focus on desktop to avoid mobile keyboard popup
+        searchInput.focus();
+    }
 
-            field.addEventListener("input", function () {
-                if (this.classList.contains("error")) {
-                    validateField(this);
-                }
+    // Add loading states to forms
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function() {
+            const submitButtons = form.querySelectorAll('button[type="submit"]');
+            submitButtons.forEach(btn => {
+                btn.disabled = true;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                
+                // Re-enable after 10 seconds as fallback
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }, 10000);
             });
         });
+    });
 
-        // Form submission validation
-        form.addEventListener("submit", function (e) {
-            let isValid = true;
-
-            requiredFields.forEach((field) => {
-                if (!validateField(field)) {
-                    isValid = false;
-                }
-            });
-
-            if (!isValid) {
-                e.preventDefault();
-                showErrorMessage("Please fill in all required fields correctly.");
-
-                const firstInvalid = form.querySelector(".error");
-                if (firstInvalid) {
-                    firstInvalid.focus();
-                }
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
             }
         });
     });
-}
 
-function validateField(field) {
-    const value = field.value.trim();
-    let isValid = true;
-
-    // Remove existing error styling
-    field.classList.remove("error");
-    field.style.borderColor = "";
-
-    // Check if required field is empty
-    if (field.hasAttribute("required") && !value) {
-        isValid = false;
-    }
-
-    // Email validation
-    if (field.type === "email" && value) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(value)) {
-            isValid = false;
-        }
-    }
-
-    // Number validation
-    if (field.type === "number" && value) {
-        const min = field.getAttribute("min");
-        if (min && parseFloat(value) < parseFloat(min)) {
-            isValid = false;
-        }
-    }
-
-    // Apply error styling if invalid
-    if (!isValid) {
-        field.classList.add("error");
-        field.style.borderColor = "#dc3545";
-    }
-
-    return isValid;
-}
-
-// ===== TEXTAREA AUTO-RESIZE =====
-
-function initializeTextareas() {
-    const textareas = document.querySelectorAll("textarea");
-    textareas.forEach((textarea) => {
-        textarea.addEventListener("input", function () {
-            this.style.height = "auto";
-            this.style.height = this.scrollHeight + "px";
-        });
-    });
-}
-
-// ===== UTILITY FUNCTIONS =====
-
-function showSuccessMessage(message) {
-    if (typeof Swal !== "undefined") {
-        Swal.fire({
-            title: "Success!",
-            text: message,
-            icon: "success",
-            confirmButtonColor: "#28a745",
-            timer: 3000,
-            timerProgressBar: true,
-        });
-    } else {
-        alert(message);
-    }
-}
-
-function showErrorMessage(message) {
-    if (typeof Swal !== "undefined") {
-        Swal.fire({
-            title: "Error!",
-            text: message,
-            icon: "error",
-            confirmButtonColor: "#dc3545",
-        });
-    } else {
-        alert(message);
-    }
-}
-
-// Log that the script has loaded
-console.log("Admin Jobs JS loaded successfully - all functions are now available globally");
+    console.log('Admin Jobs JS initialized successfully');
+});

@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @vite(['resources/css/admin-users.css'])
+@vite(['resources/js/allusers-admin.js'])
 @section('title', 'All Users - Admin')
 
 @section('styles')
@@ -9,6 +10,14 @@
 
 @section('content')
 <div class="admin-users-container">
+    <!-- Hidden session message data for JavaScript -->
+    @if(session('success'))
+        <div data-session-success="{{ session('success') }}" style="display: none;"></div>
+    @endif
+    @if(session('error'))
+        <div data-session-error="{{ session('error') }}" style="display: none;"></div>
+    @endif
+
     <div class="admin-header">
     <section class="all-users-header">
     <div class="all-users-header-content">
@@ -207,15 +216,19 @@
                     </a>
                     
                     @if($user->role === 'profi')
-                        <button onclick="confirmDemote({{ $user->id }}, '{{ $user->name }}')" 
-                                class="btn btn-sm btn-warning">
+                        <button type="button" 
+                                class="btn btn-sm btn-warning user-demote-btn"
+                                data-user-id="{{ $user->id }}"
+                                data-user-name="{{ $user->name }}">
                             <i class="fas fa-arrow-down"></i> Demote
                         </button>
                     @endif
                     
                     @if($user->id !== Auth::id())
-                        <button onclick="confirmDelete({{ $user->id }}, '{{ $user->name }}')" 
-                                class="btn btn-sm btn-danger">
+                        <button type="button" 
+                                class="btn btn-sm btn-danger user-delete-btn"
+                                data-user-id="{{ $user->id }}"
+                                data-user-name="{{ $user->name }}">
                             <i class="fas fa-trash"></i> Delete
                         </button>
                     @endif
@@ -260,92 +273,5 @@
 
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        function confirmDelete(userId, userName) {
-            Swal.fire({
-                title: 'Delete User?',
-                text: `Are you sure you want to delete "${userName}"? This action cannot be undone and will permanently remove all their data.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, Delete User',
-                cancelButtonText: 'Cancel',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Show loading state
-                    Swal.fire({
-                        title: 'Deleting User...',
-                        text: 'Please wait while we delete the user.',
-                        allowOutsideClick: false,
-                        allowEscapeKey: false,
-                        showConfirmButton: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-                    
-                    // Submit the form
-                    document.getElementById(`delete-form-${userId}`).submit();
-                }
-            });
-        }
-
-        function confirmDemote(userId, userName) {
-            Swal.fire({
-                title: 'Demote Professional?',
-                text: `Are you sure you want to demote "${userName}" from professional to regular user? This will remove their professional status and specialization.`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#ffc107',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, Demote',
-                cancelButtonText: 'Cancel',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Show loading state
-                    Swal.fire({
-                        title: 'Demoting User...',
-                        text: 'Please wait while we update the user role.',
-                        allowOutsideClick: false,
-                        allowEscapeKey: false,
-                        showConfirmButton: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-                    
-                    // Submit the form
-                    document.getElementById(`demote-form-${userId}`).submit();
-                }
-            });
-        }
-
-        // Show success/error messages if they exist
-        @if(session('success'))
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: '{{ session('success') }}',
-                timer: 3000,
-                showConfirmButton: false,
-                toast: true,
-                position: 'top-end'
-            });
-        @endif
-
-        @if(session('error'))
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: '{{ session('error') }}',
-                timer: 5000,
-                showConfirmButton: false,
-                toast: true,
-                position: 'top-end'
-            });
-        @endif
-    </script>
+    <script src="{{ asset('js/allusers-admin.js') }}"></script>
 @endsection

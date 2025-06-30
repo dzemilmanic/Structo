@@ -1,9 +1,24 @@
 @extends('layouts.app')
 @vite(['resources/css/admin_requests.css'])
+@vite(['resources/js/admin-requests.js'])
 @section('title', 'Professional Requests - Admin')
+
+@section('styles')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="{{ asset('resources/css/sweetalert-global.css') }}">
+@endsection
 
 @section('content')
 <div class="admin-container">
+    <!-- Hidden session message data for JavaScript -->
+    @if(session('success'))
+        <div data-session-success="{{ session('success') }}" style="display: none;"></div>
+    @endif
+    @if(session('error'))
+        <div data-session-error="{{ session('error') }}" style="display: none;"></div>
+    @endif
+
     <div class="admin-header">
         <h1 class="admin-title">
             <svg class="title-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -13,15 +28,6 @@
         </h1>
         <p class="admin-subtitle">Review and manage professional upgrade requests</p>
     </div>
-
-    @if(session('success'))
-        <div class="alert alert-success">
-            <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            {{ session('success') }}
-        </div>
-    @endif
 
     <div class="requests-stats">
         <div class="stat-card">
@@ -116,7 +122,10 @@
                                         </div>
                                         <div class="file-actions">
                                             @if(str_contains($file['mime_type'], 'image'))
-                                                <button type="button" class="file-action-btn view-btn" onclick="openImageModal('{{ $file['url'] }}', '{{ $file['original_name'] }}')">
+                                                <button type="button" 
+                                                        class="file-action-btn view-btn" 
+                                                        data-image-src="{{ $file['url'] }}" 
+                                                        data-file-name="{{ $file['original_name'] }}">
                                                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -140,7 +149,10 @@
                     <form id="approve-form-{{ $request->id }}" method="POST" action="{{ route('admin.profi-requests.approve', $request->id) }}" style="display: none;">
                         @csrf
                     </form>
-                    <button type="button" class="btn btn-success btn-sm" onclick="confirmApprove({{ $request->id }}, '{{ $request->user->name }} {{ $request->user->lastname ?? '' }}')">
+                    <button type="button" 
+                            class="btn btn-success btn-sm approve-btn" 
+                            data-request-id="{{ $request->id }}" 
+                            data-user-name="{{ $request->user->name }} {{ $request->user->lastname ?? '' }}">
                         <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
@@ -150,7 +162,10 @@
                     <form id="reject-form-{{ $request->id }}" method="POST" action="{{ route('admin.profi-requests.reject', $request->id) }}" style="display: none;">
                         @csrf
                     </form>
-                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmReject({{ $request->id }}, '{{ $request->user->name }} {{ $request->user->lastname ?? '' }}')">
+                    <button type="button" 
+                            class="btn btn-danger btn-sm reject-btn" 
+                            data-request-id="{{ $request->id }}" 
+                            data-user-name="{{ $request->user->name }} {{ $request->user->lastname ?? '' }}">
                         <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -186,99 +201,8 @@
         </div>
     </div>
 </div>
+@endsection
 
-<script>
-function openImageModal(imageSrc, fileName) {
-    document.getElementById('modalImage').src = imageSrc;
-    document.getElementById('imageModalLabel').textContent = fileName || 'Document Preview';
-    new bootstrap.Modal(document.getElementById('imageModal')).show();
-}
-
-function confirmApprove(requestId, userName) {
-    Swal.fire({
-        title: 'Approve Professional Request?',
-        text: `Are you sure you want to approve ${userName}'s professional request? This will upgrade their account to professional status.`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#28a745',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Yes, Approve',
-        cancelButtonText: 'Cancel',
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Show loading state
-            Swal.fire({
-                title: 'Processing...',
-                text: 'Approving professional request',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                showConfirmButton: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-            
-            // Submit the form
-            document.getElementById(`approve-form-${requestId}`).submit();
-        }
-    });
-}
-
-function confirmReject(requestId, userName) {
-    Swal.fire({
-        title: 'Reject Professional Request?',
-        text: `Are you sure you want to reject ${userName}'s professional request? This action cannot be undone and all uploaded files will be permanently deleted.`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Yes, Reject',
-        cancelButtonText: 'Cancel',
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Show loading state
-            Swal.fire({
-                title: 'Processing...',
-                text: 'Rejecting professional request',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                showConfirmButton: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-            
-            // Submit the form
-            document.getElementById(`reject-form-${requestId}`).submit();
-        }
-    });
-}
-
-// Show success/error messages if they exist
-@if(session('success'))
-    Swal.fire({
-        icon: 'success',
-        title: 'Success!',
-        text: '{{ session('success') }}',
-        timer: 3000,
-        showConfirmButton: false,
-        toast: true,
-        position: 'top-end'
-    });
-@endif
-
-@if(session('error'))
-    Swal.fire({
-        icon: 'error',
-        title: 'Error!',
-        text: '{{ session('error') }}',
-        timer: 3000,
-        showConfirmButton: false,
-        toast: true,
-        position: 'top-end'
-    });
-@endif
-</script>
+@section('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection

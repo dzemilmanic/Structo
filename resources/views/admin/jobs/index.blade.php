@@ -8,10 +8,19 @@
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="{{ asset('resources/css/sweetalert-global.css') }}">
 @endsection
 
 @section('content')
 <div class="admin-jobs-dashboard">
+    <!-- Hidden session message data for JavaScript -->
+    @if(session('success'))
+        <div data-session-success="{{ session('success') }}" style="display: none;"></div>
+    @endif
+    @if(session('error'))
+        <div data-session-error="{{ session('error') }}" style="display: none;"></div>
+    @endif
+
     <div class="admin-header">
         <h1><i class="fas fa-tools"></i> Jobs & Services Management</h1>
         <div class="admin-nav">
@@ -91,7 +100,10 @@
                             <button onclick="editCategory({{ $category->id }})" class="btn btn-sm btn-secondary">
                                 <i class="fas fa-edit"></i> Edit
                             </button>
-                            <button onclick="deleteCategory({{ $category->id }})" class="btn btn-sm btn-danger">
+                            <button type="button" 
+                                    class="btn btn-sm btn-danger category-delete-btn"
+                                    data-category-id="{{ $category->id }}"
+                                    data-category-name="{{ $category->name }}">
                                 <i class="fas fa-trash"></i> Delete
                             </button>
                         </div>
@@ -199,7 +211,10 @@
                             ]) }})" class="btn btn-sm btn-secondary">
                                 <i class="fas fa-eye"></i> View
                             </button>
-                            <button onclick="deleteJob({{ $job->id }})" class="btn btn-sm btn-danger">
+                            <button type="button" 
+                                    class="btn btn-sm btn-danger job-delete-btn"
+                                    data-job-id="{{ $job->id }}"
+                                    data-job-title="{{ $job->title }}">
                                 <i class="fas fa-trash"></i> Delete
                             </button>
                         </div>
@@ -316,7 +331,10 @@
                             ]) }})" class="btn btn-sm btn-secondary">
                                 <i class="fas fa-eye"></i> View
                             </button>
-                            <button onclick="deleteService({{ $service->id }})" class="btn btn-sm btn-danger">
+                            <button type="button" 
+                                    class="btn btn-sm btn-danger service-delete-btn"
+                                    data-service-id="{{ $service->id }}"
+                                    data-service-title="{{ $service->title }}">
                                 <i class="fas fa-trash"></i> Delete
                             </button>
                         </div>
@@ -394,6 +412,7 @@
 
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/admin-jobs.js') }}"></script>
     <script>
         // Pass categories data to JavaScript
         window.categoriesData = [

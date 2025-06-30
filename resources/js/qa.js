@@ -1,4 +1,279 @@
+/**
+ * Q&A JavaScript - Clean Delete Confirmations
+ * Handles delete confirmations for questions and answers using clean SweetAlert without icons
+ */
+
+/**
+ * Question Delete Confirmation Handler - Clean Dialog Without Icons
+ * Shows a clean, professional confirmation dialog for question deletion
+ */
+class QuestionDeleteHandler {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        // Handle delete button clicks using event delegation
+        document.addEventListener('click', (e) => {
+            // Check if the clicked element is a delete button or inside a delete form
+            const deleteForm = e.target.closest('.delete-question-form');
+            const deleteBtn = e.target.closest('.delete-btn');
+            
+            if (deleteForm && deleteBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Get question title from the page
+                const questionTitle = document.querySelector('.question-detail-title')?.textContent || 'this question';
+                
+                this.showDeleteConfirmation(deleteForm, questionTitle);
+            }
+        });
+    }
+
+    showDeleteConfirmation(form, questionTitle) {
+        // Check if SweetAlert is available
+        if (typeof Swal !== 'undefined') {
+            this.showSweetAlertDeleteConfirmation(form, questionTitle);
+        } else {
+            // Fallback to native confirm
+            if (confirm(`Are you sure you want to delete "${questionTitle}"? This question and all its answers will be permanently deleted. This action cannot be undone!`)) {
+                form.submit();
+            }
+        }
+    }
+
+    showSweetAlertDeleteConfirmation(form, questionTitle) {
+        // Clean SweetAlert without any icons - just text and buttons
+        Swal.fire({
+            title: 'Delete Question?',
+            text: `Are you sure you want to delete "${questionTitle}"? This question and all its answers will be permanently deleted. This action cannot be undone!`,
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, Delete Question',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            focusCancel: true,
+            allowOutsideClick: true,
+            allowEscapeKey: true,
+            buttonsStyling: true,
+            // CRITICAL: Remove the icon completely
+            icon: false,
+            iconHtml: '',
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown animate__faster'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp animate__faster'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading state without icon
+                Swal.fire({
+                    title: 'Deleting Question...',
+                    text: 'Please wait while we delete the question.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    icon: false, // No icon for loading either
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Submit the form
+                form.submit();
+            }
+        }).catch((error) => {
+            console.error('SweetAlert error:', error);
+            // Fallback to native confirm if SweetAlert fails
+            if (confirm(`Are you sure you want to delete "${questionTitle}"? This question and all its answers will be permanently deleted. This action cannot be undone!`)) {
+                form.submit();
+            }
+        });
+    }
+}
+
+/**
+ * Answer Delete Confirmation Handler - Clean Dialog Without Icons
+ * Shows a clean, professional confirmation dialog for answer deletion
+ */
+class AnswerDeleteHandler {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        // Handle delete button clicks using event delegation
+        document.addEventListener('click', (e) => {
+            // Check if the clicked element is a delete button or inside a delete form
+            const deleteForm = e.target.closest('.delete-answer-form');
+            const deleteBtn = e.target.closest('.delete-btn');
+            
+            if (deleteForm && deleteBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Get answer author from the closest answer card
+                const answerCard = e.target.closest('.answer-card');
+                const answerAuthor = answerCard?.querySelector('.answer-author')?.textContent || 'this answer';
+                
+                this.showDeleteConfirmation(deleteForm, answerAuthor);
+            }
+        });
+    }
+
+    showDeleteConfirmation(form, answerAuthor) {
+        // Check if SweetAlert is available
+        if (typeof Swal !== 'undefined') {
+            this.showSweetAlertDeleteConfirmation(form, answerAuthor);
+        } else {
+            // Fallback to native confirm
+            if (confirm(`Are you sure you want to delete the answer by ${answerAuthor}? This action cannot be undone and will permanently remove the answer.`)) {
+                form.submit();
+            }
+        }
+    }
+
+    showSweetAlertDeleteConfirmation(form, answerAuthor) {
+        // Clean SweetAlert without any icons - just text and buttons
+        Swal.fire({
+            title: 'Delete Answer?',
+            text: `Are you sure you want to delete the answer by ${answerAuthor}? This action cannot be undone and will permanently remove the answer.`,
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, Delete Answer',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            focusCancel: true,
+            allowOutsideClick: true,
+            allowEscapeKey: true,
+            buttonsStyling: true,
+            // CRITICAL: Remove the icon completely
+            icon: false,
+            iconHtml: '',
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown animate__faster'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp animate__faster'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading state without icon
+                Swal.fire({
+                    title: 'Deleting Answer...',
+                    text: 'Please wait while we delete the answer.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    icon: false, // No icon for loading either
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Submit the form
+                form.submit();
+            }
+        }).catch((error) => {
+            console.error('SweetAlert error:', error);
+            // Fallback to native confirm if SweetAlert fails
+            if (confirm(`Are you sure you want to delete the answer by ${answerAuthor}? This action cannot be undone and will permanently remove the answer.`)) {
+                form.submit();
+            }
+        });
+    }
+}
+
+/**
+ * Session Message Handler
+ * Displays success/error messages using SweetAlert toasts
+ */
+class SessionMessageHandler {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        // Check for session messages and display them
+        this.displaySessionMessages();
+    }
+
+    displaySessionMessages() {
+        // Success messages
+        const successMessage = this.getSessionMessage('success');
+        if (successMessage) {
+            this.showSuccessToast(successMessage);
+        }
+
+        // Error messages
+        const errorMessage = this.getSessionMessage('error');
+        if (errorMessage) {
+            this.showErrorToast(errorMessage);
+        }
+    }
+
+    getSessionMessage(type) {
+        // This will be populated by the Blade template
+        const element = document.querySelector(`[data-session-${type}]`);
+        return element ? element.getAttribute(`data-session-${type}`) : null;
+    }
+
+    showSuccessToast(message) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: message,
+                timer: 5000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end',
+                showCloseButton: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        }
+    }
+
+    showErrorToast(message) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: message,
+                timer: 8000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end',
+                showCloseButton: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        }
+    }
+}
+
+// Global instances
+let questionDeleteHandler;
+let answerDeleteHandler;
+let sessionMessageHandler;
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize delete handlers
+    questionDeleteHandler = new QuestionDeleteHandler();
+    answerDeleteHandler = new AnswerDeleteHandler();
+    sessionMessageHandler = new SessionMessageHandler();
+
     // Live search functionality
     const searchInput = document.querySelector('.search-input');
     const searchForm = document.querySelector('.search-form');
@@ -265,7 +540,7 @@ document.addEventListener('DOMContentLoaded', function() {
         Swal.fire({
             title: 'Login Required',
             text: 'You must be logged in to ask a question.',
-            icon: 'warning',
+            icon: false, // No icon for consistency
             showCancelButton: true,
             confirmButtonColor: '#FF6B35',
             cancelButtonColor: '#6c757d',
@@ -297,7 +572,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // MODAL FUNCTIONALITY FOR AUTHENTICATED USERS - COMPLETELY FIXED
+    // MODAL FUNCTIONALITY FOR AUTHENTICATED USERS
     const modal = document.getElementById('askQuestionModal');
     const askQuestionBtn = document.getElementById('askQuestionBtn');
     const askQuestionBtnEmpty = document.getElementById('askQuestionBtnEmpty');
@@ -305,18 +580,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalClose = document.querySelector('.modal-close');
     const askQuestionForm = document.getElementById('askQuestionForm');
 
-    console.log('Modal elements found:', {
-        modal: !!modal,
-        askQuestionBtn: !!askQuestionBtn,
-        askQuestionBtnEmpty: !!askQuestionBtnEmpty,
-        modalCancelBtn: !!modalCancelBtn,
-        modalClose: !!modalClose
-    });
-
-    // Function to open modal - COMPLETELY FIXED AND WORKING
+    // Function to open modal
     function openModal() {
-        console.log('Opening modal...');
-        
         if (!modal) {
             console.error('Modal element not found!');
             return;
@@ -346,14 +611,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 titleInput.focus();
             }
         }, 100);
-        
-        console.log('Modal opened successfully!');
     }
 
-    // Function to close modal - FIXED
+    // Function to close modal
     function closeModal() {
-        console.log('Closing modal...');
-        
         if (!modal) return;
         
         // Animate out by removing show class
@@ -375,8 +636,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Clear errors
             clearFormErrors();
         }, 300);
-        
-        console.log('Modal closed!');
     }
 
     // Function to clear form errors
@@ -397,7 +656,6 @@ document.addEventListener('DOMContentLoaded', function() {
         askQuestionBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Ask Question button clicked');
             openModal();
         });
     }
@@ -406,7 +664,6 @@ document.addEventListener('DOMContentLoaded', function() {
         askQuestionBtnEmpty.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Ask Question Empty button clicked');
             openModal();
         });
     }
@@ -468,91 +725,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Delete confirmations
-    const deleteQuestionForms = document.querySelectorAll('.delete-question-form');
-    deleteQuestionForms.forEach(function(form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "This question and all its answers will be permanently deleted. This action cannot be undone!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel',
-                reverseButtons: true,
-                focusCancel: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
-        });
-    });
-
-    const deleteAnswerForms = document.querySelectorAll('.delete-answer-form');
-    deleteAnswerForms.forEach(function(form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "This answer will be permanently deleted. This action cannot be undone!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel',
-                reverseButtons: true,
-                focusCancel: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
-        });
-    });
-
-    // Debug function - can be called from console
-    window.debugModal = function() {
-        console.log('=== MODAL DEBUG INFO ===');
-        console.log('Modal element:', modal);
-        console.log('Modal display:', modal ? window.getComputedStyle(modal).display : 'N/A');
-        console.log('Modal z-index:', modal ? window.getComputedStyle(modal).zIndex : 'N/A');
-        console.log('Ask Question Btn:', askQuestionBtn);
-        console.log('Body classes:', document.body.className);
-        
-        if (modal) {
-            console.log('Modal styles:', {
-                display: modal.style.display,
-                position: modal.style.position,
-                zIndex: modal.style.zIndex,
-                backgroundColor: modal.style.backgroundColor
-            });
-            
-            const modalContent = modal.querySelector('.modal-content');
-            if (modalContent) {
-                console.log('Modal content styles:', {
-                    display: window.getComputedStyle(modalContent).display,
-                    opacity: window.getComputedStyle(modalContent).opacity,
-                    transform: window.getComputedStyle(modalContent).transform,
-                    visibility: window.getComputedStyle(modalContent).visibility
-                });
-            }
-        }
-    };
-
-    // Force open function for testing
-    window.forceOpenModal = function() {
-        console.log('Force opening modal...');
-        if (modal) {
-            openModal();
-        } else {
-            console.error('Modal not found!');
-        }
-    };
+    console.log('Q&A JS with clean delete confirmations initialized successfully');
 });
