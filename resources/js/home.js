@@ -384,8 +384,8 @@ class TestimonialForm {
 }
 
 /**
- * Testimonial Delete Confirmation - COMPLETELY FIXED
- * Handles delete confirmation with proper cleanup
+ * FIXED: Testimonial Delete Confirmation - Clean Dialog Without Icons
+ * Now shows a clean, professional confirmation dialog
  */
 class TestimonialDeleteHandler {
     constructor() {
@@ -393,7 +393,7 @@ class TestimonialDeleteHandler {
     }
 
     init() {
-        // Handle delete button clicks - prevent form submission and show confirmation
+        // Handle delete button clicks
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('testimonial-delete-btn')) {
                 e.preventDefault();
@@ -408,20 +408,18 @@ class TestimonialDeleteHandler {
         if (typeof Swal !== 'undefined') {
             this.showSweetAlertConfirmation(form);
         } else {
-            this.showCustomConfirmation(form);
+            // Fallback to native confirm
+            if (confirm('Are you sure you want to delete this testimonial? This action cannot be undone!')) {
+                form.submit();
+            }
         }
     }
 
     showSweetAlertConfirmation(form) {
-        // Close any existing SweetAlert instances first
-        if (Swal.isVisible()) {
-            Swal.close();
-        }
-
+        // Clean SweetAlert without any icons - just text and buttons
         Swal.fire({
             title: 'Are you sure?',
             text: "This testimonial will be permanently deleted. This action cannot be undone!",
-            icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc3545',
             cancelButtonColor: '#6c757d',
@@ -432,26 +430,25 @@ class TestimonialDeleteHandler {
             allowOutsideClick: true,
             allowEscapeKey: true,
             buttonsStyling: true,
-            backdrop: true,
-            heightAuto: false,
-            customClass: {
-                container: 'structo-swal-container',
-                popup: 'structo-swal-popup',
-                title: 'structo-swal-title',
-                content: 'structo-swal-content',
-                confirmButton: 'structo-swal-confirm',
-                cancelButton: 'structo-swal-cancel'
+            // CRITICAL: Remove the icon completely
+            icon: false,
+            iconHtml: '',
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown animate__faster'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp animate__faster'
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                // Show loading state
+                // Show loading state without icon
                 Swal.fire({
                     title: 'Deleting...',
                     text: 'Please wait while we delete the testimonial.',
                     allowOutsideClick: false,
                     allowEscapeKey: false,
                     showConfirmButton: false,
-                    heightAuto: false,
+                    icon: false, // No icon for loading either
                     didOpen: () => {
                         Swal.showLoading();
                     }
@@ -462,137 +459,11 @@ class TestimonialDeleteHandler {
             }
         }).catch((error) => {
             console.error('SweetAlert error:', error);
-            // Fallback to custom confirmation if SweetAlert fails
-            this.showCustomConfirmation(form);
-        });
-    }
-
-    showCustomConfirmation(form) {
-        // Create custom confirmation dialog as fallback
-        const dialog = document.createElement('div');
-        dialog.className = 'structo-confirm-dialog';
-        dialog.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 999999;
-            padding: 20px;
-            box-sizing: border-box;
-        `;
-
-        dialog.innerHTML = `
-            <div class="structo-confirm-content" style="
-                background: white;
-                border-radius: 20px;
-                padding: 40px;
-                max-width: 480px;
-                width: 100%;
-                text-align: center;
-                box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-            ">
-                <div style="
-                    width: 80px;
-                    height: 80px;
-                    border: 4px solid #ff9800;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin: 0 auto 25px;
-                    font-size: 40px;
-                    color: #ff9800;
-                ">⚠</div>
-                <h3 style="
-                    color: #1a202c;
-                    font-size: 2rem;
-                    font-weight: 800;
-                    margin: 0 0 20px 0;
-                ">Are you sure?</h3>
-                <p style="
-                    color: #4a5568;
-                    font-size: 1.1rem;
-                    line-height: 1.6;
-                    margin: 0 0 35px 0;
-                ">This testimonial will be permanently deleted. This action cannot be undone!</p>
-                <div style="
-                    display: flex;
-                    gap: 20px;
-                    justify-content: center;
-                ">
-                    <button class="structo-confirm-btn structo-cancel" style="
-                        background: linear-gradient(135deg, #6c757d, #5a6268);
-                        color: white;
-                        border: none;
-                        border-radius: 12px;
-                        padding: 18px 35px;
-                        font-size: 1.1rem;
-                        font-weight: 800;
-                        cursor: pointer;
-                        text-transform: uppercase;
-                        letter-spacing: 1px;
-                        transition: all 0.3s ease;
-                    ">Cancel</button>
-                    <button class="structo-confirm-btn structo-confirm" style="
-                        background: linear-gradient(135deg, #dc3545, #c82333);
-                        color: white;
-                        border: none;
-                        border-radius: 12px;
-                        padding: 18px 35px;
-                        font-size: 1.1rem;
-                        font-weight: 800;
-                        cursor: pointer;
-                        text-transform: uppercase;
-                        letter-spacing: 1px;
-                        transition: all 0.3s ease;
-                    ">Yes, delete it!</button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(dialog);
-        
-        // Add event listeners
-        const confirmBtn = dialog.querySelector('.structo-confirm');
-        const cancelBtn = dialog.querySelector('.structo-cancel');
-        
-        const cleanup = () => {
-            if (document.body.contains(dialog)) {
-                document.body.removeChild(dialog);
-            }
-        };
-        
-        confirmBtn.addEventListener('click', () => {
-            cleanup();
-            form.submit();
-        });
-        
-        cancelBtn.addEventListener('click', cleanup);
-        
-        // Close on outside click
-        dialog.addEventListener('click', (e) => {
-            if (e.target === dialog) {
-                cleanup();
+            // Fallback to native confirm if SweetAlert fails
+            if (confirm('Are you sure you want to delete this testimonial? This action cannot be undone!')) {
+                form.submit();
             }
         });
-        
-        // Close on escape key
-        const handleEscape = (e) => {
-            if (e.key === 'Escape') {
-                cleanup();
-                document.removeEventListener('keydown', handleEscape);
-            }
-        };
-        
-        document.addEventListener('keydown', handleEscape);
-        
-        // Focus cancel button by default
-        setTimeout(() => cancelBtn.focus(), 100);
     }
 }
 
