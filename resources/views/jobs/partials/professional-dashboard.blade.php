@@ -1,3 +1,4 @@
+@vite('resources/js/jobs.js')
 <section class="jobs-services-hero">
     <div class="container">
         <div class="jobs-services-hero-content">
@@ -166,7 +167,11 @@
                         <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); editService({{ $service->id }})">
                             <i class="fas fa-edit"></i> Edit
                         </button>
-                        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteService({{ $service->id }})">
+                        <button type="button" 
+                                class="btn btn-danger btn-sm service-delete-btn"
+                                data-service-id="{{ $service->id }}"
+                                data-service-title="{{ $service->title }}"
+                                onclick="event.stopPropagation();">
                             <i class="fas fa-trash"></i> Delete
                         </button>
                     </div>

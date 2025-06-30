@@ -1,14 +1,24 @@
 @extends('layouts.app')
 @section('title', 'Edit Job')
 @vite('resources/css/jobs.css')
+@vite('resources/js/jobs.js')
 @section('styles')
     <link rel="stylesheet" href="{{ asset('resources/css/jobs.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="{{ asset('resources/css/sweetalert-global.css') }}">
 @endsection
 
 @section('content')
 <div class="jobs-dashboard">
+    <!-- Hidden session message data for JavaScript -->
+    @if(session('success'))
+        <div data-session-success="{{ session('success') }}" style="display: none;"></div>
+    @endif
+    @if(session('error'))
+        <div data-session-error="{{ session('error') }}" style="display: none;"></div>
+    @endif
+
     <div class="dashboard-header">
         <h1>Edit Job</h1>
         <a href="{{ route('jobs.index') }}" class="btn btn-secondary">
@@ -95,4 +105,78 @@
 
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Session Message Handler
+        class SessionMessageHandler {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.displaySessionMessages();
+            }
+
+            displaySessionMessages() {
+                const successMessage = this.getSessionMessage('success');
+                if (successMessage) {
+                    this.showSuccessToast(successMessage);
+                }
+
+                const errorMessage = this.getSessionMessage('error');
+                if (errorMessage) {
+                    this.showErrorToast(errorMessage);
+                }
+            }
+
+            getSessionMessage(type) {
+                const element = document.querySelector(`[data-session-${type}]`);
+                return element ? element.getAttribute(`data-session-${type}`) : null;
+            }
+
+            showSuccessToast(message) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: message,
+                        timer: 5000,
+                        timerProgressBar: true,
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-end',
+                        showCloseButton: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer);
+                            toast.addEventListener('mouseleave', Swal.resumeTimer);
+                        }
+                    });
+                }
+            }
+
+            showErrorToast(message) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: message,
+                        timer: 8000,
+                        timerProgressBar: true,
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-end',
+                        showCloseButton: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer);
+                            toast.addEventListener('mouseleave', Swal.resumeTimer);
+                        }
+                    });
+                }
+            }
+        }
+
+        // Initialize session message handler
+        document.addEventListener('DOMContentLoaded', function() {
+            new SessionMessageHandler();
+        });
+    </script>
 @endsection
