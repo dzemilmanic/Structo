@@ -1,86 +1,85 @@
-    @extends('layouts.app')
-    @vite('resources/css/jobs.css')
-    @vite('resources/css/modal-details.css')
-    @vite('resources/js/jobs.js')
-    @section('title', 'Dashboard')
+@extends('layouts.app')
+@vite(['resources/css/jobs.css'])
+@vite(['resources/css/modal-details.css'])
+@vite('resources/js/jobs.js')
+@section('title', 'Dashboard')
 
-    @section('styles')
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    @endsection
+@section('styles')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+@endsection
 
-    @section('content')
-    <div class="jobs-dashboard">
-        <!-- Hidden session message data for JavaScript -->
-        @if(session('success'))
-            <div data-session-success="{{ session('success') }}" style="display: none;"></div>
-        @endif
-        @if(session('error'))
-            <div data-session-error="{{ session('error') }}" style="display: none;"></div>
-        @endif
+@section('content')
+<div class="jobs-dashboard">
+    <!-- Hidden session message data for JavaScript -->
+    @if(session('success'))
+        <div data-session-success="{{ session('success') }}" style="display: none;"></div>
+    @endif
+    @if(session('error'))
+        <div data-session-error="{{ session('error') }}" style="display: none;"></div>
+    @endif
 
-        @if(Auth::user()->isProfi())
-            @include('jobs.partials.professional-dashboard')
-        @else
-            @include('jobs.partials.user-dashboard')
-        @endif
-    </div>
+    @if(Auth::user()->isProfi())
+        @include('jobs.partials.professional-dashboard')
+    @else
+        @include('jobs.partials.user-dashboard')
+    @endif
+</div>
 
-    <!-- Modals -->
-    @include('jobs.partials.job-modal')
-    @include('jobs.partials.service-modal')
-    @include('jobs.partials.service-request-modal')
-    @include('jobs.partials.job-request-modal')
-    @include('jobs.partials.job-detail-modal')
-    @include('jobs.partials.service-detail-modal')
+<!-- Modals -->
+@include('jobs.partials.job-modal')
+@include('jobs.partials.service-modal')
+@include('jobs.partials.service-request-modal')
+@include('jobs.partials.job-request-modal')
+@include('jobs.partials.job-detail-modal')
+@include('jobs.partials.service-detail-modal')
 
-    @endsection
+@endsection
 
-    @section('scripts')
-
-    <script>
-    // Add job request modal functions BEFORE loading the main jobs.js
-    function openJobRequestModal(jobId) {
-        console.log('Opening job request modal for job:', jobId);
-        
-        // Set form action
-        const form = document.getElementById('jobRequestForm');
-        if (form) {
-            form.action = `/jobs/${jobId}/request`;
-        }
-        
-        // Use the openModal function from jobs.js
-        if (typeof openModal === 'function') {
-            openModal('jobRequestModal');
-        } else {
-            // Fallback if openModal is not yet available
-            const modal = document.getElementById('jobRequestModal');
-            if (modal) {
-                modal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-            }
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+// Add job request modal functions BEFORE loading the main jobs.js
+function openJobRequestModal(jobId) {
+    console.log('Opening job request modal for job:', jobId);
+    
+    // Set form action
+    const form = document.getElementById('jobRequestForm');
+    if (form) {
+        form.action = `/jobs/${jobId}/request`;
+    }
+    
+    // Use the openModal function from jobs.js
+    if (typeof openModal === 'function') {
+        openModal('jobRequestModal');
+    } else {
+        // Fallback if openModal is not yet available
+        const modal = document.getElementById('jobRequestModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
         }
     }
+}
 
-    function closeJobRequestModal() {
-        console.log('Closing job request modal');
-        
-        // Use the closeModal function from jobs.js
-        if (typeof closeModal === 'function') {
-            closeModal('jobRequestModal');
-        } else {
-            // Fallback if closeModal is not yet available
-            const modal = document.getElementById('jobRequestModal');
-            if (modal) {
-                modal.style.display = 'none';
-                document.body.style.overflow = '';
-            }
+function closeJobRequestModal() {
+    console.log('Closing job request modal');
+    
+    // Use the closeModal function from jobs.js
+    if (typeof closeModal === 'function') {
+        closeModal('jobRequestModal');
+    } else {
+        // Fallback if closeModal is not yet available
+        const modal = document.getElementById('jobRequestModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
         }
     }
+}
 
-    // Make functions globally available immediately
-    window.openJobRequestModal = openJobRequestModal;
-    window.closeJobRequestModal = closeJobRequestModal;
-    </script>
-    <script src="{{ asset('resources/js/jobs.js') }}"></script>
-    @endsection
+// Make functions globally available immediately
+window.openJobRequestModal = openJobRequestModal;
+window.closeJobRequestModal = closeJobRequestModal;
+</script>
+@endsection

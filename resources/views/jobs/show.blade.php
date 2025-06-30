@@ -4,10 +4,8 @@
 @section('title', 'Job Details')
 
 @section('styles')
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    
 @endsection
 
 @section('content')
@@ -200,9 +198,9 @@
                 </div>
             </div>
 
-            @if(Auth::user()->role === 'admin')
+            @if(Auth::user()->role === 'admin' || $job->user_id === Auth::user()->id)
             <div class="sidebar-card admin-actions">
-                <h4><i class="fas fa-cog"></i> Admin Actions</h4>
+                <h4><i class="fas fa-cog"></i> Actions</h4>
                 <button type="button" 
                         class="btn btn-danger btn-sm btn-block job-delete-btn"
                         data-job-id="{{ $job->id }}"
@@ -254,168 +252,6 @@
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Session Message Handler
-        class SessionMessageHandler {
-            constructor() {
-                this.init();
-            }
-
-            init() {
-                this.displaySessionMessages();
-            }
-
-            displaySessionMessages() {
-                const successMessage = this.getSessionMessage('success');
-                if (successMessage) {
-                    this.showSuccessToast(successMessage);
-                }
-
-                const errorMessage = this.getSessionMessage('error');
-                if (errorMessage) {
-                    this.showErrorToast(errorMessage);
-                }
-            }
-
-            getSessionMessage(type) {
-                const element = document.querySelector(`[data-session-${type}]`);
-                return element ? element.getAttribute(`data-session-${type}`) : null;
-            }
-
-            showSuccessToast(message) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: message,
-                        timer: 5000,
-                        timerProgressBar: true,
-                        showConfirmButton: false,
-                        toast: true,
-                        position: 'top-end',
-                        showCloseButton: true,
-                        didOpen: (toast) => {
-                            toast.addEventListener('mouseenter', Swal.stopTimer);
-                            toast.addEventListener('mouseleave', Swal.resumeTimer);
-                        }
-                    });
-                }
-            }
-
-            showErrorToast(message) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: message,
-                        timer: 8000,
-                        timerProgressBar: true,
-                        showConfirmButton: false,
-                        toast: true,
-                        position: 'top-end',
-                        showCloseButton: true,
-                        didOpen: (toast) => {
-                            toast.addEventListener('mouseenter', Swal.stopTimer);
-                            toast.addEventListener('mouseleave', Swal.resumeTimer);
-                        }
-                    });
-                }
-            }
-        }
-
-        // Job Delete Handler
-        class JobDeleteHandler {
-            constructor() {
-                this.init();
-            }
-
-            init() {
-                document.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('job-delete-btn') || 
-                        e.target.closest('.job-delete-btn')) {
-                        e.preventDefault();
-                        
-                        const button = e.target.classList.contains('job-delete-btn') 
-                            ? e.target 
-                            : e.target.closest('.job-delete-btn');
-                        
-                        const jobId = button.getAttribute('data-job-id');
-                        const jobTitle = button.getAttribute('data-job-title');
-                        
-                        this.showDeleteConfirmation(jobId, jobTitle);
-                    }
-                });
-            }
-
-            showDeleteConfirmation(jobId, jobTitle) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        title: 'Delete Job?',
-                        text: `Are you sure you want to delete "${jobTitle}"? This action cannot be undone and will permanently remove the job and all its requests.`,
-                        showCancelButton: true,
-                        confirmButtonColor: '#dc3545',
-                        cancelButtonColor: '#6c757d',
-                        confirmButtonText: 'Yes, Delete Job',
-                        cancelButtonText: 'Cancel',
-                        reverseButtons: true,
-                        focusCancel: true,
-                        allowOutsideClick: true,
-                        allowEscapeKey: true,
-                        buttonsStyling: true,
-                        icon: false,
-                        iconHtml: ''
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            Swal.fire({
-                                title: 'Deleting Job...',
-                                text: 'Please wait while we delete the job.',
-                                allowOutsideClick: false,
-                                allowEscapeKey: false,
-                                showConfirmButton: false,
-                                icon: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
-                                }
-                            });
-                            
-                            this.submitDeleteForm(jobId);
-                        }
-                    });
-                } else {
-                    if (confirm(`Are you sure you want to delete "${jobTitle}"?`)) {
-                        this.submitDeleteForm(jobId);
-                    }
-                }
-            }
-
-            submitDeleteForm(jobId) {
-                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-                if (!csrfToken) {
-                    alert('CSRF token not found. Please refresh the page.');
-                    return;
-                }
-
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `/admin/jobs/${jobId}`;
-                form.style.display = 'none';
-
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = '_token';
-                csrfInput.value = csrfToken;
-                form.appendChild(csrfInput);
-
-                const methodInput = document.createElement('input');
-                methodInput.type = 'hidden';
-                methodInput.name = '_method';
-                methodInput.value = 'DELETE';
-                form.appendChild(methodInput);
-
-                document.body.appendChild(form);
-                form.submit();
-            }
-        }
-
         function openJobRequestModal(jobId) {
             const modal = document.getElementById('jobRequestModal');
             if (modal) {
@@ -431,12 +267,6 @@
                 document.body.style.overflow = '';
             }
         }
-
-        // Initialize handlers
-        document.addEventListener('DOMContentLoaded', function() {
-            new SessionMessageHandler();
-            new JobDeleteHandler();
-        });
 
         // Close modal when clicking outside
         document.addEventListener('click', function(e) {

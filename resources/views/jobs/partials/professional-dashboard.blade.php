@@ -1,4 +1,5 @@
 @vite('resources/js/jobs.js')
+@vite('resources/js/delete-confirmation.js')
 <section class="jobs-services-hero">
     <div class="container">
         <div class="jobs-services-hero-content">
