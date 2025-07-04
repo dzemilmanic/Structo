@@ -415,11 +415,12 @@ function handleSessionMessages() {
 }
 
 /**
- * Image Modal Handler
- * Handles opening and displaying image previews
+ * Image Modal Handler - SIMPLE VERSION WITH FIXED BACKDROP CLICK
+ * Handles opening and displaying image previews with proper close functionality
  */
 class ImageModalHandler {
     constructor() {
+        this.modal = null;
         this.init();
     }
 
@@ -429,6 +430,7 @@ class ImageModalHandler {
             if (e.target.classList.contains('view-btn') || 
                 e.target.closest('.view-btn')) {
                 e.preventDefault();
+                e.stopPropagation();
                 
                 const button = e.target.classList.contains('view-btn') 
                     ? e.target 
@@ -440,44 +442,150 @@ class ImageModalHandler {
                 this.openImageModal(imageSrc, fileName);
             }
         });
+
+        // Handle download button clicks for images - FORCE DOWNLOAD
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('download-btn') || 
+                e.target.closest('.download-btn')) {
+                
+                const link = e.target.classList.contains('download-btn') 
+                    ? e.target 
+                    : e.target.closest('.download-btn');
+                
+                // Check if this is an image file
+                const href = link.getAttribute('href');
+                if (href && this.isImageFile(href)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.forceDownloadImage(href);
+                }
+                // For non-image files, let the default behavior work (opens in new tab)
+            }
+        });
+    }
+
+    isImageFile(url) {
+        const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'];
+        const urlLower = url.toLowerCase();
+        return imageExtensions.some(ext => urlLower.includes(ext));
+    }
+
+    forceDownloadImage(imageUrl) {
+        // Create a temporary link element to force download
+        const link = document.createElement('a');
+        link.href = imageUrl;
+        
+        // Extract filename from URL or use default
+        const urlParts = imageUrl.split('/');
+        const filename = urlParts[urlParts.length - 1] || 'image.jpg';
+        
+        link.download = filename;
+        link.target = '_blank';
+        
+        // Append to body, click, and remove
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     openImageModal(imageSrc, fileName) {
-        const modal = document.getElementById('imageModal');
+        this.modal = document.getElementById('imageModal');
         const modalImage = document.getElementById('modalImage');
         const modalLabel = document.getElementById('imageModalLabel');
         
-        if (modal && modalImage) {
+        if (this.modal && modalImage) {
             modalImage.src = imageSrc;
             if (modalLabel) {
                 modalLabel.textContent = fileName || 'Document Preview';
             }
             
-            // Use Bootstrap modal if available, otherwise show with custom styling
+            // Use Bootstrap modal if available
             if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                new bootstrap.Modal(modal).show();
+                const bsModal = new bootstrap.Modal(this.modal);
+                bsModal.show();
+                
+                // Handle close events
+                this.modal.addEventListener('hidden.bs.modal', () => {
+                    this.cleanupModal();
+                });
             } else {
                 // Fallback modal display
-                modal.style.display = 'block';
-                modal.classList.add('show');
-                document.body.classList.add('modal-open');
-                
-                // Close modal when clicking outside
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        this.closeImageModal();
-                    }
-                });
+                this.showFallbackModal();
             }
         }
     }
 
+    showFallbackModal() {
+        this.modal.style.display = 'block';
+        this.modal.classList.add('show');
+        document.body.classList.add('modal-open');
+        
+        // Add backdrop
+        const backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        backdrop.id = 'imageModalBackdrop';
+        document.body.appendChild(backdrop);
+        
+        // Handle close button clicks
+        const closeButtons = this.modal.querySelectorAll('[data-bs-dismiss="modal"], .btn-close');
+        closeButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.closeImageModal();
+            });
+        });
+        
+        // FIXED: Handle backdrop clicks properly
+        this.modal.addEventListener('click', (e) => {
+            // Only close if clicking directly on the modal backdrop (not on content)
+            if (e.target === this.modal) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.closeImageModal();
+            }
+        });
+        
+        // Handle modal content clicks (prevent closing when clicking inside)
+        const modalContent = this.modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+        
+        // Handle escape key
+        const escapeHandler = (e) => {
+            if (e.key === 'Escape') {
+                this.closeImageModal();
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
+    }
+
     closeImageModal() {
-        const modal = document.getElementById('imageModal');
-        if (modal) {
-            modal.style.display = 'none';
-            modal.classList.remove('show');
+        if (this.modal) {
+            this.modal.style.display = 'none';
+            this.modal.classList.remove('show');
             document.body.classList.remove('modal-open');
+            
+            // Remove backdrop
+            const backdrop = document.getElementById('imageModalBackdrop');
+            if (backdrop) {
+                backdrop.remove();
+            }
+            
+            this.cleanupModal();
+        }
+    }
+
+    cleanupModal() {
+        if (this.modal) {
+            const modalImage = document.getElementById('modalImage');
+            if (modalImage) {
+                modalImage.src = '';
+            }
         }
     }
 }

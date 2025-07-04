@@ -8,7 +8,6 @@
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <link rel="stylesheet" href="{{ asset('resources/css/sweetalert-global.css') }}">
 @endsection
 
 @section('content')
@@ -412,7 +411,6 @@
 
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{{ asset('js/admin-jobs.js') }}"></script>
     <script>
         // Pass categories data to JavaScript
         window.categoriesData = [

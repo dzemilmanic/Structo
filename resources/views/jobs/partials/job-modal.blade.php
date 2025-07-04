@@ -57,8 +57,10 @@
 
                 <div class="form-group">
                     <label for="job_deadline">Desired Deadline</label>
-                    <input type="date" id="job_deadline" name="deadline" class="form-control">
+                    <input type="date" id="job_deadline" name="deadline" class="form-control" 
+                        min="{{ date('Y-m-d', strtotime('+1 day')) }}">
                 </div>
+
 
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeJobModal()">Cancel</button>

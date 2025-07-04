@@ -1,12 +1,12 @@
 @extends('layouts.app')
 @vite(['resources/css/admin_requests.css'])
+@vite(['resources/css/sweetalert-global.css'])
 @vite(['resources/js/admin-requests.js'])
 @section('title', 'Professional Requests - Admin')
 
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <link rel="stylesheet" href="{{ asset('resources/css/sweetalert-global.css') }}">
 @endsection
 
 @section('content')

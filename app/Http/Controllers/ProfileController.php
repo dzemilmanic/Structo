@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -40,7 +41,18 @@ class ProfileController extends Controller
             'bio' => ['sometimes', 'nullable', 'string', 'max:1000'],
             'phone' => ['sometimes', 'nullable', 'string', 'max:20'],
             'location' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'portfolio_url' => ['sometimes', 'nullable', 'url', 'max:255'],
             'photo' => ['sometimes', 'nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+        ];
+
+        // Custom validation messages
+        $messages = [
+            'photo.image' => 'The photo must be an image file.',
+            'photo.mimes' => 'The photo must be a file of type: jpeg, png, jpg, gif.',
+            'photo.max' => 'The photo may not be greater than 2MB.',
+            'bio.max' => 'The bio may not be greater than 1000 characters.',
+            'portfolio_url.url' => 'The portfolio URL must be a valid URL (e.g., https://example.com).',
+            'portfolio_url.max' => 'The portfolio URL may not be greater than 255 characters.',
         ];
 
         // Only validate the fields that are present in the request
@@ -51,7 +63,7 @@ class ProfileController extends Controller
             }
         }
 
-        $validated = $request->validate($fieldsToValidate);
+        $validated = $request->validate($fieldsToValidate, $messages);
 
         // Handle photo upload to AWS S3
         if ($request->hasFile('photo')) {
@@ -126,6 +138,81 @@ class ProfileController extends Controller
         } else {
             return Redirect::route('profile.edit')->with('error', 'Failed to update profile');
         }
+    }
+
+    /**
+     * Update the user's profile information using ProfileUpdateRequest.
+     */
+    public function updateWithRequest(ProfileUpdateRequest $request): RedirectResponse
+    {
+        $user = $request->user();
+        $validated = $request->validated();
+
+        // Handle photo upload to AWS S3
+        if ($request->hasFile('photo')) {
+            try {
+                Log::info('Starting photo upload process');
+                
+                // Test S3 connection first
+                try {
+                    Storage::disk('profile_photos')->exists('test');
+                    Log::info('S3 connection test successful');
+                } catch (\Exception $e) {
+                    Log::error('S3 connection failed: ' . $e->getMessage());
+                    return Redirect::route('profile.edit')->with('error', 'S3 connection failed. Please check your AWS credentials.');
+                }
+                
+                // Delete old photo from S3 if exists
+                if ($user->photo) {
+                    try {
+                        $oldKey = $this->getPhotoKeyFromUrl($user->photo);
+                        if ($oldKey) {
+                            Storage::disk('profile_photos')->delete($oldKey);
+                            Log::info('Old photo deleted: ' . $oldKey);
+                        }
+                    } catch (\Exception $e) {
+                        Log::warning('Failed to delete old photo: ' . $e->getMessage());
+                    }
+                }
+                
+                // Generate unique filename
+                $file = $request->file('photo');
+                $filename = 'user_' . $user->id . '_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+                
+                Log::info('Uploading file: ' . $filename);
+                
+                // Store new photo on S3
+                $path = Storage::disk('profile_photos')->putFileAs('', $file, $filename);
+                
+                if ($path) {
+                    // Get the full S3 URL
+                    $photoUrl = Storage::disk('profile_photos')->url($path);
+                    $user->photo = $photoUrl;
+                    Log::info('Photo uploaded successfully: ' . $photoUrl);
+                } else {
+                    Log::error('Failed to upload photo - putFileAs returned false');
+                    return Redirect::route('profile.edit')->with('error', 'Failed to upload photo to S3');
+                }
+                
+            } catch (\Exception $e) {
+                Log::error('S3 Photo Upload Error: ' . $e->getMessage());
+                Log::error('Stack trace: ' . $e->getTraceAsString());
+                return Redirect::route('profile.edit')->with('error', 'Failed to upload photo: ' . $e->getMessage());
+            }
+        }
+
+        // Update user with validated data (excluding photo which is handled above)
+        $updateData = collect($validated)->except('photo')->toArray();
+        $user->fill($updateData);
+
+        // Handle email verification reset
+        if (isset($validated['email']) && $user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
     /**

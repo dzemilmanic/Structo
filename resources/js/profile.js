@@ -1,5 +1,8 @@
-// Profile editing functionality with SweetAlert2
+// Profile editing functionality with consistent modal styling (SAME AS USERS.JS)
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize session message handling first
+    handleSessionMessages();
+    
     // Get all edit toggle buttons
     const editButtons = document.querySelectorAll('.edit-toggle');
     const cancelButtons = document.querySelectorAll('.cancel-edit');
@@ -47,31 +50,26 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             const fieldName = this.getAttribute('data-field');
             
-            // Show confirmation dialog for cancel
-            Swal.fire({
+            // Show confirmation dialog for cancel with consistent styling
+            const config = createModalConfig('confirmation', {
                 title: 'Cancel Changes?',
                 text: 'Are you sure you want to cancel your changes?',
-                icon: 'question',
-                showCancelButton: true,
                 confirmButtonText: 'Yes, cancel',
-                cancelButtonText: 'No, continue',
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    hideEditForm(fieldName);
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Cancelled',
-                        text: 'Changes have been cancelled.',
-                        timer: 2000,
-                        timerProgressBar: true,
-                        showConfirmButton: false,
-                        toast: true,
-                        position: 'top-end'
-                    });
-                }
+                cancelButtonText: 'No, continue'
             });
+            
+            if (typeof Swal !== 'undefined') {
+                Swal.fire(config).then((result) => {
+                    if (result.isConfirmed) {
+                        hideEditForm(fieldName);
+                        showInfo('Changes have been cancelled.', 'Cancelled');
+                    }
+                });
+            } else {
+                if (confirm('Are you sure you want to cancel your changes?')) {
+                    hideEditForm(fieldName);
+                }
+            }
         });
     });
     
@@ -128,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Handle form submissions with loading states and SweetAlert2
+    // Handle form submissions with loading states and consistent modal styling
     const forms = document.querySelectorAll('.profile-edit-form form');
     forms.forEach(form => {
         form.addEventListener('submit', function(e) {
@@ -141,17 +139,20 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.textContent = 'Updating...';
             submitButton.disabled = true;
             
-            // Show loading alert
-            Swal.fire({
+            // Show loading alert with consistent styling
+            const loadingConfig = createModalConfig('loading', {
                 title: 'Updating Profile...',
                 text: 'Please wait while we update your information.',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                showConfirmButton: false,
                 didOpen: () => {
-                    Swal.showLoading();
+                    if (typeof Swal !== 'undefined') {
+                        Swal.showLoading();
+                    }
                 }
             });
+            
+            if (typeof Swal !== 'undefined') {
+                Swal.fire(loadingConfig);
+            }
             
             // Create FormData and submit via fetch
             const formData = new FormData(this);
@@ -172,39 +173,30 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 // Close loading alert
-                Swal.close();
+                if (typeof Swal !== 'undefined') {
+                    Swal.close();
+                }
                 
-                // Show success message
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Profile updated successfully.',
-                    timer: 3000,
-                    timerProgressBar: true,
-                    showConfirmButton: false,
-                    toast: true,
-                    position: 'top-end'
-                }).then(() => {
-                    // Reload page to show updated data
+                // Show success message with consistent styling
+                showSuccess('Profile updated successfully.');
+                
+                // Reload page after success modal closes
+                setTimeout(() => {
                     window.location.reload();
-                });
+                }, 3000);
             })
             .catch(error => {
                 // Close loading alert
-                Swal.close();
+                if (typeof Swal !== 'undefined') {
+                    Swal.close();
+                }
                 
                 // Reset button state
                 submitButton.textContent = originalText;
                 submitButton.disabled = false;
                 
-                // Show error message
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: 'An error occurred while updating your profile. Please try again.',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#d33'
-                });
+                // Show error message with consistent styling
+                showError('An error occurred while updating your profile. Please try again.');
             });
         });
     });
@@ -216,25 +208,29 @@ document.addEventListener('DOMContentLoaded', function() {
             if (activeEditForm) {
                 const fieldName = activeEditForm.id.replace('edit-form-', '');
                 
-                Swal.fire({
+                const config = createModalConfig('confirmation', {
                     title: 'Cancel Changes?',
                     text: 'You pressed Escape. Do you want to cancel your changes?',
-                    icon: 'question',
-                    showCancelButton: true,
                     confirmButtonText: 'Yes, cancel',
-                    cancelButtonText: 'No, continue',
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6'
-                }).then((result) => {
-                    if (result.isConfirmed) {
+                    cancelButtonText: 'No, continue'
+                });
+                
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire(config).then((result) => {
+                        if (result.isConfirmed) {
+                            hideEditForm(fieldName);
+                        }
+                    });
+                } else {
+                    if (confirm('You pressed Escape. Do you want to cancel your changes?')) {
                         hideEditForm(fieldName);
                     }
-                });
+                }
             }
         }
     });
     
-    // Handle photo preview with SweetAlert2
+    // Handle photo preview with consistent modal styling
     const photoInput = document.getElementById('photo');
     if (photoInput) {
         photoInput.addEventListener('change', function(e) {
@@ -245,40 +241,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 const maxSize = 2 * 1024 * 1024; // 2MB
                 
                 if (!allowedTypes.includes(file.type)) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Invalid File Type',
-                        text: 'Please select a valid image file (JPEG, PNG, JPG, GIF)',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#d33'
-                    });
+                    showError('Please select a valid image file (JPEG, PNG, JPG, GIF)', 'Invalid File Type');
                     this.value = '';
                     return;
                 }
                 
                 if (file.size > maxSize) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'File Too Large',
-                        text: 'File size must be less than 2MB',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#d33'
-                    });
+                    showError('File size must be less than 2MB', 'File Too Large');
                     this.value = '';
                     return;
                 }
                 
                 // Show success message for valid file
-                Swal.fire({
-                    icon: 'success',
-                    title: 'File Selected',
-                    text: `Selected image: ${file.name}`,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    showConfirmButton: false,
-                    toast: true,
-                    position: 'top-end'
-                });
+                showInfo(`Selected image: ${file.name}`, 'File Selected');
             }
         });
     }
@@ -303,18 +278,233 @@ document.addEventListener('DOMContentLoaded', function() {
         const displayElement = document.getElementById(`display-${fieldName}`);
         if (displayElement) {
             if (newValue && newValue.trim() !== '') {
-                displayElement.textContent = newValue;
+                if (fieldName === 'portfolio_url') {
+                    // Special handling for portfolio URL to show as link
+                    displayElement.innerHTML = `
+                        <a href="${newValue}" target="_blank" rel="noopener noreferrer" class="portfolio-link">
+                            ${newValue}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 4px; vertical-align: middle;">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15,3 21,3 21,9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg>
+                        </a>
+                    `;
+                } else {
+                    displayElement.textContent = newValue;
+                }
                 displayElement.classList.remove('empty');
             } else {
                 const placeholders = {
                     'specialization': 'Not specified',
                     'bio': 'Tell us about yourself...',
                     'phone': 'Not specified',
-                    'location': 'Not specified'
+                    'location': 'Not specified',
+                    'portfolio_url': 'Not specified'
                 };
                 displayElement.textContent = placeholders[fieldName] || 'Not specified';
                 displayElement.classList.add('empty');
             }
         }
     }
+
+    // ===== CONSISTENT MODAL STYLING SYSTEM (SAME AS USERS.JS) =====
+
+    /**
+     * Unified modal styling configuration (SAME AS USERS.JS)
+     */
+    const modalStyles = {
+        // Clean, consistent styling without icons
+        clean: {
+            icon: false,
+            iconHtml: '',
+            buttonsStyling: true,
+            allowOutsideClick: true,
+            allowEscapeKey: true,
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown animate__faster'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp animate__faster'
+            }
+        },
+        
+        // Confirmation modals
+        confirmation: {
+            showCancelButton: true,
+            reverseButtons: true,
+            focusCancel: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d'
+        },
+        
+        // Success modals
+        success: {
+            confirmButtonColor: '#28a745',
+            timer: 3000,
+            timerProgressBar: true,
+            showCancelButton: false
+        },
+        
+        // Error modals
+        error: {
+            confirmButtonColor: '#dc3545',
+            showCancelButton: false
+        },
+        
+        // Loading modals
+        loading: {
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false
+        }
+    };
+
+    /**
+     * Create consistent modal configuration (SAME AS USERS.JS)
+     */
+    function createModalConfig(type, options = {}) {
+        const baseConfig = { ...modalStyles.clean };
+        const typeConfig = modalStyles[type] || {};
+        
+        return {
+            ...baseConfig,
+            ...typeConfig,
+            ...options
+        };
+    }
+
+    /**
+     * Show success message with consistent styling (SAME AS USERS.JS)
+     */
+    function showSuccess(message) {
+        console.log('📢 Showing success message:', message);
+        
+        if (typeof Swal === 'undefined') {
+            alert(message);
+            return;
+        }
+        
+        const config = createModalConfig('success', {
+            title: 'Success!',
+            text: message
+        });
+        
+        Swal.fire(config);
+    }
+
+    /**
+     * Show error message with consistent styling (SAME AS USERS.JS)
+     */
+    function showError(message, title = 'Error') {
+        console.log('⚠️ Showing error message:', message);
+        
+        if (typeof Swal === 'undefined') {
+            alert(message);
+            return;
+        }
+        
+        const config = createModalConfig('error', {
+            title: title,
+            text: message
+        });
+        
+        Swal.fire(config);
+    }
+
+    /**
+     * Show info message with consistent styling (SAME AS USERS.JS)
+     */
+    function showInfo(message, title = 'Information') {
+        console.log('ℹ️ Showing info message:', message);
+        
+        if (typeof Swal === 'undefined') {
+            alert(message);
+            return;
+        }
+        
+        const config = createModalConfig('clean', {
+            title: title,
+            text: message,
+            confirmButtonColor: '#007bff',
+            showCancelButton: false
+        });
+        
+        Swal.fire(config);
+    }
+
+    /**
+     * Show warning message with consistent styling (SAME AS USERS.JS)
+     */
+    function showWarning(message, title = 'Warning') {
+        console.log('⚠️ Showing warning message:', message);
+        
+        if (typeof Swal === 'undefined') {
+            alert(message);
+            return;
+        }
+        
+        const config = createModalConfig('clean', {
+            title: title,
+            text: message,
+            confirmButtonColor: '#ffc107',
+            showCancelButton: false
+        });
+        
+        Swal.fire(config);
+    }
+
+    /**
+     * Session Message Handler (SAME AS USERS.JS)
+     */
+    function handleSessionMessages() {
+        console.log('🔍 Checking for profile session messages...');
+        
+        // Handle success messages
+        const successElement = document.querySelector('[data-session-success]');
+        if (successElement) {
+            const message = successElement.getAttribute('data-session-success');
+            if (message) {
+                console.log('✅ Found session success message:', message);
+                showSuccess(message);
+            }
+        }
+        
+        // Handle error messages
+        const errorElement = document.querySelector('[data-session-error]');
+        if (errorElement) {
+            const message = errorElement.getAttribute('data-session-error');
+            if (message) {
+                console.log('❌ Found session error message:', message);
+                showError(message);
+            }
+        }
+        
+        // Handle info messages
+        const infoElement = document.querySelector('[data-session-info]');
+        if (infoElement) {
+            const message = infoElement.getAttribute('data-session-info');
+            if (message) {
+                console.log('ℹ️ Found session info message:', message);
+                showInfo(message);
+            }
+        }
+        
+        // Handle warning messages
+        const warningElement = document.querySelector('[data-session-warning]');
+        if (warningElement) {
+            const message = warningElement.getAttribute('data-session-warning');
+            if (message) {
+                console.log('⚠️ Found session warning message:', message);
+                showWarning(message);
+            }
+        }
+    }
+
+    // Make functions globally available for external use
+    window.showSuccess = showSuccess;
+    window.showError = showError;
+    window.showInfo = showInfo;
+    window.showWarning = showWarning;
+    window.createModalConfig = createModalConfig;
 });

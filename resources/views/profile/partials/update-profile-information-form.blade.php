@@ -49,6 +49,7 @@
                 <input type="hidden" name="bio" value="{{ $user->bio }}">
                 <input type="hidden" name="phone" value="{{ $user->phone }}">
                 <input type="hidden" name="location" value="{{ $user->location }}">
+                <input type="hidden" name="portfolio_url" value="{{ $user->portfolio_url }}">
                 
                 <div class="form-group">
                     <label for="photo" class="form-label">{{ __('Profile Photo') }}</label>
@@ -361,6 +362,66 @@
                     </button>
                 </div>
             </form>
+
+            <!-- Portfolio URL Section -->
+            <div class="profile-display">
+                <div class="profile-value">
+                    <span class="profile-label">{{ __('Portfolio URL') }}</span>
+                    <span class="profile-text {{ !$user->portfolio_url ? 'empty' : '' }}" id="display-portfolio_url">
+                        @if($user->portfolio_url)
+                            <a href="{{ $user->portfolio_url }}" target="_blank" rel="noopener noreferrer" class="portfolio-link">
+                                {{ $user->portfolio_url }}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 4px; vertical-align: middle;">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                    <polyline points="15,3 21,3 21,9"></polyline>
+                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                </svg>
+                            </a>
+                        @else
+                            {{ __('Not specified') }}
+                        @endif
+                    </span>
+                </div>
+                <button class="edit-icon edit-toggle" type="button" aria-label="Edit portfolio URL" data-field="portfolio_url">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Portfolio URL Edit Form -->
+            <form method="POST" action="{{ route('profile.update') }}" class="profile-edit-form" id="edit-form-portfolio_url" style="display: none;">
+                @csrf
+                @method('PATCH')
+                <div class="form-group">
+                    <label for="portfolio_url" class="form-label">{{ __('Portfolio URL') }}</label>
+                    <input
+                        id="portfolio_url"
+                        name="portfolio_url"
+                        type="url"
+                        class="form-input @error('portfolio_url') form-input-error @enderror"
+                        value="{{ old('portfolio_url', $user->portfolio_url) }}"
+                        placeholder="{{ __('https://your-portfolio.com') }}"
+                        autocomplete="url"
+                        aria-describedby="portfolio_url-error"
+                        data-original-value="{{ $user->portfolio_url }}"
+                    />
+                    <small class="form-help">{{ __('Link to your portfolio, website, or professional profile') }}</small>
+                    @error('portfolio_url')
+                        <div id="portfolio_url-error" class="form-error" role="alert">
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+                <div class="form-group" style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button type="submit" class="btn-profile btn-profile-primary">
+                        {{ __('Update') }}
+                    </button>
+                    <button type="button" class="btn-profile btn-profile-secondary cancel-edit" data-field="portfolio_url">
+                        {{ __('Cancel') }}
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </section>
@@ -368,62 +429,23 @@
 <!-- SweetAlert2 Script -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- Handle Flash Messages with SweetAlert2 -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Success message
-    @if (session('status') === 'profile-updated')
-        Swal.fire({
-            icon: 'success',
-            title: 'Success!',
-            text: 'Profile updated successfully.',
-            timer: 3000,
-            timerProgressBar: true,
-            showConfirmButton: false,
-            toast: true,
-            position: 'top-end'
-        });
-    @endif
-    
-    // Error message
-    @if (session('error'))
-        Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: '{{ session('error') }}',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#d33'
-        });
-    @endif
-    
-    // Password updated message
-    @if (session('status') === 'password-updated')
-        Swal.fire({
-            icon: 'success',
-            title: 'Success!',
-            text: 'Password updated successfully.',
-            timer: 3000,
-            timerProgressBar: true,
-            showConfirmButton: false,
-            toast: true,
-            position: 'top-end'
-        });
-    @endif
-    
-    // Validation errors
-    @if ($errors->any())
-        let errorMessages = '';
-        @foreach ($errors->all() as $error)
-            errorMessages += '• {{ $error }}\n';
-        @endforeach
-        
-        Swal.fire({
-            icon: 'error',
-            title: 'Validation Errors',
-            text: errorMessages,
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#d33'
-        });
-    @endif
-});
-</script>
+<!-- Session Message Data Attributes for Consistent Modal Handling -->
+@if (session('status') === 'profile-updated')
+    <div data-session-success="Profile updated successfully." style="display: none;"></div>
+@endif
+
+@if (session('error'))
+    <div data-session-error="{{ session('error') }}" style="display: none;"></div>
+@endif
+
+@if (session('status') === 'password-updated')
+    <div data-session-success="Password updated successfully." style="display: none;"></div>
+@endif
+
+@if ($errors->any())
+    @php
+        $errorMessages = $errors->all();
+        $errorText = implode(' • ', $errorMessages);
+    @endphp
+    <div data-session-error="{{ $errorText }}" style="display: none;"></div>
+@endif

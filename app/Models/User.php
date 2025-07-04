@@ -23,6 +23,7 @@ class User extends Authenticatable
         'bio',
         'phone',
         'location',
+        'portfolio_url',
         'photo',
         'years_of_experience',
         'certification',

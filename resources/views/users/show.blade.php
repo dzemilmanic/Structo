@@ -82,6 +82,23 @@
                 </div>
             @endif
 
+            @if($user->portfolio_url)
+                <div class="detail-item">
+                    <div class="detail-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 14L14 10M17 7a5 5 0 00-7 0L7 10a5 5 0 007 7l3-3a5 5 0 000-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+
+                    <div class="detail-content">
+                        <span class="detail-label">Portfolio</span>
+                        <span class="detail-value">
+                            <a href="tel:{{ $user->portfolio_url }}" class="phone-link">{{ $user->portfolio_url }}</a>
+                        </span>
+                    </div>
+                </div>
+            @endif
+
             @if($user->location)
                 <div class="detail-item">
                     <div class="detail-icon">

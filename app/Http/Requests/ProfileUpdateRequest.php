@@ -29,6 +29,7 @@ class ProfileUpdateRequest extends FormRequest
             'phone' => ['nullable', 'string', 'max:20'],
             'location' => ['nullable', 'string', 'max:255'],
             'bio' => ['nullable', 'string', 'max:1000'],
+            'portfolio_url' => ['nullable', 'url', 'max:255'],
             'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // 2MB max
         ];
     }
@@ -45,6 +46,8 @@ class ProfileUpdateRequest extends FormRequest
             'photo.mimes' => 'The photo must be a file of type: jpeg, png, jpg, gif.',
             'photo.max' => 'The photo may not be greater than 2MB.',
             'bio.max' => 'The bio may not be greater than 1000 characters.',
+            'portfolio_url.url' => 'The portfolio URL must be a valid URL (e.g., https://example.com).',
+            'portfolio_url.max' => 'The portfolio URL may not be greater than 255 characters.',
         ];
     }
 }
