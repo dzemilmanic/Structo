@@ -1,5 +1,6 @@
-// Enhanced Search Functionality - Structo Design System
+// Enhanced Notification System - Consistent Modal Styling
 document.addEventListener('DOMContentLoaded', function() {
+    // Enhanced Search Functionality - Structo Design System
     const searchContainer = document.querySelector('.professionals-search-container');
     const searchInput = document.getElementById('professionalsSearchInput');
     const searchClearBtn = document.querySelector('.search-clear-btn');
@@ -15,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (searchInput && professionalsGrid) {
         initializeSearch();
     }
+
+    // Initialize session message handling (JOBS-STYLE)
+    handleSessionMessages();
 
     function initializeSearch() {
         // Add event listeners
@@ -412,7 +416,208 @@ document.addEventListener('DOMContentLoaded', function() {
             e.stopPropagation();
         }
     });
+
+    // ===== JOBS-STYLE SESSION MESSAGE HANDLING =====
+
+    /**
+     * Unified modal styling configuration (SAME AS JOBS.JS)
+     */
+    const modalStyles = {
+        // Clean, consistent styling without icons
+        clean: {
+            icon: false,
+            iconHtml: '',
+            buttonsStyling: true,
+            allowOutsideClick: true,
+            allowEscapeKey: true,
+            showClass: {
+                popup: 'animate__animated animate__fadeInDown animate__faster'
+            },
+            hideClass: {
+                popup: 'animate__animated animate__fadeOutUp animate__faster'
+            }
+        },
+        
+        // Confirmation modals
+        confirmation: {
+            showCancelButton: true,
+            reverseButtons: true,
+            focusCancel: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d'
+        },
+        
+        // Success modals
+        success: {
+            confirmButtonColor: '#28a745',
+            timer: 3000,
+            timerProgressBar: true,
+            showCancelButton: false
+        },
+        
+        // Error modals
+        error: {
+            confirmButtonColor: '#dc3545',
+            showCancelButton: false
+        },
+        
+        // Loading modals
+        loading: {
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false
+        }
+    };
+
+    /**
+     * Create consistent modal configuration (SAME AS JOBS.JS)
+     */
+    function createModalConfig(type, options = {}) {
+        const baseConfig = { ...modalStyles.clean };
+        const typeConfig = modalStyles[type] || {};
+        
+        return {
+            ...baseConfig,
+            ...typeConfig,
+            ...options
+        };
+    }
+
+    /**
+     * Show success message with consistent styling (SAME AS JOBS.JS)
+     */
+    function showSuccess(message) {
+        console.log('📢 Showing success message:', message);
+        
+        if (typeof Swal === 'undefined') {
+            alert(message);
+            return;
+        }
+        
+        const config = createModalConfig('success', {
+            title: 'Success!',
+            text: message
+        });
+        
+        Swal.fire(config);
+    }
+
+    /**
+     * Show error message with consistent styling (SAME AS JOBS.JS)
+     */
+    function showError(message) {
+        console.log('⚠️ Showing error message:', message);
+        
+        if (typeof Swal === 'undefined') {
+            alert(message);
+            return;
+        }
+        
+        const config = createModalConfig('error', {
+            title: 'Error',
+            text: message
+        });
+        
+        Swal.fire(config);
+    }
+
+    /**
+     * Show info message with consistent styling (SAME AS JOBS.JS)
+     */
+    function showInfo(message, title = 'Information') {
+        console.log('ℹ️ Showing info message:', message);
+        
+        if (typeof Swal === 'undefined') {
+            alert(message);
+            return;
+        }
+        
+        const config = createModalConfig('clean', {
+            title: title,
+            text: message,
+            confirmButtonColor: '#007bff',
+            showCancelButton: false
+        });
+        
+        Swal.fire(config);
+    }
+
+    /**
+     * Show warning message with consistent styling (SAME AS JOBS.JS)
+     */
+    function showWarning(message, title = 'Warning') {
+        console.log('⚠️ Showing warning message:', message);
+        
+        if (typeof Swal === 'undefined') {
+            alert(message);
+            return;
+        }
+        
+        const config = createModalConfig('clean', {
+            title: title,
+            text: message,
+            confirmButtonColor: '#ffc107',
+            showCancelButton: false
+        });
+        
+        Swal.fire(config);
+    }
+
+    /**
+     * Session Message Handler (SAME AS JOBS.JS)
+     */
+    function handleSessionMessages() {
+        console.log('🔍 Checking for users session messages...');
+        
+        // Handle success messages
+        const successElement = document.querySelector('[data-session-success]');
+        if (successElement) {
+            const message = successElement.getAttribute('data-session-success');
+            if (message) {
+                console.log('✅ Found session success message:', message);
+                showSuccess(message);
+            }
+        }
+        
+        // Handle error messages
+        const errorElement = document.querySelector('[data-session-error]');
+        if (errorElement) {
+            const message = errorElement.getAttribute('data-session-error');
+            if (message) {
+                console.log('❌ Found session error message:', message);
+                showError(message);
+            }
+        }
+        
+        // Handle info messages
+        const infoElement = document.querySelector('[data-session-info]');
+        if (infoElement) {
+            const message = infoElement.getAttribute('data-session-info');
+            if (message) {
+                console.log('ℹ️ Found session info message:', message);
+                showInfo(message);
+            }
+        }
+        
+        // Handle warning messages
+        const warningElement = document.querySelector('[data-session-warning]');
+        if (warningElement) {
+            const message = warningElement.getAttribute('data-session-warning');
+            if (message) {
+                console.log('⚠️ Found session warning message:', message);
+                showWarning(message);
+            }
+        }
+    }
+
+    // Make functions globally available for request handling
+    window.showSuccess = showSuccess;
+    window.showError = showError;
+    window.showInfo = showInfo;
+    window.showWarning = showWarning;
+    window.createModalConfig = createModalConfig;
 });
+
 // Global variables
 let selectedFiles = [];
 let maxFiles = 5;
@@ -432,7 +637,6 @@ let allowedTypes = [
 document.addEventListener('DOMContentLoaded', function() {
     initializeProfessionalRequest();
     initializeProfessionalsSearch();
-    showSessionMessages();
 });
 
 function initializeProfessionalRequest() {
@@ -462,55 +666,6 @@ function initializeProfessionalsSearch() {
                     card.style.display = 'none';
                 }
             });
-        });
-    }
-}
-
-function showSessionMessages() {
-    // Show success/error notifications
-    const sessionSuccess = document.querySelector('meta[name="session-success"]');
-    if (sessionSuccess) {
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'success',
-            title: sessionSuccess.content,
-            showConfirmButton: false,
-            timer: 4000,
-            timerProgressBar: true,
-            customClass: {
-                popup: 'swal2-toast-custom'
-            }
-        });
-    }
-
-    const sessionError = document.querySelector('meta[name="session-error"]');
-    if (sessionError) {
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'error',
-            title: sessionError.content,
-            showConfirmButton: false,
-            timer: 5000,
-            timerProgressBar: true,
-            customClass: {
-                popup: 'swal2-toast-custom'
-            }
-        });
-    }
-
-    const validationErrors = document.querySelector('meta[name="validation-errors"]');
-    if (validationErrors) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Validation Errors',
-            text: validationErrors.content,
-            confirmButtonText: 'OK',
-            customClass: {
-                popup: 'swal2-popup-custom',
-                confirmButton: 'swal2-confirm-custom'
-            }
         });
     }
 }
@@ -829,17 +984,16 @@ function validateAndGetFormData() {
 }
 
 function submitProfessionalRequest(data) {
-    // Show loading
-    Swal.fire({
+    // Show loading with JOBS-STYLE consistent styling
+    const loadingConfig = window.createModalConfig('loading', {
         title: 'Submitting Request...',
         text: 'Please wait while we process your professional request.',
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        showConfirmButton: false,
         didOpen: () => {
             Swal.showLoading();
         }
     });
+    
+    Swal.fire(loadingConfig);
 
     // Create FormData
     const formData = new FormData();
@@ -866,35 +1020,21 @@ function submitProfessionalRequest(data) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Request Submitted!',
-                text: data.message || 'Your professional request has been submitted successfully and is pending review.',
-                confirmButtonText: 'Great!',
-                customClass: {
-                    popup: 'swal2-popup-custom',
-                    confirmButton: 'swal2-confirm-custom'
-                }
-            }).then(() => {
-                // Reload page to update UI
+            // Show success with JOBS-STYLE consistent styling
+            window.showSuccess(data.message || 'Your professional request has been submitted successfully and is pending review.');
+            
+            // Reload page after success modal closes
+            setTimeout(() => {
                 window.location.reload();
-            });
+            }, 3000);
         } else {
             throw new Error(data.message || 'An error occurred');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Submission Failed',
-            text: error.message || 'Failed to submit your request. Please try again.',
-            confirmButtonText: 'OK',
-            customClass: {
-                popup: 'swal2-popup-custom',
-                confirmButton: 'swal2-confirm-custom'
-            }
-        });
+        // Show error with JOBS-STYLE consistent styling
+        window.showError(error.message || 'Failed to submit your request. Please try again.');
     });
 }
 

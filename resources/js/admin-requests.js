@@ -221,77 +221,195 @@ class RequestRejectHandler {
     }
 }
 
+// ===== JOBS-STYLE SESSION MESSAGE HANDLING =====
+
 /**
- * Session Message Handler
- * Displays success/error messages using SweetAlert toasts
+ * Unified modal styling configuration (SAME AS JOBS.JS)
  */
-class SessionMessageHandler {
-    constructor() {
-        this.init();
-    }
-
-    init() {
-        // Check for session messages and display them
-        this.displaySessionMessages();
-    }
-
-    displaySessionMessages() {
-        // Success messages
-        const successMessage = this.getSessionMessage('success');
-        if (successMessage) {
-            this.showSuccessToast(successMessage);
+const modalStyles = {
+    // Clean, consistent styling without icons
+    clean: {
+        icon: false,
+        iconHtml: '',
+        buttonsStyling: true,
+        allowOutsideClick: true,
+        allowEscapeKey: true,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown animate__faster'
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp animate__faster'
         }
+    },
+    
+    // Confirmation modals
+    confirmation: {
+        showCancelButton: true,
+        reverseButtons: true,
+        focusCancel: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d'
+    },
+    
+    // Success modals
+    success: {
+        confirmButtonColor: '#28a745',
+        timer: 3000,
+        timerProgressBar: true,
+        showCancelButton: false
+    },
+    
+    // Error modals
+    error: {
+        confirmButtonColor: '#dc3545',
+        showCancelButton: false
+    },
+    
+    // Loading modals
+    loading: {
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false
+    }
+};
 
-        // Error messages
-        const errorMessage = this.getSessionMessage('error');
-        if (errorMessage) {
-            this.showErrorToast(errorMessage);
+/**
+ * Create consistent modal configuration (SAME AS JOBS.JS)
+ */
+function createModalConfig(type, options = {}) {
+    const baseConfig = { ...modalStyles.clean };
+    const typeConfig = modalStyles[type] || {};
+    
+    return {
+        ...baseConfig,
+        ...typeConfig,
+        ...options
+    };
+}
+
+/**
+ * Show success message with consistent styling (SAME AS JOBS.JS)
+ */
+function showSuccess(message) {
+    console.log('📢 Showing success message:', message);
+    
+    if (typeof Swal === 'undefined') {
+        alert(message);
+        return;
+    }
+    
+    const config = createModalConfig('success', {
+        title: 'Success!',
+        text: message
+    });
+    
+    Swal.fire(config);
+}
+
+/**
+ * Show error message with consistent styling (SAME AS JOBS.JS)
+ */
+function showError(message) {
+    console.log('⚠️ Showing error message:', message);
+    
+    if (typeof Swal === 'undefined') {
+        alert(message);
+        return;
+    }
+    
+    const config = createModalConfig('error', {
+        title: 'Error',
+        text: message
+    });
+    
+    Swal.fire(config);
+}
+
+/**
+ * Show info message with consistent styling (SAME AS JOBS.JS)
+ */
+function showInfo(message, title = 'Information') {
+    console.log('ℹ️ Showing info message:', message);
+    
+    if (typeof Swal === 'undefined') {
+        alert(message);
+        return;
+    }
+    
+    const config = createModalConfig('clean', {
+        title: title,
+        text: message,
+        confirmButtonColor: '#007bff',
+        showCancelButton: false
+    });
+    
+    Swal.fire(config);
+}
+
+/**
+ * Show warning message with consistent styling (SAME AS JOBS.JS)
+ */
+function showWarning(message, title = 'Warning') {
+    console.log('⚠️ Showing warning message:', message);
+    
+    if (typeof Swal === 'undefined') {
+        alert(message);
+        return;
+    }
+    
+    const config = createModalConfig('clean', {
+        title: title,
+        text: message,
+        confirmButtonColor: '#ffc107',
+        showCancelButton: false
+    });
+    
+    Swal.fire(config);
+}
+
+/**
+ * Session Message Handler (SAME AS JOBS.JS)
+ */
+function handleSessionMessages() {
+    console.log('🔍 Checking for admin requests session messages...');
+    
+    // Handle success messages
+    const successElement = document.querySelector('[data-session-success]');
+    if (successElement) {
+        const message = successElement.getAttribute('data-session-success');
+        if (message) {
+            console.log('✅ Found session success message:', message);
+            showSuccess(message);
         }
     }
-
-    getSessionMessage(type) {
-        // This will be populated by the Blade template
-        const element = document.querySelector(`[data-session-${type}]`);
-        return element ? element.getAttribute(`data-session-${type}`) : null;
-    }
-
-    showSuccessToast(message) {
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: message,
-                timer: 5000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-                toast: true,
-                position: 'top-end',
-                showCloseButton: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer);
-                    toast.addEventListener('mouseleave', Swal.resumeTimer);
-                }
-            });
+    
+    // Handle error messages
+    const errorElement = document.querySelector('[data-session-error]');
+    if (errorElement) {
+        const message = errorElement.getAttribute('data-session-error');
+        if (message) {
+            console.log('❌ Found session error message:', message);
+            showError(message);
         }
     }
-
-    showErrorToast(message) {
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: message,
-                timer: 8000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-                toast: true,
-                position: 'top-end',
-                showCloseButton: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer);
-                    toast.addEventListener('mouseleave', Swal.resumeTimer);
-                }
-            });
+    
+    // Handle info messages
+    const infoElement = document.querySelector('[data-session-info]');
+    if (infoElement) {
+        const message = infoElement.getAttribute('data-session-info');
+        if (message) {
+            console.log('ℹ️ Found session info message:', message);
+            showInfo(message);
+        }
+    }
+    
+    // Handle warning messages
+    const warningElement = document.querySelector('[data-session-warning]');
+    if (warningElement) {
+        const message = warningElement.getAttribute('data-session-warning');
+        if (message) {
+            console.log('⚠️ Found session warning message:', message);
+            showWarning(message);
         }
     }
 }
@@ -367,7 +485,6 @@ class ImageModalHandler {
 // Global instances
 let requestApproveHandler;
 let requestRejectHandler;
-let sessionMessageHandler;
 let imageModalHandler;
 
 // Global functions for backward compatibility
@@ -396,8 +513,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize handlers
     requestApproveHandler = new RequestApproveHandler();
     requestRejectHandler = new RequestRejectHandler();
-    sessionMessageHandler = new SessionMessageHandler();
     imageModalHandler = new ImageModalHandler();
+    
+    // Initialize session message handling (JOBS-STYLE)
+    handleSessionMessages();
 
     // Add loading states to forms
     const forms = document.querySelectorAll('form');
@@ -446,5 +565,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    console.log('Admin Requests JS with clean confirmations initialized successfully');
+    console.log('Admin Requests JS with clean confirmations and jobs-style notifications initialized successfully');
 });

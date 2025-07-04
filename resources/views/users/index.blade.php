@@ -7,6 +7,23 @@
 @endsection
 
 @section('content')
+<!-- Hidden elements for session messages (JOBS-STYLE) -->
+@if(session('success'))
+    <div data-session-success="{{ session('success') }}" style="display: none;"></div>
+@endif
+
+@if(session('error'))
+    <div data-session-error="{{ session('error') }}" style="display: none;"></div>
+@endif
+
+@if(session('info'))
+    <div data-session-info="{{ session('info') }}" style="display: none;"></div>
+@endif
+
+@if(session('warning'))
+    <div data-session-warning="{{ session('warning') }}" style="display: none;"></div>
+@endif
+
 <!-- Users Hero Section -->
 <section class="users-hero">
     <div class="container">
@@ -182,16 +199,4 @@
 
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    @if(session('success'))
-        <meta name="session-success" content="{{ session('success') }}">
-    @endif
-    
-    @if(session('error'))
-        <meta name="session-error" content="{{ session('error') }}">
-    @endif
-    
-    @if($errors->any())
-        <meta name="validation-errors" content="{{ $errors->first() }}">
-    @endif
 @endsection

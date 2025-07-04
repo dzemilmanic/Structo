@@ -10,15 +10,24 @@
 @endsection
 
 @section('content')
-<div class="admin-container">
-    <!-- Hidden session message data for JavaScript -->
-    @if(session('success'))
-        <div data-session-success="{{ session('success') }}" style="display: none;"></div>
-    @endif
-    @if(session('error'))
-        <div data-session-error="{{ session('error') }}" style="display: none;"></div>
-    @endif
+<!-- Hidden elements for session messages (JOBS-STYLE) -->
+@if(session('success'))
+    <div data-session-success="{{ session('success') }}" style="display: none;"></div>
+@endif
 
+@if(session('error'))
+    <div data-session-error="{{ session('error') }}" style="display: none;"></div>
+@endif
+
+@if(session('info'))
+    <div data-session-info="{{ session('info') }}" style="display: none;"></div>
+@endif
+
+@if(session('warning'))
+    <div data-session-warning="{{ session('warning') }}" style="display: none;"></div>
+@endif
+
+<div class="admin-container">
     <div class="admin-header">
         <h1 class="admin-title">
             <svg class="title-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
