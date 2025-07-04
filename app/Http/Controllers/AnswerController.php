@@ -81,7 +81,7 @@ class AnswerController extends Controller
         $answer->save();
 
         return redirect()->route('questions.show', $answer->question)
-                        ->with('success', 'Response updated successfully.');
+                        ->with('success', 'Answer updated successfully.');
     }
 
     /**

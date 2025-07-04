@@ -2,7 +2,19 @@
 @vite(['resources/css/home.css', 'resources/js/home.js'])
 @section('title', 'Home - Structo')
 
+@section('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+@endsection
+
 @section('content')
+<!-- Hidden session message data for JavaScript -->
+@if(session('success'))
+    <div data-session-success="{{ session('success') }}" style="display: none;"></div>
+@endif
+@if(session('error'))
+    <div data-session-error="{{ session('error') }}" style="display: none;"></div>
+@endif
+
 <!-- Hero Section -->
 <section class="hero">
     <div class="hero-content">
@@ -124,12 +136,6 @@
 <!-- Updated Testimonials Section with User Photos -->
 <section class="testimonials" id="testimonials">
     <div class="container">
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-
         <div class="section-header">
             <h2>Client Testimonials</h2>
             <p>What our clients say about the professionals on our platform</p>
@@ -250,18 +256,5 @@
 @endsection
 
 @section('scripts')
-<script>
-    // Success message toast notification
-    @if(session('success'))
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'success',
-            title: "{{ session('success') }}",
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
-    @endif
-</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection

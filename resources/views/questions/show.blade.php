@@ -4,6 +4,23 @@
 @section('title', $question->title)
 
 @section('content')
+    <!-- Hidden elements for session messages (JOBS-STYLE) -->
+    @if(session('success'))
+        <div data-session-success="{{ session('success') }}" style="display: none;"></div>
+    @endif
+    
+    @if(session('error'))
+        <div data-session-error="{{ session('error') }}" style="display: none;"></div>
+    @endif
+    
+    @if(session('info'))
+        <div data-session-info="{{ session('info') }}" style="display: none;"></div>
+    @endif
+    
+    @if(session('warning'))
+        <div data-session-warning="{{ session('warning') }}" style="display: none;"></div>
+    @endif
+
     <div class="question-detail">
         <div class="question-detail-header">
             <h1 class="question-detail-title">{{ $question->title }}</h1>
@@ -126,21 +143,4 @@
 @section('scripts')
     <!-- Include SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <script>
-    
-
-    // Success message for any operations
-    @if(session('success'))
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'success',
-            title: "{{ session('success') }}",
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
-    @endif
-    </script>
 @endsection

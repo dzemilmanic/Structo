@@ -383,6 +383,176 @@ class TestimonialForm {
     }
 }
 
+// ===== CONSISTENT MODAL STYLING =====
+
+/**
+ * Unified modal styling configuration
+ */
+const modalStyles = {
+    // Clean, consistent styling without icons
+    clean: {
+        icon: false,
+        iconHtml: '',
+        buttonsStyling: true,
+        allowOutsideClick: true,
+        allowEscapeKey: true,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown animate__faster'
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp animate__faster'
+        }
+    },
+    
+    // Confirmation modals
+    confirmation: {
+        showCancelButton: true,
+        reverseButtons: true,
+        focusCancel: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d'
+    },
+    
+    // Success modals - VELIKI MODAL U CENTRU, NE TOAST!
+    success: {
+        confirmButtonColor: '#28a745',
+        timer: 3000,
+        timerProgressBar: true,
+        showCancelButton: false,
+        // UKLANJAMO toast postavke da bude veliki modal
+        toast: false,
+        position: 'center'
+    },
+    
+    // Error modals
+    error: {
+        confirmButtonColor: '#dc3545',
+        showCancelButton: false
+    },
+    
+    // Loading modals
+    loading: {
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false
+    }
+};
+
+/**
+ * Create consistent modal configuration
+ */
+function createModalConfig(type, options = {}) {
+    const baseConfig = { ...modalStyles.clean };
+    const typeConfig = modalStyles[type] || {};
+    
+    return {
+        ...baseConfig,
+        ...typeConfig,
+        ...options
+    };
+}
+
+// ===== CONSISTENT MESSAGE DISPLAY FUNCTIONS =====
+
+/**
+ * Show loading modal with consistent styling
+ */
+function showLoadingModal(title, text) {
+    if (typeof Swal === 'undefined') {
+        return;
+    }
+    
+    const config = createModalConfig('loading', {
+        title: title,
+        text: text,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    Swal.fire(config);
+}
+
+/**
+ * Show success message with consistent styling - VELIKI MODAL U CENTRU
+ */
+function showSuccess(message) {
+    console.log('📢 Showing success message:', message);
+    
+    if (typeof Swal === 'undefined') {
+        alert(message);
+        return;
+    }
+    
+    const config = createModalConfig('success', {
+        title: 'Success!',
+        text: message
+    });
+    
+    Swal.fire(config);
+}
+
+/**
+ * Show error message with consistent styling
+ */
+function showError(message) {
+    console.log('⚠️ Showing error message:', message);
+    
+    if (typeof Swal === 'undefined') {
+        alert(message);
+        return;
+    }
+    
+    const config = createModalConfig('error', {
+        title: 'Error',
+        text: message
+    });
+    
+    Swal.fire(config);
+}
+
+/**
+ * Show info message with consistent styling
+ */
+function showInfo(message, title = 'Information') {
+    console.log('ℹ️ Showing info message:', message);
+    
+    if (typeof Swal === 'undefined') {
+        alert(message);
+        return;
+    }
+    
+    const config = createModalConfig('clean', {
+        title: title,
+        text: message,
+        confirmButtonColor: '#007bff',
+        showCancelButton: false
+    });
+    
+    Swal.fire(config);
+}
+
+/**
+ * Show warning message with consistent styling
+ */
+function showWarning(message, title = 'Warning') {
+    console.log('⚠️ Showing warning message:', message);
+    
+    if (typeof Swal === 'undefined') {
+        alert(message);
+        return;
+    }
+    
+    const config = createModalConfig('clean', {
+        title: title,
+        text: message,
+        confirmButtonColor: '#ffc107',
+        showCancelButton: false
+    });
+    
+    Swal.fire(config);
+}
+
 /**
  * FIXED: Testimonial Delete Confirmation - Clean Dialog Without Icons
  * Now shows a clean, professional confirmation dialog
@@ -416,45 +586,18 @@ class TestimonialDeleteHandler {
     }
 
     showSweetAlertConfirmation(form) {
-        // Clean SweetAlert without any icons - just text and buttons
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "This testimonial will be permanently deleted. This action cannot be undone!",
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel',
-            reverseButtons: true,
-            focusCancel: true,
-            allowOutsideClick: true,
-            allowEscapeKey: true,
-            buttonsStyling: true,
-            // CRITICAL: Remove the icon completely
-            icon: false,
-            iconHtml: '',
-            showClass: {
-                popup: 'animate__animated animate__fadeInDown animate__faster'
-            },
-            hideClass: {
-                popup: 'animate__animated animate__fadeOutUp animate__faster'
-            }
-        }).then((result) => {
+        // Use consistent modal styling
+        const config = createModalConfig('confirmation', {
+            title: 'Delete Testimonial?',
+            text: 'Are you sure you want to delete this testimonial? This action cannot be undone and will permanently remove the testimonial.',
+            confirmButtonText: 'Yes, Delete Testimonial',
+            cancelButtonText: 'Cancel'
+        });
+        
+        Swal.fire(config).then((result) => {
             if (result.isConfirmed) {
-                // Show loading state without icon
-                Swal.fire({
-                    title: 'Deleting...',
-                    text: 'Please wait while we delete the testimonial.',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    showConfirmButton: false,
-                    icon: false, // No icon for loading either
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-                
-                // Submit the form
+                // Show consistent loading state
+                showLoadingModal('Deleting Testimonial...', 'Please wait while we delete the testimonial.');
                 form.submit();
             }
         }).catch((error) => {
@@ -466,6 +609,48 @@ class TestimonialDeleteHandler {
         });
     }
 }
+
+/**
+ * Session Message Handler
+ * Displays success/error messages using consistent SweetAlert styling
+ */
+class SessionMessageHandler {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        // Check for session messages and display them
+        this.displaySessionMessages();
+    }
+
+    displaySessionMessages() {
+        // Success messages
+        const successMessage = this.getSessionMessage('success');
+        if (successMessage) {
+            showSuccess(successMessage);
+        }
+
+        // Error messages
+        const errorMessage = this.getSessionMessage('error');
+        if (errorMessage) {
+            showError(errorMessage);
+        }
+    }
+
+    getSessionMessage(type) {
+        // This will be populated by the Blade template
+        const element = document.querySelector(`[data-session-${type}]`);
+        return element ? element.getAttribute(`data-session-${type}`) : null;
+    }
+}
+
+// Make message functions available globally
+window.showSuccess = showSuccess;
+window.showError = showError;
+window.showInfo = showInfo;
+window.showWarning = showWarning;
+window.showLoadingModal = showLoadingModal;
 
 /**
  * Initialize all components when DOM is ready
@@ -482,6 +667,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize testimonial delete handler
     new TestimonialDeleteHandler();
+
+    // Initialize session message handler
+    new SessionMessageHandler();
 
     // Mobile menu toggle
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
@@ -598,4 +786,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    console.log('Home JS initialized successfully with consistent modal styling');
 });

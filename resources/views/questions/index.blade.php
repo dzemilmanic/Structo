@@ -3,7 +3,28 @@
 @vite(['resources/js/qa.js'])
 @section('title', 'Questions and Answers - Structo')
 
+@section('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+@endsection
+
 @section('content')
+<!-- Hidden elements for session messages (JOBS-STYLE) -->
+@if(session('success'))
+    <div data-session-success="{{ session('success') }}" style="display: none;"></div>
+@endif
+
+@if(session('error'))
+    <div data-session-error="{{ session('error') }}" style="display: none;"></div>
+@endif
+
+@if(session('info'))
+    <div data-session-info="{{ session('info') }}" style="display: none;"></div>
+@endif
+
+@if(session('warning'))
+    <div data-session-warning="{{ session('warning') }}" style="display: none;"></div>
+@endif
+
 <!-- Q&A Hero Section -->
 <section class="qa-hero">
     <div class="container">
@@ -228,48 +249,9 @@
 @endsection
 
 @section('scripts')
-<!-- Include SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-// Success message with 5 second timer and proper icons
-@if(session('success'))
-    Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: "{{ session('success') }}",
-        showConfirmButton: false,
-        timer: 5000,
-        timerProgressBar: true,
-        showCloseButton: true,
-        background: '#ffffff',
-        color: '#1a202c',
-        customClass: {
-            popup: 'swal2-toast-custom'
-        }
-    });
-@endif
-
-// Error message with 5 second timer and X icon
-@if(session('error'))
-    Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'error',
-        title: "{{ session('error') }}",
-        showConfirmButton: false,
-        timer: 5000,
-        timerProgressBar: true,
-        showCloseButton: true,
-        background: '#ffffff',
-        color: '#1a202c',
-        customClass: {
-            popup: 'swal2-toast-custom'
-        }
-    });
-@endif
-
 // Handle validation errors
 @if($errors->any())
     document.addEventListener('DOMContentLoaded', function() {
