@@ -58,36 +58,148 @@ window.addEventListener("load", function () {
     }
 });
 
+// ===== CONSISTENT MODAL STYLING =====
+
+/**
+ * Unified modal styling configuration
+ */
+const modalStyles = {
+    // Clean, consistent styling without icons
+    clean: {
+        icon: false,
+        iconHtml: '',
+        buttonsStyling: true,
+        allowOutsideClick: true,
+        allowEscapeKey: true,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown animate__faster'
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp animate__faster'
+        }
+    },
+    
+    // Confirmation modals
+    confirmation: {
+        showCancelButton: true,
+        reverseButtons: true,
+        focusCancel: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d'
+    },
+    
+    // Success modals
+    success: {
+        confirmButtonColor: '#28a745',
+        timer: 3000,
+        timerProgressBar: true,
+        showCancelButton: false
+    },
+    
+    // Error modals
+    error: {
+        confirmButtonColor: '#dc3545',
+        showCancelButton: false
+    },
+    
+    // Loading modals
+    loading: {
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false
+    }
+};
+
+/**
+ * Create consistent modal configuration
+ */
+function createModalConfig(type, options = {}) {
+    const baseConfig = { ...modalStyles.clean };
+    const typeConfig = modalStyles[type] || {};
+    
+    return {
+        ...baseConfig,
+        ...typeConfig,
+        ...options
+    };
+}
+
 // ===== DELETE SYSTEM =====
 
 function initializeDeleteSystem() {
     console.log('Setting up delete system...');
+    
+    // Remove any existing listeners first to prevent duplicates
+    document.removeEventListener('click', handleDeleteClicks);
     
     // Add click listener for delete buttons using event delegation
     document.addEventListener('click', handleDeleteClicks);
     
     console.log('Delete system initialized successfully');
     
-    // Debug: Log all delete buttons found
+    // Debug: Log all delete buttons found after a short delay
     setTimeout(() => {
-        const allDeleteButtons = document.querySelectorAll('[data-job-id], [data-service-id], .job-delete-btn, .service-delete-btn, .delete-btn');
-        console.log('Found delete buttons:', allDeleteButtons.length);
-        allDeleteButtons.forEach((btn, index) => {
-            console.log(`Button ${index}:`, btn.className, btn.getAttribute('data-job-id'), btn.getAttribute('data-service-id'));
+        debugDeleteButtons();
+    }, 1000);
+}
+
+function debugDeleteButtons() {
+    console.log('=== DELETE BUTTONS DEBUG ===');
+    
+    const jobDeleteButtons = document.querySelectorAll('.job-delete-btn');
+    const serviceDeleteButtons = document.querySelectorAll('.service-delete-btn');
+    const allDataButtons = document.querySelectorAll('[data-job-id], [data-service-id]');
+    
+    console.log('Job delete buttons (.job-delete-btn):', jobDeleteButtons.length);
+    jobDeleteButtons.forEach((btn, index) => {
+        console.log(`  Job button ${index}:`, {
+            element: btn,
+            className: btn.className,
+            jobId: btn.getAttribute('data-job-id'),
+            jobTitle: btn.getAttribute('data-job-title'),
+            onclick: btn.getAttribute('onclick')
         });
-    }, 500);
+    });
+    
+    console.log('Service delete buttons (.service-delete-btn):', serviceDeleteButtons.length);
+    serviceDeleteButtons.forEach((btn, index) => {
+        console.log(`  Service button ${index}:`, {
+            element: btn,
+            className: btn.className,
+            serviceId: btn.getAttribute('data-service-id'),
+            serviceTitle: btn.getAttribute('data-service-title'),
+            onclick: btn.getAttribute('onclick')
+        });
+    });
+    
+    console.log('All data attribute buttons:', allDataButtons.length);
+    allDataButtons.forEach((btn, index) => {
+        console.log(`  Data button ${index}:`, {
+            element: btn,
+            className: btn.className,
+            jobId: btn.getAttribute('data-job-id'),
+            serviceId: btn.getAttribute('data-service-id')
+        });
+    });
+    
+    console.log('CSRF token available:', getCSRFToken() ? 'YES' : 'NO');
+    console.log('SweetAlert available:', typeof Swal !== 'undefined' ? 'YES' : 'NO');
+    console.log('========================');
 }
 
 function handleDeleteClicks(event) {
     const target = event.target;
     const button = target.closest('button') || target;
     
-    console.log('Click detected on:', target);
-    console.log('Button found:', button);
+    console.log('=== CLICK EVENT DEBUG ===');
+    console.log('Target element:', target);
+    console.log('Target classes:', target.className);
+    console.log('Button element:', button);
+    console.log('Button classes:', button ? button.className : 'N/A');
     
     // Check for job delete
     if (button && (button.classList.contains('job-delete-btn') || button.getAttribute('data-job-id'))) {
-        console.log('Job delete button clicked!');
+        console.log('✅ Job delete button detected!');
         event.preventDefault();
         event.stopPropagation();
         
@@ -99,14 +211,14 @@ function handleDeleteClicks(event) {
         if (jobId) {
             deleteJob(jobId, jobTitle);
         } else {
-            console.error('Job ID not found!');
+            console.error('❌ Job ID not found!');
         }
         return;
     }
     
     // Check for service delete
     if (button && (button.classList.contains('service-delete-btn') || button.getAttribute('data-service-id'))) {
-        console.log('Service delete button clicked!');
+        console.log('✅ Service delete button detected!');
         event.preventDefault();
         event.stopPropagation();
         
@@ -118,51 +230,40 @@ function handleDeleteClicks(event) {
         if (serviceId) {
             deleteService(serviceId, serviceTitle);
         } else {
-            console.error('Service ID not found!');
+            console.error('❌ Service ID not found!');
         }
         return;
     }
+    
+    console.log('❌ No delete button detected');
+    console.log('======================');
 }
 
 function deleteJob(jobId, jobTitle = 'this job') {
-    console.log('deleteJob called with:', jobId, jobTitle);
+    console.log('🗑️ deleteJob called with:', jobId, jobTitle);
     
     // Check if SweetAlert is available
     if (typeof Swal === 'undefined') {
-        console.log('SweetAlert not available, using confirm');
+        console.log('⚠️ SweetAlert not available, using confirm');
         if (confirm(`Are you sure you want to delete ${jobTitle}? This action cannot be undone.`)) {
             submitJobDeleteForm(jobId);
         }
         return;
     }
     
-    // Use SweetAlert
-    Swal.fire({
+    // Use consistent modal styling
+    const config = createModalConfig('confirmation', {
         title: 'Delete Job?',
-        text: `Are you sure you want to delete "${jobTitle}"? This action cannot be undone.`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Yes, Delete',
-        cancelButtonText: 'Cancel',
-        reverseButtons: true,
-        focusCancel: true
-    }).then((result) => {
+        text: `Are you sure you want to delete "${jobTitle}"? This action cannot be undone and will permanently remove the job and all its requests.`,
+        confirmButtonText: 'Yes, Delete Job',
+        cancelButtonText: 'Cancel'
+    });
+    
+    Swal.fire(config).then((result) => {
         console.log('SweetAlert result:', result);
         if (result.isConfirmed) {
-            // Show loading
-            Swal.fire({
-                title: 'Deleting...',
-                text: 'Please wait while we delete the job.',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                showConfirmButton: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-            
+            // Show consistent loading state
+            showLoadingModal('Deleting Job...', 'Please wait while we delete the job.');
             submitJobDeleteForm(jobId);
         }
     }).catch((error) => {
@@ -175,44 +276,30 @@ function deleteJob(jobId, jobTitle = 'this job') {
 }
 
 function deleteService(serviceId, serviceTitle = 'this service') {
-    console.log('deleteService called with:', serviceId, serviceTitle);
+    console.log('🗑️ deleteService called with:', serviceId, serviceTitle);
     
     // Check if SweetAlert is available
     if (typeof Swal === 'undefined') {
-        console.log('SweetAlert not available, using confirm');
+        console.log('⚠️ SweetAlert not available, using confirm');
         if (confirm(`Are you sure you want to delete ${serviceTitle}? This action cannot be undone.`)) {
             submitServiceDeleteForm(serviceId);
         }
         return;
     }
     
-    // Use SweetAlert
-    Swal.fire({
+    // Use consistent modal styling
+    const config = createModalConfig('confirmation', {
         title: 'Delete Service?',
-        text: `Are you sure you want to delete "${serviceTitle}"? This action cannot be undone.`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Yes, Delete',
-        cancelButtonText: 'Cancel',
-        reverseButtons: true,
-        focusCancel: true
-    }).then((result) => {
+        text: `Are you sure you want to delete "${serviceTitle}"? This action cannot be undone and will permanently remove the service and all its requests.`,
+        confirmButtonText: 'Yes, Delete Service',
+        cancelButtonText: 'Cancel'
+    });
+    
+    Swal.fire(config).then((result) => {
         console.log('SweetAlert result:', result);
         if (result.isConfirmed) {
-            // Show loading
-            Swal.fire({
-                title: 'Deleting...',
-                text: 'Please wait while we delete the service.',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                showConfirmButton: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-            
+            // Show consistent loading state
+            showLoadingModal('Deleting Service...', 'Please wait while we delete the service.');
             submitServiceDeleteForm(serviceId);
         }
     }).catch((error) => {
@@ -225,16 +312,16 @@ function deleteService(serviceId, serviceTitle = 'this service') {
 }
 
 function submitJobDeleteForm(jobId) {
-    console.log('Submitting job delete form for ID:', jobId);
+    console.log('📤 Submitting job delete form for ID:', jobId);
     
     const csrfToken = getCSRFToken();
     if (!csrfToken) {
-        console.error('CSRF token not found!');
+        console.error('❌ CSRF token not found!');
         showError('CSRF token not found. Please refresh the page and try again.');
         return;
     }
     
-    console.log('CSRF token found:', csrfToken);
+    console.log('✅ CSRF token found:', csrfToken.substring(0, 10) + '...');
     
     // Create form
     const form = document.createElement('form');
@@ -259,31 +346,33 @@ function submitJobDeleteForm(jobId) {
     // Append and submit
     document.body.appendChild(form);
     
-    console.log('Form created:', form);
-    console.log('Form action:', form.action);
-    console.log('Form method:', form.method);
+    console.log('📋 Form created:');
+    console.log('  Action:', form.action);
+    console.log('  Method:', form.method);
+    console.log('  CSRF Token:', csrfInput.value.substring(0, 10) + '...');
+    console.log('  Method Override:', methodInput.value);
     
     try {
         form.submit();
-        console.log('Form submitted successfully');
+        console.log('✅ Form submitted successfully');
     } catch (error) {
-        console.error('Error submitting form:', error);
+        console.error('❌ Error submitting form:', error);
         showError('An error occurred while deleting. Please try again.');
         document.body.removeChild(form);
     }
 }
 
 function submitServiceDeleteForm(serviceId) {
-    console.log('Submitting service delete form for ID:', serviceId);
+    console.log('📤 Submitting service delete form for ID:', serviceId);
     
     const csrfToken = getCSRFToken();
     if (!csrfToken) {
-        console.error('CSRF token not found!');
+        console.error('❌ CSRF token not found!');
         showError('CSRF token not found. Please refresh the page and try again.');
         return;
     }
     
-    console.log('CSRF token found:', csrfToken);
+    console.log('✅ CSRF token found:', csrfToken.substring(0, 10) + '...');
     
     // Create form
     const form = document.createElement('form');
@@ -308,15 +397,17 @@ function submitServiceDeleteForm(serviceId) {
     // Append and submit
     document.body.appendChild(form);
     
-    console.log('Form created:', form);
-    console.log('Form action:', form.action);
-    console.log('Form method:', form.method);
+    console.log('📋 Form created:');
+    console.log('  Action:', form.action);
+    console.log('  Method:', form.method);
+    console.log('  CSRF Token:', csrfInput.value.substring(0, 10) + '...');
+    console.log('  Method Override:', methodInput.value);
     
     try {
         form.submit();
-        console.log('Form submitted successfully');
+        console.log('✅ Form submitted successfully');
     } catch (error) {
-        console.error('Error submitting form:', error);
+        console.error('❌ Error submitting form:', error);
         showError('An error occurred while deleting. Please try again.');
         document.body.removeChild(form);
     }
@@ -339,14 +430,118 @@ function getCSRFToken() {
     return null;
 }
 
+// ===== CONSISTENT MESSAGE DISPLAY FUNCTIONS =====
+
+/**
+ * Show loading modal with consistent styling
+ */
+function showLoadingModal(title, text) {
+    if (typeof Swal === 'undefined') {
+        return;
+    }
+    
+    const config = createModalConfig('loading', {
+        title: title,
+        text: text,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    Swal.fire(config);
+}
+
+/**
+ * Show success message with consistent styling
+ */
+function showSuccess(message) {
+    console.log('📢 Showing success message:', message);
+    
+    if (typeof Swal === 'undefined') {
+        alert(message);
+        return;
+    }
+    
+    const config = createModalConfig('success', {
+        title: 'Success!',
+        text: message
+    });
+    
+    Swal.fire(config);
+}
+
+/**
+ * Show error message with consistent styling
+ */
+function showError(message) {
+    console.log('⚠️ Showing error message:', message);
+    
+    if (typeof Swal === 'undefined') {
+        alert(message);
+        return;
+    }
+    
+    const config = createModalConfig('error', {
+        title: 'Error',
+        text: message
+    });
+    
+    Swal.fire(config);
+}
+
+/**
+ * Show info message with consistent styling
+ */
+function showInfo(message, title = 'Information') {
+    console.log('ℹ️ Showing info message:', message);
+    
+    if (typeof Swal === 'undefined') {
+        alert(message);
+        return;
+    }
+    
+    const config = createModalConfig('clean', {
+        title: title,
+        text: message,
+        confirmButtonColor: '#007bff',
+        showCancelButton: false
+    });
+    
+    Swal.fire(config);
+}
+
+/**
+ * Show warning message with consistent styling
+ */
+function showWarning(message, title = 'Warning') {
+    console.log('⚠️ Showing warning message:', message);
+    
+    if (typeof Swal === 'undefined') {
+        alert(message);
+        return;
+    }
+    
+    const config = createModalConfig('clean', {
+        title: title,
+        text: message,
+        confirmButtonColor: '#ffc107',
+        showCancelButton: false
+    });
+    
+    Swal.fire(config);
+}
+
 // ===== SESSION MESSAGE HANDLING =====
 
 function handleSessionMessages() {
+    console.log('🔍 Checking for session messages...');
+    
     // Handle success messages
     const successElement = document.querySelector('[data-session-success]');
     if (successElement) {
         const message = successElement.getAttribute('data-session-success');
         if (message) {
+            console.log('✅ Found session success message:', message);
             showSuccess(message);
         }
     }
@@ -356,36 +551,29 @@ function handleSessionMessages() {
     if (errorElement) {
         const message = errorElement.getAttribute('data-session-error');
         if (message) {
+            console.log('❌ Found session error message:', message);
             showError(message);
         }
     }
-}
-
-function showError(message) {
-    if (typeof Swal !== 'undefined') {
-        Swal.fire({
-            title: 'Error',
-            text: message,
-            icon: 'error',
-            confirmButtonColor: '#dc3545'
-        });
-    } else {
-        alert(message);
+    
+    // Handle info messages
+    const infoElement = document.querySelector('[data-session-info]');
+    if (infoElement) {
+        const message = infoElement.getAttribute('data-session-info');
+        if (message) {
+            console.log('ℹ️ Found session info message:', message);
+            showInfo(message);
+        }
     }
-}
-
-function showSuccess(message) {
-    if (typeof Swal !== 'undefined') {
-        Swal.fire({
-            title: 'Success',
-            text: message,
-            icon: 'success',
-            confirmButtonColor: '#28a745',
-            timer: 3000,
-            timerProgressBar: true
-        });
-    } else {
-        alert(message);
+    
+    // Handle warning messages
+    const warningElement = document.querySelector('[data-session-warning]');
+    if (warningElement) {
+        const message = warningElement.getAttribute('data-session-warning');
+        if (message) {
+            console.log('⚠️ Found session warning message:', message);
+            showWarning(message);
+        }
     }
 }
 
@@ -940,17 +1128,18 @@ function completeJob(jobId) {
         return;
     }
 
-    Swal.fire({
-        title: "Mark as completed?",
-        text: "Are you sure you want to mark this job as complete?",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonColor: "#28a745",
-        cancelButtonColor: "#6c757d",
-        confirmButtonText: "Yes, confirm!",
-        cancelButtonText: "Cancel",
-    }).then((result) => {
+    // Use consistent modal styling
+    const config = createModalConfig('confirmation', {
+        title: 'Mark as Completed?',
+        text: 'Are you sure you want to mark this job as complete?',
+        confirmButtonText: 'Yes, Complete Job!',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#28a745'
+    });
+
+    Swal.fire(config).then((result) => {
         if (result.isConfirmed) {
+            showLoadingModal('Completing Job...', 'Please wait while we update the job status.');
             submitForm("POST", `/jobs/${jobId}/complete`);
         }
     });
@@ -961,16 +1150,7 @@ function completeJob(jobId) {
 function submitForm(method, action) {
     const csrfToken = getCSRFToken();
     if (!csrfToken) {
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                title: "Error!",
-                text: "CSRF token not found. Please refresh the page and try again.",
-                icon: "error",
-                confirmButtonColor: "#d33",
-            });
-        } else {
-            alert("CSRF token not found. Please refresh the page and try again.");
-        }
+        showError('CSRF token not found. Please refresh the page and try again.');
         return;
     }
 
@@ -1031,9 +1211,7 @@ function initializeFormValidation() {
 
             if (!isValid) {
                 e.preventDefault();
-                showErrorMessage(
-                    "Please fill in all required fields correctly."
-                );
+                showError("Please fill in all required fields correctly.");
 
                 // Focus first invalid field
                 const firstInvalid = form.querySelector(".error");
@@ -1097,32 +1275,13 @@ function initializeTextareas() {
 
 // ===== UTILITY FUNCTIONS =====
 
+// Legacy function names for backward compatibility
 function showSuccessMessage(message) {
-    if (typeof Swal !== "undefined") {
-        Swal.fire({
-            title: "Success!",
-            text: message,
-            icon: "success",
-            confirmButtonColor: "#28a745",
-            timer: 3000,
-            timerProgressBar: true,
-        });
-    } else {
-        alert(message);
-    }
+    showSuccess(message);
 }
 
 function showErrorMessage(message) {
-    if (typeof Swal !== "undefined") {
-        Swal.fire({
-            title: "Error!",
-            text: message,
-            icon: "error",
-            confirmButtonColor: "#dc3545",
-        });
-    } else {
-        alert(message);
-    }
+    showError(message);
 }
 
 // ===== DEBUG FUNCTIONS =====
@@ -1141,28 +1300,18 @@ function debugModals() {
 
 // Debug function for delete system
 window.debugDeleteSystem = function() {
-    console.log('=== DELETE SYSTEM DEBUG ===');
-    console.log('SweetAlert available:', typeof Swal !== 'undefined');
-    console.log('CSRF token:', getCSRFToken());
-    
-    const jobButtons = document.querySelectorAll('.job-delete-btn, [data-job-id]');
-    const serviceButtons = document.querySelectorAll('.service-delete-btn, [data-service-id]');
-    
-    console.log('Job delete buttons found:', jobButtons.length);
-    jobButtons.forEach((btn, i) => {
-        console.log(`  Job button ${i}:`, btn.className, btn.getAttribute('data-job-id'));
-    });
-    
-    console.log('Service delete buttons found:', serviceButtons.length);
-    serviceButtons.forEach((btn, i) => {
-        console.log(`  Service button ${i}:`, btn.className, btn.getAttribute('data-service-id'));
-    });
-    
-    console.log('========================');
+    debugDeleteButtons();
 };
 
 // Make debug functions available globally
 window.debugModals = debugModals;
 
+// Make message functions available globally
+window.showSuccess = showSuccess;
+window.showError = showError;
+window.showInfo = showInfo;
+window.showWarning = showWarning;
+window.showLoadingModal = showLoadingModal;
+
 // Log that the script has loaded
-console.log("Complete Jobs.js loaded successfully - all functions including delete are now available globally");
+console.log("Complete Jobs.js loaded successfully - all functions including consistent modals are now available globally");

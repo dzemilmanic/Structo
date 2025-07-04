@@ -1,5 +1,4 @@
 @vite('resources/js/jobs.js')
-@vite('resources/js/delete-confirmation.js')
 <section class="jobs-services-hero">
     <div class="container">
         <div class="jobs-services-hero-content">
@@ -171,8 +170,7 @@
                         <button type="button" 
                                 class="btn btn-danger btn-sm service-delete-btn"
                                 data-service-id="{{ $service->id }}"
-                                data-service-title="{{ $service->title }}"
-                                onclick="event.stopPropagation();">
+                                data-service-title="{{ $service->title }}">
                             <i class="fas fa-trash"></i> Delete
                         </button>
                     </div>

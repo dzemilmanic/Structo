@@ -3,6 +3,173 @@
  * Handles delete confirmations and modal management for jobs, services, and categories
  */
 
+// ===== CONSISTENT MODAL STYLING =====
+
+/**
+ * Unified modal styling configuration
+ */
+const modalStyles = {
+    // Clean, consistent styling without icons
+    clean: {
+        icon: false,
+        iconHtml: '',
+        buttonsStyling: true,
+        allowOutsideClick: true,
+        allowEscapeKey: true,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown animate__faster'
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp animate__faster'
+        }
+    },
+    
+    // Confirmation modals
+    confirmation: {
+        showCancelButton: true,
+        reverseButtons: true,
+        focusCancel: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d'
+    },
+    
+    // Success modals
+    success: {
+        confirmButtonColor: '#28a745',
+        timer: 3000,
+        timerProgressBar: true,
+        showCancelButton: false
+    },
+    
+    // Error modals
+    error: {
+        confirmButtonColor: '#dc3545',
+        showCancelButton: false
+    },
+    
+    // Loading modals
+    loading: {
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false
+    }
+};
+
+/**
+ * Create consistent modal configuration
+ */
+function createModalConfig(type, options = {}) {
+    const baseConfig = { ...modalStyles.clean };
+    const typeConfig = modalStyles[type] || {};
+    
+    return {
+        ...baseConfig,
+        ...typeConfig,
+        ...options
+    };
+}
+
+// ===== CONSISTENT MESSAGE DISPLAY FUNCTIONS =====
+
+/**
+ * Show loading modal with consistent styling
+ */
+function showLoadingModal(title, text) {
+    if (typeof Swal === 'undefined') {
+        return;
+    }
+    
+    const config = createModalConfig('loading', {
+        title: title,
+        text: text,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    Swal.fire(config);
+}
+
+/**
+ * Show success message with consistent styling
+ */
+function showSuccess(message) {
+    console.log('📢 Showing success message:', message);
+    
+    if (typeof Swal === 'undefined') {
+        alert(message);
+        return;
+    }
+    
+    const config = createModalConfig('success', {
+        title: 'Success!',
+        text: message
+    });
+    
+    Swal.fire(config);
+}
+
+/**
+ * Show error message with consistent styling
+ */
+function showError(message) {
+    console.log('⚠️ Showing error message:', message);
+    
+    if (typeof Swal === 'undefined') {
+        alert(message);
+        return;
+    }
+    
+    const config = createModalConfig('error', {
+        title: 'Error',
+        text: message
+    });
+    
+    Swal.fire(config);
+}
+
+/**
+ * Show info message with consistent styling
+ */
+function showInfo(message, title = 'Information') {
+    console.log('ℹ️ Showing info message:', message);
+    
+    if (typeof Swal === 'undefined') {
+        alert(message);
+        return;
+    }
+    
+    const config = createModalConfig('clean', {
+        title: title,
+        text: message,
+        confirmButtonColor: '#007bff',
+        showCancelButton: false
+    });
+    
+    Swal.fire(config);
+}
+
+/**
+ * Show warning message with consistent styling
+ */
+function showWarning(message, title = 'Warning') {
+    console.log('⚠️ Showing warning message:', message);
+    
+    if (typeof Swal === 'undefined') {
+        alert(message);
+        return;
+    }
+    
+    const config = createModalConfig('clean', {
+        title: title,
+        text: message,
+        confirmButtonColor: '#ffc107',
+        showCancelButton: false
+    });
+    
+    Swal.fire(config);
+}
+
 /**
  * Category Delete Confirmation Handler - Clean Dialog Without Icons
  * Shows a clean, professional confirmation dialog for category deletion
@@ -45,45 +212,18 @@ class CategoryDeleteHandler {
     }
 
     showSweetAlertDeleteConfirmation(categoryId, categoryName) {
-        // Clean SweetAlert without any icons - just text and buttons
-        Swal.fire({
+        // Use consistent modal styling
+        const config = createModalConfig('confirmation', {
             title: 'Delete Category?',
             text: `Are you sure you want to delete "${categoryName}"? This action cannot be undone and will permanently remove the category.`,
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
             confirmButtonText: 'Yes, Delete Category',
-            cancelButtonText: 'Cancel',
-            reverseButtons: true,
-            focusCancel: true,
-            allowOutsideClick: true,
-            allowEscapeKey: true,
-            buttonsStyling: true,
-            // CRITICAL: Remove the icon completely
-            icon: false,
-            iconHtml: '',
-            showClass: {
-                popup: 'animate__animated animate__fadeInDown animate__faster'
-            },
-            hideClass: {
-                popup: 'animate__animated animate__fadeOutUp animate__faster'
-            }
-        }).then((result) => {
+            cancelButtonText: 'Cancel'
+        });
+        
+        Swal.fire(config).then((result) => {
             if (result.isConfirmed) {
-                // Show loading state without icon
-                Swal.fire({
-                    title: 'Deleting Category...',
-                    text: 'Please wait while we delete the category.',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    showConfirmButton: false,
-                    icon: false, // No icon for loading either
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-                
-                // Submit the delete form
+                // Show consistent loading state
+                showLoadingModal('Deleting Category...', 'Please wait while we delete the category.');
                 this.submitDeleteForm(categoryId);
             }
         }).catch((error) => {
@@ -98,13 +238,7 @@ class CategoryDeleteHandler {
     submitDeleteForm(categoryId) {
         const csrfToken = this.getFreshCSRFToken();
         if (!csrfToken) {
-            Swal.fire({
-                title: 'Error',
-                text: 'CSRF token not found. Please refresh the page and try again.',
-                icon: false,
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#dc3545'
-            });
+            showError('CSRF token not found. Please refresh the page and try again.');
             return;
         }
 
@@ -133,13 +267,7 @@ class CategoryDeleteHandler {
             form.submit();
         } catch (error) {
             console.error('Error submitting form:', error);
-            Swal.fire({
-                title: 'Error',
-                text: 'An error occurred while deleting. Please try again.',
-                icon: false,
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#dc3545'
-            });
+            showError('An error occurred while deleting. Please try again.');
         }
     }
 
@@ -201,45 +329,18 @@ class JobDeleteHandler {
     }
 
     showSweetAlertDeleteConfirmation(jobId, jobTitle) {
-        // Clean SweetAlert without any icons - just text and buttons
-        Swal.fire({
+        // Use consistent modal styling
+        const config = createModalConfig('confirmation', {
             title: 'Delete Job?',
             text: `Are you sure you want to delete "${jobTitle}"? This action cannot be undone and will permanently remove the job and all its requests.`,
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
             confirmButtonText: 'Yes, Delete Job',
-            cancelButtonText: 'Cancel',
-            reverseButtons: true,
-            focusCancel: true,
-            allowOutsideClick: true,
-            allowEscapeKey: true,
-            buttonsStyling: true,
-            // CRITICAL: Remove the icon completely
-            icon: false,
-            iconHtml: '',
-            showClass: {
-                popup: 'animate__animated animate__fadeInDown animate__faster'
-            },
-            hideClass: {
-                popup: 'animate__animated animate__fadeOutUp animate__faster'
-            }
-        }).then((result) => {
+            cancelButtonText: 'Cancel'
+        });
+        
+        Swal.fire(config).then((result) => {
             if (result.isConfirmed) {
-                // Show loading state without icon
-                Swal.fire({
-                    title: 'Deleting Job...',
-                    text: 'Please wait while we delete the job.',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    showConfirmButton: false,
-                    icon: false, // No icon for loading either
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-                
-                // Submit the delete form
+                // Show consistent loading state
+                showLoadingModal('Deleting Job...', 'Please wait while we delete the job.');
                 this.submitDeleteForm(jobId);
             }
         }).catch((error) => {
@@ -254,13 +355,7 @@ class JobDeleteHandler {
     submitDeleteForm(jobId) {
         const csrfToken = this.getFreshCSRFToken();
         if (!csrfToken) {
-            Swal.fire({
-                title: 'Error',
-                text: 'CSRF token not found. Please refresh the page and try again.',
-                icon: false,
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#dc3545'
-            });
+            showError('CSRF token not found. Please refresh the page and try again.');
             return;
         }
 
@@ -289,13 +384,7 @@ class JobDeleteHandler {
             form.submit();
         } catch (error) {
             console.error('Error submitting form:', error);
-            Swal.fire({
-                title: 'Error',
-                text: 'An error occurred while deleting. Please try again.',
-                icon: false,
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#dc3545'
-            });
+            showError('An error occurred while deleting. Please try again.');
         }
     }
 
@@ -357,45 +446,18 @@ class ServiceDeleteHandler {
     }
 
     showSweetAlertDeleteConfirmation(serviceId, serviceTitle) {
-        // Clean SweetAlert without any icons - just text and buttons
-        Swal.fire({
+        // Use consistent modal styling
+        const config = createModalConfig('confirmation', {
             title: 'Delete Service?',
             text: `Are you sure you want to delete "${serviceTitle}"? This action cannot be undone and will permanently remove the service and all its requests.`,
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
             confirmButtonText: 'Yes, Delete Service',
-            cancelButtonText: 'Cancel',
-            reverseButtons: true,
-            focusCancel: true,
-            allowOutsideClick: true,
-            allowEscapeKey: true,
-            buttonsStyling: true,
-            // CRITICAL: Remove the icon completely
-            icon: false,
-            iconHtml: '',
-            showClass: {
-                popup: 'animate__animated animate__fadeInDown animate__faster'
-            },
-            hideClass: {
-                popup: 'animate__animated animate__fadeOutUp animate__faster'
-            }
-        }).then((result) => {
+            cancelButtonText: 'Cancel'
+        });
+        
+        Swal.fire(config).then((result) => {
             if (result.isConfirmed) {
-                // Show loading state without icon
-                Swal.fire({
-                    title: 'Deleting Service...',
-                    text: 'Please wait while we delete the service.',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    showConfirmButton: false,
-                    icon: false, // No icon for loading either
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-                
-                // Submit the delete form
+                // Show consistent loading state
+                showLoadingModal('Deleting Service...', 'Please wait while we delete the service.');
                 this.submitDeleteForm(serviceId);
             }
         }).catch((error) => {
@@ -410,13 +472,7 @@ class ServiceDeleteHandler {
     submitDeleteForm(serviceId) {
         const csrfToken = this.getFreshCSRFToken();
         if (!csrfToken) {
-            Swal.fire({
-                title: 'Error',
-                text: 'CSRF token not found. Please refresh the page and try again.',
-                icon: false,
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#dc3545'
-            });
+            showError('CSRF token not found. Please refresh the page and try again.');
             return;
         }
 
@@ -445,13 +501,7 @@ class ServiceDeleteHandler {
             form.submit();
         } catch (error) {
             console.error('Error submitting form:', error);
-            Swal.fire({
-                title: 'Error',
-                text: 'An error occurred while deleting. Please try again.',
-                icon: false,
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#dc3545'
-            });
+            showError('An error occurred while deleting. Please try again.');
         }
     }
 
@@ -473,7 +523,7 @@ class ServiceDeleteHandler {
 
 /**
  * Session Message Handler
- * Displays success/error messages using SweetAlert toasts
+ * Displays success/error messages using consistent SweetAlert styling
  */
 class SessionMessageHandler {
     constructor() {
@@ -489,13 +539,13 @@ class SessionMessageHandler {
         // Success messages
         const successMessage = this.getSessionMessage('success');
         if (successMessage) {
-            this.showSuccessToast(successMessage);
+            showSuccess(successMessage);
         }
 
         // Error messages
         const errorMessage = this.getSessionMessage('error');
         if (errorMessage) {
-            this.showErrorToast(errorMessage);
+            showError(errorMessage);
         }
     }
 
@@ -503,46 +553,6 @@ class SessionMessageHandler {
         // This will be populated by the Blade template
         const element = document.querySelector(`[data-session-${type}]`);
         return element ? element.getAttribute(`data-session-${type}`) : null;
-    }
-
-    showSuccessToast(message) {
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: message,
-                timer: 5000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-                toast: true,
-                position: 'top-end',
-                showCloseButton: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer);
-                    toast.addEventListener('mouseleave', Swal.resumeTimer);
-                }
-            });
-        }
-    }
-
-    showErrorToast(message) {
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: message,
-                timer: 8000,
-                timerProgressBar: true,
-                showConfirmButton: false,
-                toast: true,
-                position: 'top-end',
-                showCloseButton: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer);
-                    toast.addEventListener('mouseleave', Swal.resumeTimer);
-                }
-            });
-        }
     }
 }
 
@@ -804,6 +814,13 @@ function updateElementText(container, selector, text) {
     }
 }
 
+// Make message functions available globally
+window.showSuccess = showSuccess;
+window.showError = showError;
+window.showInfo = showInfo;
+window.showWarning = showWarning;
+window.showLoadingModal = showLoadingModal;
+
 /**
  * Initialize all components when DOM is ready
  */
@@ -859,5 +876,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    console.log('Admin Jobs JS initialized successfully');
+    console.log('Admin Jobs JS initialized successfully with consistent modal styling');
 });

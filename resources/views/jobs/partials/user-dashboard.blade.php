@@ -97,8 +97,7 @@
                         <button type="button" 
                                 class="btn btn-danger btn-sm job-delete-btn"
                                 data-job-id="{{ $job->id }}"
-                                data-job-title="{{ $job->title }}"
-                                onclick="event.stopPropagation();">
+                                data-job-title="{{ $job->title }}">
                             <i class="fas fa-trash"></i> Delete
                         </button>
                     </div>
