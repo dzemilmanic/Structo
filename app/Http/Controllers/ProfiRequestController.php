@@ -14,90 +14,92 @@ class ProfiRequestController extends Controller
 {
     public function store(Request $request)
     {
-        // Check if user already has a pending request
-        $existingRequest = ProfiRequest::where('user_id', Auth::id())
-            ->where('status', 'pending')
-            ->first();
+        try {
+            // Check if user already has a pending request
+            $existingRequest = ProfiRequest::where('user_id', Auth::id())
+                ->where('status', 'pending')
+                ->first();
 
-        if ($existingRequest) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You already have a pending professional request.'
-                ], 400);
+            if ($existingRequest) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'You already have a pending professional request.'
+                    ], 400);
+                }
+                return redirect()->back()->with('error', 'You already have a pending professional request.');
             }
-            return redirect()->back()->with('error', 'You already have a pending professional request.');
-        }
 
-        // Check if user is already a professional
-        if (Auth::user()->role === 'profi') {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You are already a professional user.'
-                ], 400);
+            // Check if user is already a professional
+            if (Auth::user()->role === 'profi') {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'You are already a professional user.'
+                    ], 400);
+                }
+                return redirect()->back()->with('error', 'You are already a professional user.');
             }
-            return redirect()->back()->with('error', 'You are already a professional user.');
-        }
 
-        $request->validate([
-            'specialization' => 'required|string|max:255',
-            'files' => 'nullable|array|max:5',
-            'files.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png,gif,webp|max:10240', // 10MB max per file
-        ]);
+            // Validate request
+            $validatedData = $request->validate([
+                'specialization' => 'required|string|max:255',
+                'files' => 'nullable|array|max:5',
+                'files.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png,gif,webp|max:10240', // 10MB max per file
+            ]);
 
-        $uploadedFiles = [];
-        
-        // Handle file uploads
-        if ($request->hasFile('files')) {
-            foreach ($request->file('files') as $file) {
-                try {
-                    // Generate unique filename
-                    $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                    
-                    // Store file to S3
-                    $path = Storage::disk('s3')->putFileAs('profi_documents', $file, $filename);
-                    
-                    // Make file public
-                    Storage::disk('s3')->setVisibility($path, 'public');
-                    
-                    $uploadedFiles[] = [
-                        'path' => $path,
-                        'original_name' => $file->getClientOriginalName(),
-                        'size' => $file->getSize(),
-                        'mime_type' => $file->getMimeType()
-                    ];
-                    
-                    Log::info('File uploaded successfully to S3', [
-                        'path' => $path,
-                        'original_name' => $file->getClientOriginalName()
-                    ]);
-                    
-                } catch (\Exception $e) {
-                    Log::error('S3 Upload Error: ' . $e->getMessage(), [
-                        'file' => $file->getClientOriginalName()
-                    ]);
-                    
-                    // Clean up any uploaded files if one fails
-                    foreach ($uploadedFiles as $uploadedFile) {
-                        Storage::disk('s3')->delete($uploadedFile['path']);
+            $uploadedFiles = [];
+            
+            // Handle file uploads
+            if ($request->hasFile('files')) {
+                foreach ($request->file('files') as $file) {
+                    try {
+                        // Generate unique filename
+                        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        
+                        // Store file to S3
+                        $path = Storage::disk('s3')->putFileAs('profi_documents', $file, $filename);
+                        
+                        // Make file public
+                        Storage::disk('s3')->setVisibility($path, 'public');
+                        
+                        $uploadedFiles[] = [
+                            'path' => $path,
+                            'original_name' => $file->getClientOriginalName(),
+                            'size' => $file->getSize(),
+                            'mime_type' => $file->getMimeType()
+                        ];
+                        
+                        Log::info('File uploaded successfully to S3', [
+                            'path' => $path,
+                            'original_name' => $file->getClientOriginalName()
+                        ]);
+                        
+                    } catch (\Exception $e) {
+                        Log::error('S3 Upload Error: ' . $e->getMessage(), [
+                            'file' => $file->getClientOriginalName()
+                        ]);
+                        
+                        // Clean up any uploaded files if one fails
+                        foreach ($uploadedFiles as $uploadedFile) {
+                            Storage::disk('s3')->delete($uploadedFile['path']);
+                        }
+                        
+                        if ($request->ajax()) {
+                            return response()->json([
+                                'success' => false,
+                                'message' => 'Failed to upload files. Please try again.'
+                            ], 500);
+                        }
+                        return redirect()->back()->with('error', 'Failed to upload files. Please try again.');
                     }
-                    
-                    if ($request->ajax()) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'Failed to upload files. Please try again.'
-                        ], 500);
-                    }
-                    return redirect()->back()->with('error', 'Failed to upload files. Please try again.');
                 }
             }
-        }
 
-        try {
+            // Create the professional request
             ProfiRequest::create([
                 'user_id' => Auth::id(),
-                'specialization' => $request->specialization,
+                'specialization' => $validatedData['specialization'],
                 'files' => json_encode($uploadedFiles), // Store file info as JSON
                 'status' => 'pending'
             ]);
@@ -108,18 +110,32 @@ class ProfiRequestController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => $successMessage
-                ]);
+                ], 200);
             }
             
             return redirect()->back()->with('success', $successMessage);
             
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation errors
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed: ' . implode(', ', $e->validator->errors()->all())
+                ], 422);
+            }
+            
+            return redirect()->back()->withErrors($e->validator)->withInput();
+            
         } catch (\Exception $e) {
             // If database save fails, delete uploaded files
-            foreach ($uploadedFiles as $uploadedFile) {
+            foreach ($uploadedFiles ?? [] as $uploadedFile) {
                 Storage::disk('s3')->delete($uploadedFile['path']);
             }
             
-            Log::error('Database Error: ' . $e->getMessage());
+            Log::error('Professional Request Error: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+                'trace' => $e->getTraceAsString()
+            ]);
             
             if ($request->ajax()) {
                 return response()->json([

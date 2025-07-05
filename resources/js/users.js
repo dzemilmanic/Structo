@@ -1009,15 +1009,29 @@ function submitProfessionalRequest(data) {
     // Get route URL
     const routeUrl = '/profi-requests';
 
-    // Submit form
+    // Submit form with improved error handling
     fetch(routeUrl, {
         method: 'POST',
         body: formData,
         headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        // Check if response is ok
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Check content type
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Server returned non-JSON response');
+        }
+        
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             // Show success with JOBS-STYLE consistent styling
@@ -1033,8 +1047,20 @@ function submitProfessionalRequest(data) {
     })
     .catch(error => {
         console.error('Error:', error);
+        
+        let errorMessage = 'Failed to submit your request. Please try again.';
+        
+        // Handle specific error types
+        if (error.message.includes('HTTP error')) {
+            errorMessage = 'Server error occurred. Please check your connection and try again.';
+        } else if (error.message.includes('non-JSON response')) {
+            errorMessage = 'Server configuration error. Please contact support.';
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+        
         // Show error with JOBS-STYLE consistent styling
-        window.showError(error.message || 'Failed to submit your request. Please try again.');
+        window.showError(errorMessage);
     });
 }
 
