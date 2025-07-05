@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @vite(['resources/css/admin-users.css'])
-@vite(['resources/css/admin-users-pagination.css'])
 @vite(['resources/js/allusers-admin.js'])
 @section('title', 'All Users - Admin')
 
