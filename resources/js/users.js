@@ -618,10 +618,10 @@ document.addEventListener('DOMContentLoaded', function() {
     window.createModalConfig = createModalConfig;
 });
 
-// Global variables
+// Global variables - REDUCED FILE SIZE LIMITS
 let selectedFiles = [];
-let maxFiles = 5;
-let maxFileSize = 10 * 1024 * 1024; // 10MB
+let maxFiles = 3; // Reduced from 5 to 3
+let maxFileSize = 2 * 1024 * 1024; // Reduced from 10MB to 2MB
 let allowedTypes = [
     'application/pdf',
     'application/msword',
@@ -760,7 +760,7 @@ function createModalHTML(csrfToken) {
                             <strong>Click to upload</strong> or drag and drop files here
                         </p>
                         <p class="file-upload-subtext">
-                            PDF, Word documents, or images (Max: ${maxFiles} files, 10MB each)
+                            PDF, Word documents, or images (Max: ${maxFiles} files, 2MB each)
                         </p>
                         <input type="file" id="swal-files" name="files[]" multiple 
                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.webp" 
@@ -878,7 +878,7 @@ function processSelectedFiles(files) {
         
         // Check file size
         if (file.size > maxFileSize) {
-            errors.push(`${file.name}: File size exceeds 10MB limit.`);
+            errors.push(`${file.name}: File size exceeds 2MB limit.`);
             return;
         }
         
@@ -1021,7 +1021,16 @@ function submitProfessionalRequest(data) {
     .then(response => {
         // Check if response is ok
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Handle specific HTTP status codes
+            if (response.status === 413) {
+                throw new Error('File size too large. Please reduce file size and try again.');
+            } else if (response.status === 422) {
+                throw new Error('Validation error. Please check your files and try again.');
+            } else if (response.status >= 500) {
+                throw new Error('Server error occurred. Please try again later.');
+            } else {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
         }
         
         // Check content type
@@ -1051,8 +1060,12 @@ function submitProfessionalRequest(data) {
         let errorMessage = 'Failed to submit your request. Please try again.';
         
         // Handle specific error types
-        if (error.message.includes('HTTP error')) {
-            errorMessage = 'Server error occurred. Please check your connection and try again.';
+        if (error.message.includes('File size too large')) {
+            errorMessage = 'One or more files are too large. Please use files smaller than 2MB each.';
+        } else if (error.message.includes('Validation error')) {
+            errorMessage = 'Please check your files and ensure they are valid PDF, Word, or image files.';
+        } else if (error.message.includes('Server error')) {
+            errorMessage = 'Server error occurred. Please try again later or contact support.';
         } else if (error.message.includes('non-JSON response')) {
             errorMessage = 'Server configuration error. Please contact support.';
         } else if (error.message) {

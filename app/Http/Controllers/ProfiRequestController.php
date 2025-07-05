@@ -41,11 +41,11 @@ class ProfiRequestController extends Controller
                 return redirect()->back()->with('error', 'You are already a professional user.');
             }
 
-            // Validate request
+            // Validate request with reduced file size limits
             $validatedData = $request->validate([
                 'specialization' => 'required|string|max:255',
-                'files' => 'nullable|array|max:5',
-                'files.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png,gif,webp|max:10240', // 10MB max per file
+                'files' => 'nullable|array|max:3', // Reduced from 5 to 3
+                'files.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png,gif,webp|max:2048', // Reduced from 10MB to 2MB
             ]);
 
             $uploadedFiles = [];
@@ -54,6 +54,17 @@ class ProfiRequestController extends Controller
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     try {
+                        // Additional file size check (2MB = 2048KB)
+                        if ($file->getSize() > 2 * 1024 * 1024) {
+                            if ($request->ajax()) {
+                                return response()->json([
+                                    'success' => false,
+                                    'message' => 'File ' . $file->getClientOriginalName() . ' is too large. Maximum size is 2MB.'
+                                ], 413);
+                            }
+                            return redirect()->back()->with('error', 'File ' . $file->getClientOriginalName() . ' is too large. Maximum size is 2MB.');
+                        }
+
                         // Generate unique filename
                         $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                         
@@ -72,12 +83,14 @@ class ProfiRequestController extends Controller
                         
                         Log::info('File uploaded successfully to S3', [
                             'path' => $path,
-                            'original_name' => $file->getClientOriginalName()
+                            'original_name' => $file->getClientOriginalName(),
+                            'size' => $file->getSize()
                         ]);
                         
                     } catch (\Exception $e) {
                         Log::error('S3 Upload Error: ' . $e->getMessage(), [
-                            'file' => $file->getClientOriginalName()
+                            'file' => $file->getClientOriginalName(),
+                            'size' => $file->getSize()
                         ]);
                         
                         // Clean up any uploaded files if one fails
@@ -88,10 +101,10 @@ class ProfiRequestController extends Controller
                         if ($request->ajax()) {
                             return response()->json([
                                 'success' => false,
-                                'message' => 'Failed to upload files. Please try again.'
+                                'message' => 'Failed to upload files. Please try again with smaller files.'
                             ], 500);
                         }
-                        return redirect()->back()->with('error', 'Failed to upload files. Please try again.');
+                        return redirect()->back()->with('error', 'Failed to upload files. Please try again with smaller files.');
                     }
                 }
             }
