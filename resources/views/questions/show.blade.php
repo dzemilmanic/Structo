@@ -39,7 +39,7 @@
         
         </div>
         <div class="question-info">
-            <span>Posted by <span class="question-author">{{ $question->user->name }}</span></span>
+            <span>Posted by <a href="{{ route('profile.show', $question->user->id) }}" class="question-author">{{ $question->user->name }}</a></span>
             <span>{{ $question->created_at->format('d.m.Y. H:i') }}</span>
             <span>{{ $question->views }} views</span>
             <span class="question-status status-{{ $question->status }}">{{ $question->status }}</span>       
@@ -70,7 +70,7 @@
                 
                 <div class="answer-header">
                     <div class="answer-author-info">
-                        <span class="answer-author">{{ $answer->user->name }}</span>
+                        <a href="{{ route('profile.show', $answer->user->id) }}" class="answer-author">{{ $answer->user->name }}</a>
                         
                     </div>
                     

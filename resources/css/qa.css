@@ -1304,3 +1304,41 @@ body.modal-open {
     }
 }
 
+
+
+
+
+/* Profile link styles for Q&A pages */
+.author-link,
+.question-author,
+.answer-author {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.author-link:hover,
+.question-author:hover,
+.answer-author:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.question-author {
+    font-weight: 600;
+}
+
+.answer-author {
+    font-weight: 600;
+    font-size: 1.1em;
+}
+
+/* Ensure links are distinguishable from regular text */
+.author-info .author-link {
+    border-bottom: 1px solid transparent;
+}
+
+.author-info .author-link:hover {
+    border-bottom: 1px solid #0056b3;
+}
