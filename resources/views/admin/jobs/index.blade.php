@@ -23,9 +23,7 @@
     <div class="admin-header">
         <h1><i class="fas fa-tools"></i> Jobs & Services Management</h1>
         <div class="admin-nav">
-            <a href="{{ route('jobs.index') }}" class="admin-nav-link">
-                <i class="fas fa-home"></i> Dashboard
-            </a>
+            
         </div>
     </div>
 
