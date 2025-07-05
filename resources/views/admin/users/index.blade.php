@@ -56,7 +56,7 @@
                 <i class="fas fa-users"></i>
             </div>
             <div class="stat-content">
-                <h3>{{ $totalCount }}</h3>
+                <h3>{{ $users->total() }}</h3>
                 <p>Total Users</p>
                 <small>All registered users</small>
             </div>
@@ -130,6 +130,14 @@
                 </div>
             </div>
         </form>
+    </div>
+
+    <!-- Results Header -->
+    <div class="users-results-header">
+        <h2>All Users</h2>
+        <p class="results-count">
+            Showing {{ $users->firstItem() ?? 0 }}-{{ $users->lastItem() ?? 0 }} of {{ $users->total() }} users
+        </p>
     </div>
 
     <!-- Users Grid -->
@@ -249,8 +257,59 @@
 
     <!-- Pagination -->
     @if($users->hasPages())
-        <div class="pagination-wrapper">
-            {{ $users->appends(request()->query())->links() }}
+        <div class="pagination-container">
+            <div class="pagination">
+                {{-- Previous Page Link --}}
+                @if ($users->onFirstPage())
+                    <button class="pagination-btn prev-btn" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15,18 9,12 15,6"></polyline>
+                        </svg>
+                        Previous
+                    </button>
+                @else
+                    <a href="{{ $users->appends(request()->query())->previousPageUrl() }}" class="pagination-btn prev-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15,18 9,12 15,6"></polyline>
+                        </svg>
+                        Previous
+                    </a>
+                @endif
+
+                {{-- Pagination Elements --}}
+                <div class="pagination-numbers">
+                    @php
+                        $start = max($users->currentPage() - 2, 1);
+                        $end = min($start + 4, $users->lastPage());
+                        $start = max($end - 4, 1);
+                    @endphp
+
+                    @for ($i = $start; $i <= $end; $i++)
+                        @if ($i == $users->currentPage())
+                            <span class="page-number active">{{ $i }}</span>
+                        @else
+                            <a href="{{ $users->appends(request()->query())->url($i) }}" class="page-number">{{ $i }}</a>
+                        @endif
+                    @endfor
+                </div>
+
+                {{-- Next Page Link --}}
+                @if ($users->hasMorePages())
+                    <a href="{{ $users->appends(request()->query())->nextPageUrl() }}" class="pagination-btn next-btn">
+                        Next
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9,18 15,12 9,6"></polyline>
+                        </svg>
+                    </a>
+                @else
+                    <button class="pagination-btn next-btn" disabled>
+                        Next
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9,18 15,12 9,6"></polyline>
+                        </svg>
+                    </button>
+                @endif
+            </div>
         </div>
     @endif
 </div>

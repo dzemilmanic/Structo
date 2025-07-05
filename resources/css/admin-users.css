@@ -911,22 +911,30 @@ body {
     }
 }
 
-@media (max-width: 480px) {
-    .pagination-numbers {
-        gap: 6px;
-    }
-    
-    .page-number {
-        width: 32px;
-        height: 32px;
-        font-size: 0.8rem;
-    }
-    
-    .pagination-btn {
-        padding: 8px 12px;
-        font-size: 0.8rem;
-    }
+/* Admin Users Pagination Styles - Same as Requests */
+
+/* Results Header */
+.users-results-header {
+    margin-bottom: 40px;
+    text-align: center;
 }
+
+.users-results-header h2 {
+    color: var(--neutral-dark);
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+.users-results-header .results-count {
+    color: var(--neutral-medium);
+    font-size: 1rem;
+}
+
+/* Update stats card to show total count */
+.stats-grid .stat-card .stat-content small {
+    font-size: 0.85rem;
+}
+
 /* Pagination */
 .pagination-container {
     display: flex;
@@ -1033,4 +1041,28 @@ body {
         font-size: 0.85rem;
     }
     
+    .users-results-header h2 {
+        font-size: 1.8rem;
+    }
+    
+    .users-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .pagination-numbers {
+        gap: 6px;
+    }
+    
+    .page-number {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+    
+    .pagination-btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
 }
