@@ -739,7 +739,7 @@ function createModalHTML(csrfToken) {
                     Specialization *
                 </label>
                 <input type="text" name="specialization" id="swal-specialization" class="form-input" 
-                       placeholder="e.g., Full Stack Developer, UI/UX Designer, Data Scientist" required>
+                       placeholder="e.g., Civil engineer, Architect" required>
                 <small class="form-text">Describe your professional expertise and main area of specialization</small>
             </div>
 

@@ -94,7 +94,6 @@
                     <option value="newest" {{ ($sort ?? '') == 'newest' ? 'selected' : '' }}>Newest</option>
                     <option value="oldest" {{ ($sort ?? '') == 'oldest' ? 'selected' : '' }}>Oldest</option>
                     <option value="most_answers" {{ ($sort ?? '') == 'most_answers' ? 'selected' : '' }}>Most Answers</option>
-                    <option value="views" {{ ($sort ?? '') == 'views' ? 'selected' : '' }}>Most Viewed</option>
                 </select>
             </div>
         </div>
@@ -138,13 +137,7 @@
                             </div>
                             
                             <div class="question-stats">
-                                <div class="question-stat">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                        <circle cx="12" cy="12" r="3"></circle>
-                                    </svg>
-                                    <span>{{ $question->views }}</span>
-                                </div>
+                                
                                 <div class="question-stat">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
