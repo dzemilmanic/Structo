@@ -1,7 +1,3 @@
-/**
- * News Page JavaScript
- * Handles news fetching, filtering, pagination, and interactions
- */
 
 class NewsPage {
     constructor() {

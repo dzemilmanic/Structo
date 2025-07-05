@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@vite(['resources/css/admin_requests.css', 'resources/css/admin-requests-pagination.css'])
+@vite(['resources/css/admin_requests.css'])
 @vite(['resources/css/sweetalert-global.css'])
 @vite(['resources/js/admin-requests.js'])
 @section('title', 'Professional Requests - Admin')

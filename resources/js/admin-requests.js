@@ -1,12 +1,3 @@
-/**
- * Admin Professional Requests JavaScript
- * Handles approve/reject confirmations with clean dialogs without icons
- */
-
-/**
- * Request Approve Confirmation Handler - Clean Dialog Without Icons
- * Shows a clean, professional confirmation dialog for request approval
- */
 class RequestApproveHandler {
     constructor() {
         this.init();

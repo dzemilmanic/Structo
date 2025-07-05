@@ -1,12 +1,4 @@
-/**
- * Q&A JavaScript - Clean Delete Confirmations
- * Handles delete confirmations for questions and answers using clean SweetAlert without icons
- */
 
-/**
- * Question Delete Confirmation Handler - Clean Dialog Without Icons
- * Shows a clean, professional confirmation dialog for question deletion
- */
 class QuestionDeleteHandler {
     constructor() {
         this.init();

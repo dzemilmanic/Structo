@@ -1,7 +1,3 @@
-/**
- * Complete Jobs Management JavaScript
- * Handles modals, delete confirmations, session messages, and all job/service functionality
- */
 
 // Global variables
 let activeModal = null;

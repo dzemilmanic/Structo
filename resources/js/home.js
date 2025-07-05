@@ -1,7 +1,4 @@
-/*
-Services Carousel
-Handles service categories sliding and navigation
-*/
+
 class ServicesCarousel {
     constructor() {
         this.slider = document.getElementById('servicesGrid');

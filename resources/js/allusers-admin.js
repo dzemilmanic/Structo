@@ -1,12 +1,4 @@
-/**
- * Admin Users Management JavaScript
- * Handles delete confirmations and demote confirmations for user management
- */
 
-/**
- * FIXED: User Delete Confirmation Handler - Clean Dialog Without Icons
- * Shows a clean, professional confirmation dialog for user deletion
- */
 class UserDeleteHandler {
     constructor() {
         this.init();

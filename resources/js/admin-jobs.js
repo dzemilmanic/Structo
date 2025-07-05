@@ -1,15 +1,5 @@
-/**
- * Admin Jobs Management JavaScript
- * Handles delete confirmations and modal management for jobs, services, and categories
- */
-
-// ===== CONSISTENT MODAL STYLING =====
-
-/**
- * Unified modal styling configuration
- */
 const modalStyles = {
-    // Clean, consistent styling without icons
+    
     clean: {
         icon: false,
         iconHtml: '',
@@ -55,9 +45,6 @@ const modalStyles = {
     }
 };
 
-/**
- * Create consistent modal configuration
- */
 function createModalConfig(type, options = {}) {
     const baseConfig = { ...modalStyles.clean };
     const typeConfig = modalStyles[type] || {};
@@ -69,11 +56,8 @@ function createModalConfig(type, options = {}) {
     };
 }
 
-// ===== CONSISTENT MESSAGE DISPLAY FUNCTIONS =====
 
-/**
- * Show loading modal with consistent styling
- */
+
 function showLoadingModal(title, text) {
     if (typeof Swal === 'undefined') {
         return;
@@ -90,9 +74,7 @@ function showLoadingModal(title, text) {
     Swal.fire(config);
 }
 
-/**
- * Show success message with consistent styling
- */
+
 function showSuccess(message) {
     console.log('📢 Showing success message:', message);
     
@@ -109,9 +91,7 @@ function showSuccess(message) {
     Swal.fire(config);
 }
 
-/**
- * Show error message with consistent styling
- */
+
 function showError(message) {
     console.log('⚠️ Showing error message:', message);
     
@@ -128,9 +108,7 @@ function showError(message) {
     Swal.fire(config);
 }
 
-/**
- * Show info message with consistent styling
- */
+
 function showInfo(message, title = 'Information') {
     console.log('ℹ️ Showing info message:', message);
     
@@ -149,9 +127,7 @@ function showInfo(message, title = 'Information') {
     Swal.fire(config);
 }
 
-/**
- * Show warning message with consistent styling
- */
+
 function showWarning(message, title = 'Warning') {
     console.log('⚠️ Showing warning message:', message);
     
@@ -170,10 +146,7 @@ function showWarning(message, title = 'Warning') {
     Swal.fire(config);
 }
 
-/**
- * Category Delete Confirmation Handler - Clean Dialog Without Icons
- * Shows a clean, professional confirmation dialog for category deletion
- */
+
 class CategoryDeleteHandler {
     constructor() {
         this.init();
@@ -212,7 +185,7 @@ class CategoryDeleteHandler {
     }
 
     showSweetAlertDeleteConfirmation(categoryId, categoryName) {
-        // Use consistent modal styling
+        
         const config = createModalConfig('confirmation', {
             title: 'Delete Category?',
             text: `Are you sure you want to delete "${categoryName}"? This action cannot be undone and will permanently remove the category.`,
@@ -222,13 +195,13 @@ class CategoryDeleteHandler {
         
         Swal.fire(config).then((result) => {
             if (result.isConfirmed) {
-                // Show consistent loading state
+                
                 showLoadingModal('Deleting Category...', 'Please wait while we delete the category.');
                 this.submitDeleteForm(categoryId);
             }
         }).catch((error) => {
             console.error('SweetAlert error:', error);
-            // Fallback to native confirm if SweetAlert fails
+            
             if (confirm(`Are you sure you want to delete "${categoryName}"? This action cannot be undone and will permanently remove the category.`)) {
                 this.submitDeleteForm(categoryId);
             }
@@ -247,14 +220,14 @@ class CategoryDeleteHandler {
         form.action = `/admin/categories/${categoryId}`;
         form.style.display = 'none';
 
-        // Add CSRF token
+        
         const csrfInput = document.createElement('input');
         csrfInput.type = 'hidden';
         csrfInput.name = '_token';
         csrfInput.value = csrfToken;
         form.appendChild(csrfInput);
 
-        // Add method spoofing for DELETE
+        
         const methodInput = document.createElement('input');
         methodInput.type = 'hidden';
         methodInput.name = '_method';
@@ -287,10 +260,7 @@ class CategoryDeleteHandler {
     }
 }
 
-/**
- * Job Delete Confirmation Handler - Clean Dialog Without Icons
- * Shows a clean, professional confirmation dialog for job deletion
- */
+
 class JobDeleteHandler {
     constructor() {
         this.init();
@@ -317,11 +287,10 @@ class JobDeleteHandler {
     }
 
     showDeleteConfirmation(jobId, jobTitle) {
-        // Check if SweetAlert is available
         if (typeof Swal !== 'undefined') {
             this.showSweetAlertDeleteConfirmation(jobId, jobTitle);
         } else {
-            // Fallback to native confirm
+            
             if (confirm(`Are you sure you want to delete "${jobTitle}"? This action cannot be undone and will permanently remove the job and all its requests.`)) {
                 this.submitDeleteForm(jobId);
             }
@@ -329,7 +298,7 @@ class JobDeleteHandler {
     }
 
     showSweetAlertDeleteConfirmation(jobId, jobTitle) {
-        // Use consistent modal styling
+        
         const config = createModalConfig('confirmation', {
             title: 'Delete Job?',
             text: `Are you sure you want to delete "${jobTitle}"? This action cannot be undone and will permanently remove the job and all its requests.`,
@@ -339,13 +308,13 @@ class JobDeleteHandler {
         
         Swal.fire(config).then((result) => {
             if (result.isConfirmed) {
-                // Show consistent loading state
+                
                 showLoadingModal('Deleting Job...', 'Please wait while we delete the job.');
                 this.submitDeleteForm(jobId);
             }
         }).catch((error) => {
             console.error('SweetAlert error:', error);
-            // Fallback to native confirm if SweetAlert fails
+            
             if (confirm(`Are you sure you want to delete "${jobTitle}"? This action cannot be undone and will permanently remove the job and all its requests.`)) {
                 this.submitDeleteForm(jobId);
             }
@@ -364,14 +333,14 @@ class JobDeleteHandler {
         form.action = `/admin/jobs/${jobId}`;
         form.style.display = 'none';
 
-        // Add CSRF token
+       
         const csrfInput = document.createElement('input');
         csrfInput.type = 'hidden';
         csrfInput.name = '_token';
         csrfInput.value = csrfToken;
         form.appendChild(csrfInput);
 
-        // Add method spoofing for DELETE
+       
         const methodInput = document.createElement('input');
         methodInput.type = 'hidden';
         methodInput.name = '_method';
@@ -404,10 +373,7 @@ class JobDeleteHandler {
     }
 }
 
-/**
- * Service Delete Confirmation Handler - Clean Dialog Without Icons
- * Shows a clean, professional confirmation dialog for service deletion
- */
+
 class ServiceDeleteHandler {
     constructor() {
         this.init();
@@ -434,11 +400,9 @@ class ServiceDeleteHandler {
     }
 
     showDeleteConfirmation(serviceId, serviceTitle) {
-        // Check if SweetAlert is available
         if (typeof Swal !== 'undefined') {
             this.showSweetAlertDeleteConfirmation(serviceId, serviceTitle);
         } else {
-            // Fallback to native confirm
             if (confirm(`Are you sure you want to delete "${serviceTitle}"? This action cannot be undone and will permanently remove the service and all its requests.`)) {
                 this.submitDeleteForm(serviceId);
             }
@@ -446,7 +410,7 @@ class ServiceDeleteHandler {
     }
 
     showSweetAlertDeleteConfirmation(serviceId, serviceTitle) {
-        // Use consistent modal styling
+        
         const config = createModalConfig('confirmation', {
             title: 'Delete Service?',
             text: `Are you sure you want to delete "${serviceTitle}"? This action cannot be undone and will permanently remove the service and all its requests.`,
@@ -481,14 +445,12 @@ class ServiceDeleteHandler {
         form.action = `/admin/services/${serviceId}`;
         form.style.display = 'none';
 
-        // Add CSRF token
         const csrfInput = document.createElement('input');
         csrfInput.type = 'hidden';
         csrfInput.name = '_token';
         csrfInput.value = csrfToken;
         form.appendChild(csrfInput);
 
-        // Add method spoofing for DELETE
         const methodInput = document.createElement('input');
         methodInput.type = 'hidden';
         methodInput.name = '_method';
@@ -521,10 +483,7 @@ class ServiceDeleteHandler {
     }
 }
 
-/**
- * Session Message Handler
- * Displays success/error messages using consistent SweetAlert styling
- */
+
 class SessionMessageHandler {
     constructor() {
         this.init();

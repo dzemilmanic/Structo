@@ -5,7 +5,7 @@
 @section('content')
 <x-guest-layout>
 
-    @vite(['resources/js/app.js', 'resources/css/login.css', 'resources/js/login.js'])
+    @vite(['resources/js/app.js', 'resources/css/app.css','resources/css/login.css', 'resources/js/login.js'])
 
     <!-- Session Status -->
     <x-auth-session-status class="session-status" :status="session('status')" />
@@ -60,7 +60,7 @@
                         </a>
                     @endif
 
-                    <button type="submit" class="btn btn-outline btn-sm">
+                    <button type="submit" class="btn btn-primary btn-sm">
                         {{ __('Log in') }}
                     </button>
                 </div>
