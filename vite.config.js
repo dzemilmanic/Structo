@@ -9,6 +9,7 @@ export default defineConfig({
                 'resources/css/home.css',
                 'resources/css/login.css',
                 'resources/css/profile.css',
+                'resources/css/sweetalert-global.css',
                 'resources/css/auth.css',
                 'resources/js/home.js',
                 'resources/js/app.js',
