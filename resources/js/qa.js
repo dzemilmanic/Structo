@@ -1,4 +1,3 @@
-
 class QuestionDeleteHandler {
     constructor() {
         this.init();
@@ -617,20 +616,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Add character count for textareas
-    const textareas = document.querySelectorAll('textarea');
-    if (textareas.length > 0) {
-        textareas.forEach(textarea => {
-            const counter = document.createElement('div');
-            counter.className = 'form-text text-right';
-            counter.textContent = `${textarea.value.length} characters`;
-            textarea.parentNode.appendChild(counter);
+    // // Add character count for textareas
+    // const textareas = document.querySelectorAll('textarea');
+    // if (textareas.length > 0) {
+    //     textareas.forEach(textarea => {
+    //         const counter = document.createElement('div');
+    //         counter.className = 'form-text text-right';
+    //         counter.textContent = `${textarea.value.length} characters`;
+    //         textarea.parentNode.appendChild(counter);
 
-            textarea.addEventListener('input', function() {
-                counter.textContent = `${this.value.length} characters`;
-            });
-        });
-    }
+    //         textarea.addEventListener('input', function() {
+    //             counter.textContent = `${this.value.length} characters`;
+    //         });
+    //     });
+    // }
 
     // Auto-hide alerts after 5 seconds
     const alerts = document.querySelectorAll('.alert');

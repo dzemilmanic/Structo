@@ -41,7 +41,7 @@
         <div class="question-info">
             <span>Posted by <a href="/users/{{ $question->user->id }}" class="question-author">{{ $question->user->name }}</a></span>
             <span>{{ $question->created_at->format('d.m.Y. H:i') }}</span>
-            <span>{{ $question->views }} views</span>
+            
             <span class="question-status status-{{ $question->status }}">{{ $question->status }}</span>       
         </div>
                 @auth
