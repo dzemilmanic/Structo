@@ -1,0 +1,178 @@
+{
+  "_index-xsH4HHeE.js": {
+    "file": "assets/index-xsH4HHeE.js",
+    "name": "index"
+  },
+  "resources/css/admin-jobs.css": {
+    "file": "assets/admin-jobs-B9MudBkb.css",
+    "src": "resources/css/admin-jobs.css",
+    "isEntry": true
+  },
+  "resources/css/admin-users.css": {
+    "file": "assets/admin-users-DmmqYVu-.css",
+    "src": "resources/css/admin-users.css",
+    "isEntry": true
+  },
+  "resources/css/admin_requests.css": {
+    "file": "assets/admin_requests-HGfJppHo.css",
+    "src": "resources/css/admin_requests.css",
+    "isEntry": true
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-C4JzuGck.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/css/auth.css": {
+    "file": "assets/auth-BYdN1KAo.css",
+    "src": "resources/css/auth.css",
+    "isEntry": true
+  },
+  "resources/css/dashboard.css": {
+    "file": "assets/dashboard-Bj2o36sf.css",
+    "src": "resources/css/dashboard.css",
+    "isEntry": true
+  },
+  "resources/css/home.css": {
+    "file": "assets/home-CrdDwZxI.css",
+    "src": "resources/css/home.css",
+    "isEntry": true
+  },
+  "resources/css/jobs.css": {
+    "file": "assets/jobs-BwNI66wG.css",
+    "src": "resources/css/jobs.css",
+    "isEntry": true
+  },
+  "resources/css/login.css": {
+    "file": "assets/login-DhkahhRF.css",
+    "src": "resources/css/login.css",
+    "isEntry": true
+  },
+  "resources/css/modal-details.css": {
+    "file": "assets/modal-details-BBb7R50r.css",
+    "src": "resources/css/modal-details.css",
+    "isEntry": true
+  },
+  "resources/css/news.css": {
+    "file": "assets/news-BTB8Ye6w.css",
+    "src": "resources/css/news.css",
+    "isEntry": true
+  },
+  "resources/css/policy.css": {
+    "file": "assets/policy-DBd57yJw.css",
+    "src": "resources/css/policy.css",
+    "isEntry": true
+  },
+  "resources/css/profile.css": {
+    "file": "assets/profile-WuuhbfuJ.css",
+    "src": "resources/css/profile.css",
+    "isEntry": true
+  },
+  "resources/css/qa.css": {
+    "file": "assets/qa-DaGzONVW.css",
+    "src": "resources/css/qa.css",
+    "isEntry": true
+  },
+  "resources/css/style.css": {
+    "file": "assets/style-l0sNRNKZ.js",
+    "name": "style",
+    "src": "resources/css/style.css",
+    "isEntry": true
+  },
+  "resources/css/sweetalert-global.css": {
+    "file": "assets/sweetalert-global-Bt9i37Ih.css",
+    "src": "resources/css/sweetalert-global.css",
+    "isEntry": true
+  },
+  "resources/css/user_profile.css": {
+    "file": "assets/user_profile-BjnUk3GC.css",
+    "src": "resources/css/user_profile.css",
+    "isEntry": true
+  },
+  "resources/css/users.css": {
+    "file": "assets/users-nJTXcOVF.css",
+    "src": "resources/css/users.css",
+    "isEntry": true
+  },
+  "resources/js/admin-jobs.js": {
+    "file": "assets/admin-jobs-CuQOFKAY.js",
+    "name": "admin-jobs",
+    "src": "resources/js/admin-jobs.js",
+    "isEntry": true
+  },
+  "resources/js/admin-requests.js": {
+    "file": "assets/admin-requests-B-XhRXU5.js",
+    "name": "admin-requests",
+    "src": "resources/js/admin-requests.js",
+    "isEntry": true
+  },
+  "resources/js/allusers-admin.js": {
+    "file": "assets/allusers-admin-Dh40f1_c.js",
+    "name": "allusers-admin",
+    "src": "resources/js/allusers-admin.js",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-0f9g5OVJ.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "imports": [
+      "_index-xsH4HHeE.js"
+    ],
+    "css": [
+      "assets/app-B_-8zgmp.css"
+    ]
+  },
+  "resources/js/bootstrap.js": {
+    "file": "assets/bootstrap-BM9oQkvv.js",
+    "name": "bootstrap",
+    "src": "resources/js/bootstrap.js",
+    "isEntry": true,
+    "imports": [
+      "_index-xsH4HHeE.js"
+    ]
+  },
+  "resources/js/home.js": {
+    "file": "assets/home-CDN6OVoW.js",
+    "name": "home",
+    "src": "resources/js/home.js",
+    "isEntry": true
+  },
+  "resources/js/jobs.js": {
+    "file": "assets/jobs-TaNHVU6U.js",
+    "name": "jobs",
+    "src": "resources/js/jobs.js",
+    "isEntry": true
+  },
+  "resources/js/login.js": {
+    "file": "assets/login-BaAhyarr.js",
+    "name": "login",
+    "src": "resources/js/login.js",
+    "isEntry": true
+  },
+  "resources/js/news.js": {
+    "file": "assets/news-Bn8O9KmD.js",
+    "name": "news",
+    "src": "resources/js/news.js",
+    "isEntry": true
+  },
+  "resources/js/profile.js": {
+    "file": "assets/profile-C5w19exD.js",
+    "name": "profile",
+    "src": "resources/js/profile.js",
+    "isEntry": true
+  },
+  "resources/js/qa.js": {
+    "file": "assets/qa-DlG2d6KZ.js",
+    "name": "qa",
+    "src": "resources/js/qa.js",
+    "isEntry": true
+  },
+  "resources/js/users.js": {
+    "file": "assets/users-CDKvJNUT.js",
+    "name": "users",
+    "src": "resources/js/users.js",
+    "isEntry": true
+  }
+}
