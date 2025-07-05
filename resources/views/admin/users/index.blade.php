@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @vite(['resources/css/admin-users.css'])
+@vite(['resources/css/admin-users-pagination.css'])
 @vite(['resources/js/allusers-admin.js'])
 @section('title', 'All Users - Admin')
 
@@ -134,9 +135,9 @@
 
     <!-- Results Header -->
     <div class="users-results-header">
-        <h2>All Users</h2>
+        <h2 class="section-title">All Users</h2>
         <p class="results-count">
-            Showing {{ $users->firstItem() ?? 0 }}-{{ $users->lastItem() ?? 0 }} of {{ $users->total() }} users
+            Showing {{ $users->firstItem() ?? 0 }}-{{ $users->lastItem() ?? 0 }} of {{ $users->total() }} {{ Str::plural('user', $users->total()) }}
         </p>
     </div>
 
@@ -255,9 +256,9 @@
         @endforelse
     </div>
 
-    <!-- Pagination -->
+    <!-- Q&A Style Pagination -->
     @if($users->hasPages())
-        <div class="pagination-container">
+        <div class="qa-pagination-container">
             <div class="pagination">
                 {{-- Previous Page Link --}}
                 @if ($users->onFirstPage())

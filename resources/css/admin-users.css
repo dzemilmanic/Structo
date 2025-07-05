@@ -935,14 +935,7 @@ body {
     font-size: 0.85rem;
 }
 
-/* Pagination */
-.pagination-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 60px;
-    margin-bottom: 40px;
-}
-
+/* Pagination Base Styles */
 .pagination {
     display: flex;
     align-items: center;
@@ -954,6 +947,7 @@ body {
     border: 1px solid rgba(255, 107, 53, 0.1);
 }
 
+/* Pagination Buttons */
 .pagination-btn {
     display: flex;
     align-items: center;
@@ -984,11 +978,21 @@ body {
     transform: none;
 }
 
+/* Previous and Next Button Styles */
+.prev-btn,
+.next-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Pagination Numbers Container */
 .pagination-numbers {
     display: flex;
     gap: 8px;
 }
 
+/* Page Number Styles */
 .page-number {
     width: 40px;
     height: 40px;
@@ -1018,6 +1022,31 @@ body {
     color: var(--white);
 }
 
+/* Results Header */
+.users-results-header {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.users-results-header .section-title {
+    color: var(--neutral-dark);
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+.users-results-header .results-count {
+    color: var(--neutral-medium);
+    font-size: 1rem;
+}
+
+/* Q&A Pagination */
+.qa-pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 60px;
+    margin-bottom: 40px;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .pagination {
@@ -1041,7 +1070,7 @@ body {
         font-size: 0.85rem;
     }
     
-    .users-results-header h2 {
+    .users-results-header .section-title {
         font-size: 1.8rem;
     }
     
