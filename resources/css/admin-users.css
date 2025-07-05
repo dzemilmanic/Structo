@@ -603,177 +603,103 @@ body {
     margin: 0;
 }
 
-/* Pagination */
-.pagination-wrapper {
+/* PAGINATION STYLES - SAME AS Q&A */
+
+/* Q&A Style Pagination Container */
+.qa-pagination-container {
     display: flex;
     justify-content: center;
-    margin-top: 2rem;
+    margin-top: 60px;
+    margin-bottom: 40px;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .users-grid {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1rem;
-    }
-    
-    .admin-users-container {
-        padding: 1.5rem 1rem;
-    }
+/* Pagination Base Styles */
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: var(--white);
+    padding: 20px 30px;
+    border-radius: 50px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(79, 70, 229, 0.1);
 }
 
-@media (max-width: 768px) {
-    .users-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .admin-users-container {
-        padding: 1rem;
-    }
-    
-    .admin-title {
-        font-size: 2rem;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .title-icon {
-        width: 2.5rem;
-        height: 2.5rem;
-    }
-    
-    .stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-    
-    .stat-card {
-        padding: 1.5rem;
-        flex-direction: column;
-        text-align: center;
-        gap: 1rem;
-    }
-    
-    .search-row {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .search-group,
-    .filter-group {
-        min-width: auto;
-    }
-    
-    .search-actions {
-        justify-content: center;
-    }
-    
-    .user-header {
-        flex-direction: column;
-        text-align: center;
-        gap: 1rem;
-    }
-    
-    .user-actions {
-        justify-content: center;
-    }
+/* Pagination Buttons */
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: var(--white);
+    border: none;
+    padding: 12px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-family: inherit;
 }
 
-@media (max-width: 480px) {
-    .admin-users-container {
-        padding: 0.5rem;
-    }
-    
-    .user-card {
-        padding: 1rem;
-    }
-    
-    .user-avatar {
-        width: 50px;
-        height: 50px;
-    }
-    
-    .role-badge {
-        width: 20px;
-        height: 20px;
-        font-size: 0.625rem;
-    }
-    
-    .user-actions {
-        flex-direction: column;
-    }
+.pagination-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+    transform: translateY(-2px);
+    color: var(--white);
+    text-decoration: none;
 }
 
-/* Animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.pagination-btn:disabled {
+    background: var(--neutral-light);
+    color: var(--neutral-medium);
+    cursor: not-allowed;
+    transform: none;
 }
 
-.user-card {
-    animation: fadeIn 0.5s ease-out forwards;
+/* Previous and Next Button Styles */
+.prev-btn,
+.next-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.user-card:nth-child(n) {
-    animation-delay: calc(0.05s * var(--index, 0));
+/* Pagination Numbers Container */
+.pagination-numbers {
+    display: flex;
+    gap: 8px;
 }
 
-/* Focus States for Accessibility */
-.btn:focus,
-.search-input:focus,
-.filter-select:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
+/* Page Number Styles */
+.page-number {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--neutral-light);
+    background-color: var(--white);
+    color: var(--neutral-dark);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    text-decoration: none;
+    font-size: 0.9rem;
 }
 
-/* High Contrast Mode Support */
-@media (prefers-contrast: high) {
-    .user-card {
-        border: 2px solid var(--neutral-dark);
-    }
+.page-number:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    text-decoration: none;
 }
 
-/* Reduced Motion Support */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-    }
-    
-    .user-card:hover,
-    .stat-card:hover,
-    .btn:hover {
-        transform: none;
-    }
+.page-number.active {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-color: var(--primary-color);
+    color: var(--white);
 }
-
-/* Print Styles */
-@media print {
-    .admin-users-container {
-        padding: 0;
-    }
-    
-    .user-actions,
-    .search-filters-section {
-        display: none;
-    }
-    
-    .user-card {
-        break-inside: avoid;
-        box-shadow: none;
-        border: 1px solid var(--neutral-dark);
-    }
-}
-
 
 /* All Users Management Header */
 .all-users-header {
@@ -848,10 +774,10 @@ body {
 }
 
 .users-nav-link:hover {
-    background: rgba(255, 107, 53, 0.8);
+    background: rgba(79, 70, 229, 0.8);
     border-color: var(--primary-color);
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
     color: var(--white);
     text-decoration: none;
 }
@@ -860,8 +786,98 @@ body {
     font-size: 1rem;
 }
 
-/* Mobile Responsive */
+/* Results Header */
+.users-results-header {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.users-results-header h2 {
+    color: var(--neutral-dark);
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+.users-results-header .results-count {
+    color: var(--neutral-medium);
+    font-size: 1rem;
+}
+
+/* Update stats card to show total count */
+.stats-grid .stat-card .stat-content small {
+    font-size: 0.85rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .users-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+    }
+    
+    .admin-users-container {
+        padding: 1.5rem 1rem;
+    }
+}
+
 @media (max-width: 768px) {
+    .users-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .admin-users-container {
+        padding: 1rem;
+    }
+    
+    .admin-title {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .title-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .stat-card {
+        padding: 1.5rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .search-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-group,
+    .filter-group {
+        min-width: auto;
+    }
+    
+    .search-actions {
+        justify-content: center;
+    }
+    
+    .user-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .user-actions {
+        justify-content: center;
+    }
+    
+    /* All Users Header Mobile */
     .all-users-header {
         padding: 20px 0;
         margin-bottom: 30px;
@@ -893,9 +909,55 @@ body {
         justify-content: center;
         width: 100%;
     }
+    
+    /* Pagination Mobile Responsive */
+    .pagination {
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+    }
+    
+    .pagination-numbers {
+        order: -1;
+    }
+    
+    .pagination-btn {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+    
+    .page-number {
+        width: 36px;
+        height: 36px;
+        font-size: 0.85rem;
+    }
 }
 
 @media (max-width: 480px) {
+    .admin-users-container {
+        padding: 0.5rem;
+    }
+    
+    .user-card {
+        padding: 1rem;
+    }
+    
+    .user-avatar {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .role-badge {
+        width: 20px;
+        height: 20px;
+        font-size: 0.625rem;
+    }
+    
+    .user-actions {
+        flex-direction: column;
+    }
+    
+    /* All Users Header Mobile Small */
     .all-users-title {
         font-size: 1.5rem;
         gap: 10px;
@@ -909,205 +971,94 @@ body {
         padding: 10px 16px;
         font-size: 0.9rem;
     }
-}
-
-/* Admin Users Pagination Styles - Same as Requests */
-
-/* Results Header */
-.users-results-header {
-    margin-bottom: 40px;
-    text-align: center;
-}
-
-.users-results-header h2 {
-    color: var(--neutral-dark);
-    font-size: 2.2rem;
-    margin-bottom: 10px;
-}
-
-.users-results-header .results-count {
-    color: var(--neutral-medium);
-    font-size: 1rem;
-}
-
-/* Update stats card to show total count */
-.stats-grid .stat-card .stat-content small {
-    font-size: 0.85rem;
-}
-
-/* Admin Users Pagination - Q&A Style Override */
-
-/* Force Q&A pagination styles with higher specificity */
-.admin-users-container .qa-pagination-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 60px;
-    margin-bottom: 40px;
-}
-
-.admin-users-container .qa-pagination-container .pagination {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    background-color: var(--white);
-    padding: 20px 30px;
-    border-radius: 50px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(255, 107, 53, 0.1);
-    list-style: none;
-    margin: 0;
-}
-
-/* Override any existing pagination styles */
-.admin-users-container .qa-pagination-container .pagination li {
-    display: contents;
-}
-
-.admin-users-container .qa-pagination-container .pagination .pagination-btn {
-    display: flex !important;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
-    color: var(--white) !important;
-    border: none !important;
-    padding: 12px 20px !important;
-    border-radius: 25px !important;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    text-decoration: none !important;
-    font-size: 0.9rem;
-    box-shadow: none !important;
-}
-
-.admin-users-container .qa-pagination-container .pagination .pagination-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, var(--primary-dark), var(--secondary-color)) !important;
-    transform: translateY(-2px);
-    color: var(--white) !important;
-    text-decoration: none !important;
-}
-
-.admin-users-container .qa-pagination-container .pagination .pagination-btn:disabled {
-    background: var(--neutral-light) !important;
-    color: var(--neutral-medium) !important;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.admin-users-container .qa-pagination-container .pagination .pagination-numbers {
-    display: flex;
-    gap: 8px;
-}
-
-.admin-users-container .qa-pagination-container .pagination .page-number {
-    width: 40px !important;
-    height: 40px !important;
-    border: 2px solid var(--neutral-light) !important;
-    background-color: var(--white) !important;
-    color: var(--neutral-dark) !important;
-    border-radius: 50% !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-weight: 600;
-    transition: var(--transition);
-    text-decoration: none !important;
-    font-size: 0.9rem;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-.admin-users-container .qa-pagination-container .pagination .page-number:hover {
-    border-color: var(--primary-color) !important;
-    color: var(--primary-color) !important;
-    text-decoration: none !important;
-    background-color: var(--white) !important;
-}
-
-.admin-users-container .qa-pagination-container .pagination .page-number.active {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
-    border-color: var(--primary-color) !important;
-    color: var(--white) !important;
-}
-
-/* Results Header Styles */
-.admin-users-container .users-results-header {
-    margin-bottom: 40px;
-    text-align: center;
-}
-
-.admin-users-container .users-results-header .section-title {
-    color: var(--neutral-dark);
-    font-size: 2.2rem;
-    margin-bottom: 10px;
-    font-weight: 700;
-}
-
-.admin-users-container .users-results-header .results-count {
-    color: var(--neutral-medium);
-    font-size: 1rem;
-}
-
-/* Mobile Responsive */
-@media (max-width: 768px) {
-    .admin-users-container .qa-pagination-container .pagination {
-        flex-direction: column;
-        gap: 20px;
-        padding: 20px;
-    }
     
-    .admin-users-container .qa-pagination-container .pagination .pagination-numbers {
-        order: -1;
-    }
-    
-    .admin-users-container .qa-pagination-container .pagination .pagination-btn {
-        padding: 10px 16px !important;
-        font-size: 0.85rem;
-    }
-    
-    .admin-users-container .qa-pagination-container .pagination .page-number {
-        width: 36px !important;
-        height: 36px !important;
-        font-size: 0.85rem;
-    }
-    
-    .admin-users-container .users-results-header .section-title {
-        font-size: 1.8rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .admin-users-container .qa-pagination-container .pagination .pagination-numbers {
+    /* Pagination Small Mobile */
+    .pagination-numbers {
         gap: 6px;
     }
     
-    .admin-users-container .qa-pagination-container .pagination .page-number {
-        width: 32px !important;
-        height: 32px !important;
+    .page-number {
+        width: 32px;
+        height: 32px;
         font-size: 0.8rem;
     }
     
-    .admin-users-container .qa-pagination-container .pagination .pagination-btn {
-        padding: 8px 12px !important;
+    .pagination-btn {
+        padding: 8px 12px;
         font-size: 0.8rem;
     }
 }
 
-/* Hide any default Laravel pagination styles */
-.admin-users-container .qa-pagination-container .pagination .page-link {
-    display: none !important;
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.admin-users-container .qa-pagination-container .pagination .page-item {
-    display: contents !important;
+.user-card {
+    animation: fadeIn 0.5s ease-out forwards;
 }
 
-/* Ensure SVG icons are visible */
-.admin-users-container .qa-pagination-container .pagination svg {
-    width: 16px;
-    height: 16px;
-    stroke: currentColor;
-    fill: none;
+.user-card:nth-child(n) {
+    animation-delay: calc(0.05s * var(--index, 0));
+}
+
+/* Focus States for Accessibility */
+.btn:focus,
+.search-input:focus,
+.filter-select:focus,
+.pagination-btn:focus,
+.page-number:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .user-card {
+        border: 2px solid var(--neutral-dark);
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .user-card:hover,
+    .stat-card:hover,
+    .btn:hover,
+    .pagination-btn:hover,
+    .page-number:hover {
+        transform: none;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .admin-users-container {
+        padding: 0;
+    }
+    
+    .user-actions,
+    .search-filters-section,
+    .qa-pagination-container {
+        display: none;
+    }
+    
+    .user-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid var(--neutral-dark);
+    }
 }
