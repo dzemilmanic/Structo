@@ -34,10 +34,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const registerButton = document.getElementById('registerButton');
     const registerForm = document.getElementById('registerForm');
     
-    // Password toggle elements
-    const passwordToggle = document.getElementById('passwordToggle');
-    const passwordConfirmToggle = document.getElementById('passwordConfirmToggle');
-    
     // Requirement elements
     const lengthRequirement = document.getElementById('lengthRequirement');
     const uppercaseRequirement = document.getElementById('uppercaseRequirement');
@@ -173,34 +169,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Also check name and email inputs
     document.getElementById('name').addEventListener('input', updateRegisterButton);
     document.getElementById('email').addEventListener('input', updateRegisterButton);
-    
-    // Password toggle functionality
-    if (passwordToggle) {
-        passwordToggle.addEventListener('click', function() {
-            togglePasswordVisibility(passwordInput, this);
-        });
-    }
-    
-    if (passwordConfirmToggle) {
-        passwordConfirmToggle.addEventListener('click', function() {
-            togglePasswordVisibility(passwordConfirmInput, this);
-        });
-    }
-    
-    function togglePasswordVisibility(input, toggle) {
-        const eyeOpen = toggle.querySelector('.eye-open');
-        const eyeClosed = toggle.querySelector('.eye-closed');
-        
-        if (input.type === 'password') {
-            input.type = 'text';
-            eyeOpen.style.display = 'none';
-            eyeClosed.style.display = 'block';
-        } else {
-            input.type = 'password';
-            eyeOpen.style.display = 'block';
-            eyeClosed.style.display = 'none';
-        }
-    }
     
     // Prevent form submission if validation fails
     registerForm.addEventListener('submit', function(e) {

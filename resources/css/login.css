@@ -352,3 +352,66 @@
     color: #94a3b8;
     transition: all 0.2s ease;
 }
+
+/* Valid state */
+.requirement-item.valid,
+.match-item.valid {
+    color: #059669;
+}
+
+.requirement-item.valid .requirement-icon,
+.match-item.valid .requirement-icon {
+    background: #059669;
+    color: white;
+}
+
+/* Invalid state */
+.requirement-item.invalid,
+.match-item.invalid {
+    color: #dc2626;
+}
+
+.requirement-item.invalid .requirement-icon,
+.match-item.invalid .requirement-icon {
+    background: #dc2626;
+    color: white;
+}
+
+/* Animation for requirement validation */
+@keyframes checkmark {
+    0% {
+        transform: scale(0.8);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.requirement-item.valid .requirement-icon,
+.match-item.valid .requirement-icon {
+    animation: checkmark 0.3s ease;
+}
+
+/* Focus states for accessibility */
+.requirement-item:focus-within,
+.match-item:focus-within {
+    outline: 2px solid #ff6b35;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Responsive design for requirements */
+@media (max-width: 480px) {
+    .password-requirements,
+    .password-match-indicator {
+        padding: 12px;
+    }
+    
+    .requirement-item,
+    .match-item {
+        font-size: 13px;
+    }
+}
