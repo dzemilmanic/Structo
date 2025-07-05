@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@vite(['resources/css/users.css', 'resources/css/users-pagination.css', 'resources/css/enhanced-search.css', 'resources/js/users.js', 'resources/js/enhanced-search.js'])
+@vite(['resources/css/users.css',   'resources/js/users.js'])
 @section('title', 'Users - Structo')
 
 @section('styles')
