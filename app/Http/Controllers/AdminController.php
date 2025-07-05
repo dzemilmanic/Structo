@@ -65,7 +65,7 @@ class AdminController extends Controller
         }
 
         $jobs = $query->latest()->paginate(4);
-        $categories = ServiceCategory::where('is_active', true)->orderBy('sort_order')->get();
+        $categories = ServiceCategory::where('is_active', true)->orderBy('sort_order')->paginate(4);
 
         return view('admin.jobs', compact('jobs', 'categories'));
     }
