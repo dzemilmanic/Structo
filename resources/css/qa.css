@@ -1312,7 +1312,7 @@ body.modal-open {
 .author-link,
 .question-author,
 .answer-author {
-    color: #007bff;
+    color: var(--primary-dark);
     text-decoration: none;
     font-weight: 500;
     transition: color 0.3s ease;
@@ -1321,7 +1321,7 @@ body.modal-open {
 .author-link:hover,
 .question-author:hover,
 .answer-author:hover {
-    color: #0056b3;
+    color: var(--primary-light);
     text-decoration: underline;
 }
 
@@ -1340,5 +1340,5 @@ body.modal-open {
 }
 
 .author-info .author-link:hover {
-    border-bottom: 1px solid #0056b3;
+    border-bottom: 1px solid var(--secondary-color);
 }
