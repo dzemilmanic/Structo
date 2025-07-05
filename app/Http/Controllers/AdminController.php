@@ -64,7 +64,7 @@ class AdminController extends Controller
             });
         }
 
-        $jobs = $query->latest()->paginate(15);
+        $jobs = $query->latest()->paginate(4);
         $categories = ServiceCategory::where('is_active', true)->orderBy('sort_order')->get();
 
         return view('admin.jobs', compact('jobs', 'categories'));
@@ -93,7 +93,7 @@ class AdminController extends Controller
             });
         }
 
-        $services = $query->latest()->paginate(15);
+        $services = $query->latest()->paginate(4);
         $categories = ServiceCategory::where('is_active', true)->orderBy('sort_order')->get();
 
         return view('admin.services', compact('services', 'categories'));

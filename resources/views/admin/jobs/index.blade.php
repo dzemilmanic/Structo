@@ -224,9 +224,61 @@
                 @endforelse
             </div>
 
+            <!-- Q&A Style Pagination for Jobs -->
             @if($jobs->hasPages())
-                <div class="pagination-wrapper">
-                    {{ $jobs->appends(request()->query())->links() }}
+                <div class="qa-pagination-container">
+                    <div class="pagination">
+                        {{-- Previous Page Link --}}
+                        @if ($jobs->onFirstPage())
+                            <button class="pagination-btn prev-btn" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="15,18 9,12 15,6"></polyline>
+                                </svg>
+                                Previous
+                            </button>
+                        @else
+                            <a href="{{ $jobs->appends(request()->query())->previousPageUrl() }}" class="pagination-btn prev-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="15,18 9,12 15,6"></polyline>
+                                </svg>
+                                Previous
+                            </a>
+                        @endif
+
+                        {{-- Pagination Elements --}}
+                        <div class="pagination-numbers">
+                            @php
+                                $start = max($jobs->currentPage() - 2, 1);
+                                $end = min($start + 4, $jobs->lastPage());
+                                $start = max($end - 4, 1);
+                            @endphp
+
+                            @for ($i = $start; $i <= $end; $i++)
+                                @if ($i == $jobs->currentPage())
+                                    <span class="page-number active">{{ $i }}</span>
+                                @else
+                                    <a href="{{ $jobs->appends(request()->query())->url($i) }}" class="page-number">{{ $i }}</a>
+                                @endif
+                            @endfor
+                        </div>
+
+                        {{-- Next Page Link --}}
+                        @if ($jobs->hasMorePages())
+                            <a href="{{ $jobs->appends(request()->query())->nextPageUrl() }}" class="pagination-btn next-btn">
+                                Next
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9,18 15,12 9,6"></polyline>
+                                </svg>
+                            </a>
+                        @else
+                            <button class="pagination-btn next-btn" disabled>
+                                Next
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9,18 15,12 9,6"></polyline>
+                                </svg>
+                            </button>
+                        @endif
+                    </div>
                 </div>
             @endif
         </div>
@@ -344,9 +396,61 @@
                 @endforelse
             </div>
 
+            <!-- Q&A Style Pagination for Services -->
             @if($services->hasPages())
-                <div class="pagination-wrapper">
-                    {{ $services->appends(request()->query())->links() }}
+                <div class="qa-pagination-container">
+                    <div class="pagination">
+                        {{-- Previous Page Link --}}
+                        @if ($services->onFirstPage())
+                            <button class="pagination-btn prev-btn" disabled>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="15,18 9,12 15,6"></polyline>
+                                </svg>
+                                Previous
+                            </button>
+                        @else
+                            <a href="{{ $services->appends(request()->query())->previousPageUrl() }}" class="pagination-btn prev-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="15,18 9,12 15,6"></polyline>
+                                </svg>
+                                Previous
+                            </a>
+                        @endif
+
+                        {{-- Pagination Elements --}}
+                        <div class="pagination-numbers">
+                            @php
+                                $start = max($services->currentPage() - 2, 1);
+                                $end = min($start + 4, $services->lastPage());
+                                $start = max($end - 4, 1);
+                            @endphp
+
+                            @for ($i = $start; $i <= $end; $i++)
+                                @if ($i == $services->currentPage())
+                                    <span class="page-number active">{{ $i }}</span>
+                                @else
+                                    <a href="{{ $services->appends(request()->query())->url($i) }}" class="page-number">{{ $i }}</a>
+                                @endif
+                            @endfor
+                        </div>
+
+                        {{-- Next Page Link --}}
+                        @if ($services->hasMorePages())
+                            <a href="{{ $services->appends(request()->query())->nextPageUrl() }}" class="pagination-btn next-btn">
+                                Next
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9,18 15,12 9,6"></polyline>
+                                </svg>
+                            </a>
+                        @else
+                            <button class="pagination-btn next-btn" disabled>
+                                Next
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9,18 15,12 9,6"></polyline>
+                                </svg>
+                            </button>
+                        @endif
+                    </div>
                 </div>
             @endif
         </div>
