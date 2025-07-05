@@ -6,6 +6,7 @@ namespace App\Providers;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use App\Models\User;
+use URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,6 +36,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('isProfi', function (User $user) {
             return $user->isProfi();
         });
+
+         if (config('app.env') === 'production') {
+        URL::forceScheme('https');
+    }
 
     }
 }
