@@ -41,11 +41,34 @@ class ProfiRequestController extends Controller
                 return redirect()->back()->with('error', 'You are already a professional user.');
             }
 
-            // Validate request
-            $validatedData = $request->validate([
+            // Updated validation with new file limits and custom validation
+            $request->validate([
                 'specialization' => 'required|string|max:255',
-                'files' => 'nullable|array|max:5',
-                'files.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png,gif,webp|max:10240', // 10MB max per file
+                'files' => 'nullable|array|max:2', // Maximum 2 files
+                'files.*' => [
+                    'file',
+                    'mimes:pdf,doc,docx,jpg,jpeg,png,gif,webp',
+                    function ($attribute, $value, $fail) {
+                        // Get file type to determine size limit
+                        $mimeType = $value->getMimeType();
+                        $documentTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                        $imageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                        
+                        if (in_array($mimeType, $documentTypes)) {
+                            // 1MB limit for documents
+                            if ($value->getSize() > 1024 * 1024) {
+                                $fail('Document files must be no larger than 1MB.');
+                            }
+                        } elseif (in_array($mimeType, $imageTypes)) {
+                            // 5MB limit for images
+                            if ($value->getSize() > 5 * 1024 * 1024) {
+                                $fail('Image files must be no larger than 5MB.');
+                            }
+                        } else {
+                            $fail('Invalid file type. Only PDF, Word documents, and images are allowed.');
+                        }
+                    }
+                ]
             ]);
 
             $uploadedFiles = [];
@@ -99,7 +122,7 @@ class ProfiRequestController extends Controller
             // Create the professional request
             ProfiRequest::create([
                 'user_id' => Auth::id(),
-                'specialization' => $validatedData['specialization'],
+                'specialization' => $request->input('specialization'),
                 'files' => json_encode($uploadedFiles), // Store file info as JSON
                 'status' => 'pending'
             ]);

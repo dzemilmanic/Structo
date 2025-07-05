@@ -618,14 +618,31 @@ document.addEventListener('DOMContentLoaded', function() {
     window.createModalConfig = createModalConfig;
 });
 
-// Global variables
+// Global variables - Updated for new file limits
 let selectedFiles = [];
-let maxFiles = 5;
-let maxFileSize = 10 * 1024 * 1024; // 10MB
+let maxFiles = 2; // Reduced to 2 files maximum
+let documentMaxSize = 1 * 1024 * 1024; // 1MB for documents
+let imageMaxSize = 5 * 1024 * 1024; // 5MB for images
 let allowedTypes = [
     'application/pdf',
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
+    'image/webp'
+];
+
+// Document types for size validation
+let documentTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+];
+
+// Image types for size validation
+let imageTypes = [
     'image/jpeg',
     'image/jpg',
     'image/png',
@@ -760,7 +777,7 @@ function createModalHTML(csrfToken) {
                             <strong>Click to upload</strong> or drag and drop files here
                         </p>
                         <p class="file-upload-subtext">
-                            PDF, Word documents, or images (Max: ${maxFiles} files, 10MB each)
+                            PDF & Word documents (1MB max), Images (5MB max) - Maximum 2 files total
                         </p>
                         <input type="file" id="swal-files" name="files[]" multiple 
                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.webp" 
@@ -876,9 +893,24 @@ function processSelectedFiles(files) {
             return;
         }
         
-        // Check file size
-        if (file.size > maxFileSize) {
-            errors.push(`${file.name}: File size exceeds 10MB limit.`);
+        // Check file size based on type
+        let maxSizeForThisFile;
+        let fileTypeCategory;
+        
+        if (documentTypes.includes(file.type)) {
+            maxSizeForThisFile = documentMaxSize;
+            fileTypeCategory = 'document';
+        } else if (imageTypes.includes(file.type)) {
+            maxSizeForThisFile = imageMaxSize;
+            fileTypeCategory = 'image';
+        } else {
+            errors.push(`${file.name}: Unknown file type.`);
+            return;
+        }
+        
+        if (file.size > maxSizeForThisFile) {
+            const maxSizeMB = fileTypeCategory === 'document' ? '1MB' : '5MB';
+            errors.push(`${file.name}: File size exceeds ${maxSizeMB} limit for ${fileTypeCategory}s.`);
             return;
         }
         
