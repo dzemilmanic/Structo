@@ -46,7 +46,7 @@
                             </div>
                             <h3>{{ $category->name }}</h3>
                             <p>{{ $category->description ?: 'Professional ' . strtolower($category->name) . ' services for your projects' }}</p>
-                            <a href="/users?service_category={{ $category->slug }}" class="service-link">Find {{ $category->name }} Professionals</a>
+                            
                         </div>
                     @empty
                         <!-- Fallback static services if no categories exist -->
@@ -133,7 +133,7 @@
 
 
 
-<!-- Updated Testimonials Section with User Photos -->
+<!-- Updated Testimonials Section with User Photos and Clickable Names -->
 <section class="testimonials" id="testimonials">
     <div class="container">
         <div class="section-header">
@@ -166,18 +166,26 @@
                                                     $photoUrl = 'https://' . $bucket . '.s3.' . $region . '.amazonaws.com/' . $photoPath;
                                                 }
                                             @endphp
-                                            <img src="{{ $photoUrl }}" alt="Profile Photo" class="testimonial-user-image" onerror="this.src='{{ asset('images/default-avatar.png') }}'; this.onerror=null;">
+                                            <a href="{{ route('users.show', $testimonial->user) }}" class="testimonial-avatar-link" title="View {{ $testimonial->user->name }}'s profile">
+                                                <img src="{{ $photoUrl }}" alt="{{ $testimonial->user->name }}'s Profile Photo" class="testimonial-user-image" onerror="this.src='{{ asset('images/default-avatar.png') }}'; this.onerror=null;">
+                                            </a>
                                         @else
-                                            <div class="testimonial-avatar-placeholder">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                                    <circle cx="12" cy="7" r="4"></circle>
-                                                </svg>
-                                            </div>
+                                            <a href="{{ route('users.show', $testimonial->user) }}" class="testimonial-avatar-link" title="View {{ $testimonial->user->name }}'s profile">
+                                                <div class="testimonial-avatar-placeholder">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                        <circle cx="12" cy="7" r="4"></circle>
+                                                    </svg>
+                                                </div>
+                                            </a>
                                         @endif
                                     </div>
                                     <div class="author-info">
-                                        <h4>{{ $testimonial->user->name }}</h4>
+                                        <h4>
+                                            <a href="{{ route('users.show', $testimonial->user) }}" class="testimonial-user-name" title="View {{ $testimonial->user->name }}'s profile">
+                                                {{ $testimonial->user->name }}
+                                            </a>
+                                        </h4>
                                         <p>{{ $testimonial->title }}</p>
                                     </div>
                                 </div>
@@ -225,10 +233,7 @@
                             <label for="content">Your Experience</label>
                             <textarea name="content" id="content" placeholder="Share your experience..." required></textarea>
                         </div>
-                        <div class="form-group">
-                            <label for="title">Your Role or City (Optional)</label>
-                            <input type="text" name="title" id="title" placeholder="e.g., Homeowner from London">
-                        </div>
+                        
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">Submit</button>
                             <button type="button" class="btn btn-outline cancel-btn">Cancel</button>

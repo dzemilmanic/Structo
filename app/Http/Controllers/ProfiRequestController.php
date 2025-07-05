@@ -137,7 +137,7 @@ class ProfiRequestController extends Controller
         $requests = ProfiRequest::with('user')
             ->where('status', 'pending')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(4);
             
         return view('admin.profi_requests.index', compact('requests'));
     }

@@ -26,12 +26,12 @@ class JobController extends Controller
         
         if ($user->isProfi()) {
             // Professional Dashboard
-            $services = $user->services()->latest()->get();
-            $jobRequests = $user->jobRequests()->with('job.user')->latest()->get();
-            $assignedJobs = $user->assignedJobs()->with('user')->latest()->get();
+            $services = $user->services()->latest()->paginate(3);
+            $jobRequests = $user->jobRequests()->with('job.user')->latest()->paginate(3);
+            $assignedJobs = $user->assignedJobs()->with('user')->latest()->paginate(3);
             $serviceRequests = ServiceRequest::whereHas('service', function ($query) use ($user) {
                 $query->where('professional_id', $user->id);
-            })->with('user', 'service')->latest()->get();
+            })->with('user', 'service')->latest()->paginate(3);
             
             // Available jobs for professionals with filters
             $availableJobsQuery = Job::where('status', Job::STATUS_OPEN)
@@ -73,13 +73,13 @@ class JobController extends Controller
                 });
             }
 
-            $availableJobs = $availableJobsQuery->latest()->get();
+            $availableJobs = $availableJobsQuery->latest()->paginate(3);
             
             return view('jobs.index', compact('services', 'jobRequests', 'assignedJobs', 'serviceRequests', 'availableJobs', 'categories'));
         } else {
             // Regular User Dashboard
-            $jobs = $user->jobs()->with('requests.professional', 'assignedProfessional')->latest()->get();
-            $serviceRequests = $user->serviceRequests()->with('service.professional')->latest()->get();
+            $jobs = $user->jobs()->with('requests.professional', 'assignedProfessional')->latest()->paginate(3);
+            $serviceRequests = $user->serviceRequests()->with('service.professional')->latest()->paginate(3);
             
             // Available services with filters
             $availableServicesQuery = Service::where('is_active', true)->with('professional');
@@ -120,7 +120,7 @@ class JobController extends Controller
                 });
             }
 
-            $availableServices = $availableServicesQuery->latest()->get();
+            $availableServices = $availableServicesQuery->latest()->paginate(3);
             
             return view('jobs.index', compact('jobs', 'serviceRequests', 'availableServices', 'categories'));
         }

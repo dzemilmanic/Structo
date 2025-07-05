@@ -9,7 +9,9 @@ class UsersController extends Controller
     public function index()
     {
         // Uzimamo sve korisnike sa rolom "profi"
-        $users = User::where('role', 'profi')->get();
+        $users = User::where('role', 'profi')
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(12);
 
         return view('users.index', compact('users'));
     }

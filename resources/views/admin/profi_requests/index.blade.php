@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@vite(['resources/css/admin_requests.css'])
+@vite(['resources/css/admin_requests.css', 'resources/css/admin-requests-pagination.css'])
 @vite(['resources/css/sweetalert-global.css'])
 @vite(['resources/js/admin-requests.js'])
 @section('title', 'Professional Requests - Admin')
@@ -46,10 +46,18 @@
                 </svg>
             </div>
             <div class="stat-info">
-                <span class="stat-number">{{ $requests->count() }}</span>
-                <span class="stat-label">Pending Requests</span>
+                <span class="stat-number">{{ $requests->total() }}</span>
+                <span class="stat-label">Total Pending Requests</span>
             </div>
         </div>
+    </div>
+
+    <!-- Results Header -->
+    <div class="requests-results-header">
+        <h2>Pending Requests</h2>
+        <p class="results-count">
+            Showing {{ $requests->firstItem() ?? 0 }}-{{ $requests->lastItem() ?? 0 }} of {{ $requests->total() }} requests
+        </p>
     </div>
 
     <div class="requests-grid">
@@ -194,6 +202,64 @@
             </div>
         @endforelse
     </div>
+
+    <!-- Pagination -->
+    @if($requests->hasPages())
+        <div class="pagination-container">
+            <div class="pagination">
+                {{-- Previous Page Link --}}
+                @if ($requests->onFirstPage())
+                    <button class="pagination-btn prev-btn" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15,18 9,12 15,6"></polyline>
+                        </svg>
+                        Previous
+                    </button>
+                @else
+                    <a href="{{ $requests->previousPageUrl() }}" class="pagination-btn prev-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15,18 9,12 15,6"></polyline>
+                        </svg>
+                        Previous
+                    </a>
+                @endif
+
+                {{-- Pagination Elements --}}
+                <div class="pagination-numbers">
+                    @php
+                        $start = max($requests->currentPage() - 2, 1);
+                        $end = min($start + 4, $requests->lastPage());
+                        $start = max($end - 4, 1);
+                    @endphp
+
+                    @for ($i = $start; $i <= $end; $i++)
+                        @if ($i == $requests->currentPage())
+                            <span class="page-number active">{{ $i }}</span>
+                        @else
+                            <a href="{{ $requests->url($i) }}" class="page-number">{{ $i }}</a>
+                        @endif
+                    @endfor
+                </div>
+
+                {{-- Next Page Link --}}
+                @if ($requests->hasMorePages())
+                    <a href="{{ $requests->nextPageUrl() }}" class="pagination-btn next-btn">
+                        Next
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9,18 15,12 9,6"></polyline>
+                        </svg>
+                    </a>
+                @else
+                    <button class="pagination-btn next-btn" disabled>
+                        Next
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9,18 15,12 9,6"></polyline>
+                        </svg>
+                    </button>
+                @endif
+            </div>
+        </div>
+    @endif
 </div>
 
 <!-- Image Modal -->

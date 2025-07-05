@@ -83,7 +83,9 @@
                         All Questions
                     @endif
                 </h2>
-                <p class="results-count">{{ $questions->total() }} {{ Str::plural('question', $questions->total()) }} found</p>
+                <p class="results-count">
+                    Showing {{ $questions->firstItem() ?? 0 }}-{{ $questions->lastItem() ?? 0 }} of {{ $questions->total() }} {{ Str::plural('question', $questions->total()) }}
+                </p>
             </div>
             
             <div class="sort-options">
@@ -154,9 +156,63 @@
                     </div>
                 @endforeach
                 
-                <div class="pagination-wrapper">
-                    {{ $questions->appends(['search' => $search ?? '', 'sort' => $sort ?? ''])->links() }}
-                </div>
+                <!-- Q&A Pagination -->
+                @if($questions->hasPages())
+                    <div class="qa-pagination-container">
+                        <div class="pagination">
+                            {{-- Previous Page Link --}}
+                            @if ($questions->onFirstPage())
+                                <button class="pagination-btn prev-btn" disabled>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="15,18 9,12 15,6"></polyline>
+                                    </svg>
+                                    Previous
+                                </button>
+                            @else
+                                <a href="{{ $questions->appends(['search' => $search ?? '', 'sort' => $sort ?? ''])->previousPageUrl() }}" class="pagination-btn prev-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="15,18 9,12 15,6"></polyline>
+                                    </svg>
+                                    Previous
+                                </a>
+                            @endif
+
+                            {{-- Pagination Elements --}}
+                            <div class="pagination-numbers">
+                                @php
+                                    $start = max($questions->currentPage() - 2, 1);
+                                    $end = min($start + 4, $questions->lastPage());
+                                    $start = max($end - 4, 1);
+                                @endphp
+
+                                @for ($i = $start; $i <= $end; $i++)
+                                    @if ($i == $questions->currentPage())
+                                        <span class="page-number active">{{ $i }}</span>
+                                    @else
+                                        <a href="{{ $questions->appends(['search' => $search ?? '', 'sort' => $sort ?? ''])->url($i) }}" class="page-number">{{ $i }}</a>
+                                    @endif
+                                @endfor
+                            </div>
+
+                            {{-- Next Page Link --}}
+                            @if ($questions->hasMorePages())
+                                <a href="{{ $questions->appends(['search' => $search ?? '', 'sort' => $sort ?? ''])->nextPageUrl() }}" class="pagination-btn next-btn">
+                                    Next
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="9,18 15,12 9,6"></polyline>
+                                    </svg>
+                                </a>
+                            @else
+                                <button class="pagination-btn next-btn" disabled>
+                                    Next
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="9,18 15,12 9,6"></polyline>
+                                    </svg>
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                @endif
             @else
                 <div class="empty-state">
                     <div class="empty-icon">

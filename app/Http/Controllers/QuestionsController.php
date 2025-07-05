@@ -34,7 +34,7 @@ class QuestionsController extends Controller
                             ->sort($sort)
                             ->withCount('answers')
                             ->with('user')
-                            ->paginate(10);
+                            ->paginate(5); // Changed from 10 to 5
 
         return view('questions.index', compact('questions', 'search', 'sort'));
     }

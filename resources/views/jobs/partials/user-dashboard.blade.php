@@ -19,6 +19,15 @@
     <!-- My Jobs Section -->
     <section class="dashboard-section">
         <h2>My Posted Jobs</h2>
+
+        <!-- Results Header -->
+        <div class="jobs-results-header">
+            <h2>My Posted Jobs</h2>
+            <p class="results-count">
+                Showing {{ $jobs->firstItem() ?? 0 }}-{{ $jobs->lastItem() ?? 0 }} of {{ $jobs->total() }} jobs
+            </p>
+        </div>
+
         <div class="jobs-grid">
             @forelse($jobs as $job)
                 <div class="job-card" title="Click to view details" data-full-description="{{ $job->description }}">
@@ -110,6 +119,64 @@
                 </div>
             @endforelse
         </div>
+
+        <!-- Posted Jobs Pagination -->
+        @if($jobs->hasPages())
+            <div class="posted-jobs-pagination-container">
+                <div class="pagination">
+                    {{-- Previous Page Link --}}
+                    @if ($jobs->onFirstPage())
+                        <button class="pagination-btn prev-btn" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="15,18 9,12 15,6"></polyline>
+                            </svg>
+                            Previous
+                        </button>
+                    @else
+                        <a href="{{ $jobs->previousPageUrl() }}" class="pagination-btn prev-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="15,18 9,12 15,6"></polyline>
+                            </svg>
+                            Previous
+                        </a>
+                    @endif
+
+                    {{-- Pagination Elements --}}
+                    <div class="pagination-numbers">
+                        @php
+                            $start = max($jobs->currentPage() - 2, 1);
+                            $end = min($start + 4, $jobs->lastPage());
+                            $start = max($end - 4, 1);
+                        @endphp
+
+                        @for ($i = $start; $i <= $end; $i++)
+                            @if ($i == $jobs->currentPage())
+                                <span class="page-number active">{{ $i }}</span>
+                            @else
+                                <a href="{{ $jobs->url($i) }}" class="page-number">{{ $i }}</a>
+                            @endif
+                        @endfor
+                    </div>
+
+                    {{-- Next Page Link --}}
+                    @if ($jobs->hasMorePages())
+                        <a href="{{ $jobs->nextPageUrl() }}" class="pagination-btn next-btn">
+                            Next
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9,18 15,12 9,6"></polyline>
+                            </svg>
+                        </a>
+                    @else
+                        <button class="pagination-btn next-btn" disabled>
+                            Next
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9,18 15,12 9,6"></polyline>
+                            </svg>
+                        </button>
+                    @endif
+                </div>
+            </div>
+        @endif
     </section>
 
     <!-- Available Services Section with Filters -->
@@ -175,6 +242,14 @@
             </div>
         </div>
 
+        <!-- Results Header -->
+        <div class="services-results-header">
+            <h2>Available Services</h2>
+            <p class="results-count">
+                Showing {{ $availableServices->firstItem() ?? 0 }}-{{ $availableServices->lastItem() ?? 0 }} of {{ $availableServices->total() }} services
+            </p>
+        </div>
+
         <div class="services-grid">
             @forelse($availableServices as $service)
                 <div class="service-card" title="Click to view details" data-full-description="{{ $service->description }}">
@@ -224,11 +299,78 @@
                 </div>
             @endforelse
         </div>
+
+        <!-- Available Services Pagination -->
+        @if($availableServices->hasPages())
+            <div class="available-services-pagination-container">
+                <div class="pagination">
+                    {{-- Previous Page Link --}}
+                    @if ($availableServices->onFirstPage())
+                        <button class="pagination-btn prev-btn" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="15,18 9,12 15,6"></polyline>
+                            </svg>
+                            Previous
+                        </button>
+                    @else
+                        <a href="{{ $availableServices->previousPageUrl() }}" class="pagination-btn prev-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="15,18 9,12 15,6"></polyline>
+                            </svg>
+                            Previous
+                        </a>
+                    @endif
+
+                    {{-- Pagination Elements --}}
+                    <div class="pagination-numbers">
+                        @php
+                            $start = max($availableServices->currentPage() - 2, 1);
+                            $end = min($start + 4, $availableServices->lastPage());
+                            $start = max($end - 4, 1);
+                        @endphp
+
+                        @for ($i = $start; $i <= $end; $i++)
+                            @if ($i == $availableServices->currentPage())
+                                <span class="page-number active">{{ $i }}</span>
+                            @else
+                                <a href="{{ $availableServices->url($i) }}" class="page-number">{{ $i }}</a>
+                            @endif
+                        @endfor
+                    </div>
+
+                    {{-- Next Page Link --}}
+                    @if ($availableServices->hasMorePages())
+                        <a href="{{ $availableServices->nextPageUrl() }}" class="pagination-btn next-btn">
+                            Next
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9,18 15,12 9,6"></polyline>
+                            </svg>
+                        </a>
+                    @else
+                        <button class="pagination-btn next-btn" disabled>
+                            Next
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9,18 15,12 9,6"></polyline>
+                            </svg>
+                        </button>
+                    @endif
+                </div>
+            </div>
+        @endif
     </section>
 
     <!-- My Service Requests Section -->
     <section class="dashboard-section">
         <h2>My Service Requests</h2>
+
+        <!-- Results Header -->
+        <div class="service-requests-results-header">
+            <h2>My Service Requests</h2>
+            <p class="results-count">
+                Showing {{ $serviceRequests->firstItem() ?? 0 }}-{{ $serviceRequests->lastItem() ?? 0 }} of {{ $serviceRequests->total() }} requests
+            </p>
+        </div>
+
         <div class="requests-list">
             @forelse($serviceRequests as $request)
                 <div class="request-card">
@@ -261,5 +403,63 @@
                 </div>
             @endforelse
         </div>
+
+        <!-- Service Requests Pagination -->
+        @if($serviceRequests->hasPages())
+            <div class="service-requests-pagination-container">
+                <div class="pagination">
+                    {{-- Previous Page Link --}}
+                    @if ($serviceRequests->onFirstPage())
+                        <button class="pagination-btn prev-btn" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="15,18 9,12 15,6"></polyline>
+                            </svg>
+                            Previous
+                        </button>
+                    @else
+                        <a href="{{ $serviceRequests->previousPageUrl() }}" class="pagination-btn prev-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="15,18 9,12 15,6"></polyline>
+                            </svg>
+                            Previous
+                        </a>
+                    @endif
+
+                    {{-- Pagination Elements --}}
+                    <div class="pagination-numbers">
+                        @php
+                            $start = max($serviceRequests->currentPage() - 2, 1);
+                            $end = min($start + 4, $serviceRequests->lastPage());
+                            $start = max($end - 4, 1);
+                        @endphp
+
+                        @for ($i = $start; $i <= $end; $i++)
+                            @if ($i == $serviceRequests->currentPage())
+                                <span class="page-number active">{{ $i }}</span>
+                            @else
+                                <a href="{{ $serviceRequests->url($i) }}" class="page-number">{{ $i }}</a>
+                            @endif
+                        @endfor
+                    </div>
+
+                    {{-- Next Page Link --}}
+                    @if ($serviceRequests->hasMorePages())
+                        <a href="{{ $serviceRequests->nextPageUrl() }}" class="pagination-btn next-btn">
+                            Next
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9,18 15,12 9,6"></polyline>
+                            </svg>
+                        </a>
+                    @else
+                        <button class="pagination-btn next-btn" disabled>
+                            Next
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9,18 15,12 9,6"></polyline>
+                            </svg>
+                        </button>
+                    @endif
+                </div>
+            </div>
+        @endif
     </section>
 </div>

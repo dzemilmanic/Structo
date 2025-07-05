@@ -1178,3 +1178,24 @@ section {
         flex: 0 0 calc(25% - 22.5px);
     }
 }
+
+
+.testimonial-user-name {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.testimonial-user-name:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+.testimonial-avatar-link {
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.testimonial-avatar-link:hover {
+    transform: scale(1.05);
+}

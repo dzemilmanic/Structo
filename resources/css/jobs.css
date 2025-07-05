@@ -345,8 +345,12 @@ body {
 /* Enhanced Grid Layouts */
 .jobs-grid, .services-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: var(--space-6);
+    justify-items: center;
+    align-items: start;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 .requests-list {
@@ -365,6 +369,9 @@ body {
     border: 1px solid rgba(255, 107, 53, 0.08);
     position: relative;
     overflow: hidden;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
 }
 
 .job-card::before, .service-card::before, .request-card::before {
@@ -1303,4 +1310,340 @@ html {
     .jobs-services-hero p {
         font-size: 1.1rem;
     }
+}
+
+
+/* Dashboard Pagination Styles - Based on Admin Requests Pagination */
+
+/* Results Header for each section */
+.section-results-header {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.section-results-header h2 {
+    color: var(--neutral-dark);
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+.section-results-header .results-count {
+    color: var(--neutral-medium);
+    font-size: 1rem;
+}
+
+/* Jobs specific results header */
+.jobs-results-header {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.jobs-results-header h2 {
+    color: var(--neutral-dark);
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+.jobs-results-header .results-count {
+    color: var(--neutral-medium);
+    font-size: 1rem;
+}
+
+/* Services specific results header */
+.services-results-header {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.services-results-header h2 {
+    color: var(--neutral-dark);
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+.services-results-header .results-count {
+    color: var(--neutral-medium);
+    font-size: 1rem;
+}
+
+/* Assigned Jobs specific results header */
+.assigned-results-header {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.assigned-results-header h2 {
+    color: var(--neutral-dark);
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+.assigned-results-header .results-count {
+    color: var(--neutral-medium);
+    font-size: 1rem;
+}
+
+/* Job Requests specific results header */
+.job-requests-results-header {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.job-requests-results-header h2 {
+    color: var(--neutral-dark);
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+.job-requests-results-header .results-count {
+    color: var(--neutral-medium);
+    font-size: 1rem;
+}
+
+/* Service Requests specific results header */
+.service-requests-results-header {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.service-requests-results-header h2 {
+    color: var(--neutral-dark);
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+.service-requests-results-header .results-count {
+    color: var(--neutral-medium);
+    font-size: 1rem;
+}
+
+/* Pagination Container */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 60px;
+    margin-bottom: 40px;
+}
+
+/* Pagination Base Styles */
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: var(--white);
+    padding: 20px 30px;
+    border-radius: 50px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 107, 53, 0.1);
+}
+
+/* Pagination Buttons */
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: var(--white);
+    border: none;
+    padding: 12px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--primary-dark), var(--secondary-color));
+    transform: translateY(-2px);
+    color: var(--white);
+    text-decoration: none;
+}
+
+.pagination-btn:disabled {
+    background: var(--neutral-light);
+    color: var(--neutral-medium);
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Previous and Next Button Styles */
+.prev-btn,
+.next-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Pagination Numbers Container */
+.pagination-numbers {
+    display: flex;
+    gap: 8px;
+}
+
+/* Page Number Styles */
+.page-number {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--neutral-light);
+    background-color: var(--white);
+    color: var(--neutral-dark);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.page-number:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.page-number.active {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-color: var(--primary-color);
+    color: var(--white);
+}
+
+/* Section-specific pagination containers */
+.jobs-pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 60px;
+    margin-bottom: 40px;
+}
+
+.services-pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 60px;
+    margin-bottom: 40px;
+}
+
+.assigned-pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 60px;
+    margin-bottom: 40px;
+}
+
+.job-requests-pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 60px;
+    margin-bottom: 40px;
+}
+
+.service-requests-pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 60px;
+    margin-bottom: 40px;
+}
+
+/* Available Jobs pagination */
+.available-jobs-pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 60px;
+    margin-bottom: 40px;
+}
+
+/* Available Services pagination */
+.available-services-pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 60px;
+    margin-bottom: 40px;
+}
+
+/* Posted Jobs pagination */
+.posted-jobs-pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 60px;
+    margin-bottom: 40px;
+}
+
+/* Update stats card to show total count */
+.dashboard-section .stat-card .stat-label {
+    font-size: 0.85rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .pagination {
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+    }
+    
+    .pagination-numbers {
+        order: -1;
+    }
+    
+    .pagination-btn {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+    
+    .page-number {
+        width: 36px;
+        height: 36px;
+        font-size: 0.85rem;
+    }
+    
+    .section-results-header h2,
+    .jobs-results-header h2,
+    .services-results-header h2,
+    .assigned-results-header h2,
+    .job-requests-results-header h2,
+    .service-requests-results-header h2 {
+        font-size: 1.8rem;
+    }
+    
+    .jobs-grid,
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .pagination-numbers {
+        gap: 6px;
+    }
+    
+    .page-number {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+    
+    .pagination-btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Additional spacing for dashboard sections */
+.dashboard-section {
+    margin-bottom: 80px;
+}
+
+.dashboard-section:last-child {
+    margin-bottom: 40px;
+}
+
+/* Ensure proper spacing between section content and pagination */
+.jobs-grid + .pagination-container,
+.services-grid + .pagination-container,
+.requests-list + .pagination-container {
+    margin-top: 60px;
 }

@@ -508,3 +508,5 @@ document.addEventListener('DOMContentLoaded', function() {
     window.showWarning = showWarning;
     window.createModalConfig = createModalConfig;
 });
+
+

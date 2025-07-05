@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@vite(['resources/css/users.css', 'resources/css/enhanced-search.css', 'resources/js/users.js', 'resources/js/enhanced-search.js'])
+@vite(['resources/css/users.css', 'resources/css/users-pagination.css', 'resources/css/enhanced-search.css', 'resources/js/users.js', 'resources/js/enhanced-search.js'])
 @section('title', 'Users - Structo')
 
 @section('styles')
@@ -99,10 +99,16 @@
 
     <!-- Search Results Info (will be dynamically added) -->
     
-    
+    <!-- Results Header -->
+    <div class="users-results-header">
+        <h2>Professional Users</h2>
+        <p class="results-count">
+            Showing {{ $users->firstItem() ?? 0 }}-{{ $users->lastItem() ?? 0 }} of {{ $users->total() }} professionals
+        </p>
+    </div>
 
     <div class="professionals-grid" id="professionalsGrid">
-        @forelse($users->where('role', 'profi') as $user)
+        @forelse($users as $user)
             <div class="profi-card" data-search="{{ strtolower($user->name . ' ' . ($user->lastname ?? '') . ' ' . ($user->specialization ?? '') . ' ' . ($user->location ?? '') . ' ' . $user->email) }}">
                 <div class="profi-avatar">
                     @if($user->photo)
@@ -194,6 +200,64 @@
             </div>
         @endforelse
     </div>
+
+    <!-- Pagination -->
+    @if($users->hasPages())
+        <div class="pagination-container">
+            <div class="pagination">
+                {{-- Previous Page Link --}}
+                @if ($users->onFirstPage())
+                    <button class="pagination-btn prev-btn" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15,18 9,12 15,6"></polyline>
+                        </svg>
+                        Previous
+                    </button>
+                @else
+                    <a href="{{ $users->previousPageUrl() }}" class="pagination-btn prev-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15,18 9,12 15,6"></polyline>
+                        </svg>
+                        Previous
+                    </a>
+                @endif
+
+                {{-- Pagination Elements --}}
+                <div class="pagination-numbers">
+                    @php
+                        $start = max($users->currentPage() - 2, 1);
+                        $end = min($start + 4, $users->lastPage());
+                        $start = max($end - 4, 1);
+                    @endphp
+
+                    @for ($i = $start; $i <= $end; $i++)
+                        @if ($i == $users->currentPage())
+                            <span class="page-number active">{{ $i }}</span>
+                        @else
+                            <a href="{{ $users->url($i) }}" class="page-number">{{ $i }}</a>
+                        @endif
+                    @endfor
+                </div>
+
+                {{-- Next Page Link --}}
+                @if ($users->hasMorePages())
+                    <a href="{{ $users->nextPageUrl() }}" class="pagination-btn next-btn">
+                        Next
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9,18 15,12 9,6"></polyline>
+                        </svg>
+                    </a>
+                @else
+                    <button class="pagination-btn next-btn" disabled>
+                        Next
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9,18 15,12 9,6"></polyline>
+                        </svg>
+                    </button>
+                @endif
+            </div>
+        </div>
+    @endif
 </div>
 @endsection
 
