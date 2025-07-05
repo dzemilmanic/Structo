@@ -60,7 +60,7 @@
                         </a>
                     @endif
 
-                    <button type="submit" class="login-button">
+                    <button type="submit" class="btn btn-outline btn-sm">
                         {{ __('Log in') }}
                     </button>
                 </div>
