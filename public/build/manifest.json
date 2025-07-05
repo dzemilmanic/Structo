@@ -44,7 +44,7 @@
     "isEntry": true
   },
   "resources/css/login.css": {
-    "file": "assets/login-DhkahhRF.css",
+    "file": "assets/login-Blyr2ZXQ.css",
     "src": "resources/css/login.css",
     "isEntry": true
   },
@@ -113,7 +113,7 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-0f9g5OVJ.js",
+    "file": "assets/app-UFiHfLuk.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -121,7 +121,7 @@
       "_index-xsH4HHeE.js"
     ],
     "css": [
-      "assets/app-B_-8zgmp.css"
+      "assets/app-CBCs6UMe.css"
     ]
   },
   "resources/js/bootstrap.js": {
@@ -146,7 +146,7 @@
     "isEntry": true
   },
   "resources/js/login.js": {
-    "file": "assets/login-BaAhyarr.js",
+    "file": "assets/login-CC61mXFF.js",
     "name": "login",
     "src": "resources/js/login.js",
     "isEntry": true

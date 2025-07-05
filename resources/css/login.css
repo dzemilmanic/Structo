@@ -294,3 +294,61 @@
         width: 100%;
     }
 }
+
+
+/* Password Requirements Styles */
+.password-requirements {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 8px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.password-requirements.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.password-match-indicator {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 8px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.password-match-indicator.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.requirement-item,
+.match-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 14px;
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+
+.requirement-item:not(:last-child) {
+    margin-bottom: 8px;
+}
+
+.requirement-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #94a3b8;
+    transition: all 0.2s ease;
+}
