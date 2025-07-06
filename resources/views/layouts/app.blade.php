@@ -191,11 +191,25 @@
                 <div class="footer-column">
                     <h3>Services</h3>
                     <ul class="footer-links">
-                        <li><a href="jobs">Architectural Design</a></li>
-                        <li><a href="jobs">Construction</a></li>
-                        <li><a href="jobs">Interior Design</a></li>
-                        <li><a href="jobs">Landscaping</a></li>
-                        <li><a href="jobs">View All Services</a></li>
+                        @php
+                            $serviceCategories = \App\Models\ServiceCategory::where('is_active', true)
+                                ->orderBy('sort_order')
+                                ->take(4)
+                                ->get();
+                        @endphp
+                        
+                        @if($serviceCategories->count() > 0)
+                            @foreach($serviceCategories as $category)
+                                <li><a href="/jobs?category={{ $category->slug }}">{{ $category->name }}</a></li>
+                            @endforeach
+                            <li><a href="/jobs">View All Services</a></li>
+                        @else
+                            <li><a href="/jobs">Architectural Design</a></li>
+                            <li><a href="/jobs">Construction</a></li>
+                            <li><a href="/jobs">Interior Design</a></li>
+                            <li><a href="/jobs">Landscaping</a></li>
+                            <li><a href="/jobs">View All Services</a></li>
+                        @endif
                     </ul>
                 </div>
                 
