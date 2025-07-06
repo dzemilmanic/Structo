@@ -4,6 +4,23 @@
 @section('title', 'Edit answer')
 
 @section('content')
+    <!-- Hidden elements for session messages -->
+    @if(session('success'))
+        <div data-session-success="{{ session('success') }}" style="display: none;"></div>
+    @endif
+    
+    @if(session('error'))
+        <div data-session-error="{{ session('error') }}" style="display: none;"></div>
+    @endif
+    
+    @if(session('info'))
+        <div data-session-info="{{ session('info') }}" style="display: none;"></div>
+    @endif
+    
+    @if(session('warning'))
+        <div data-session-warning="{{ session('warning') }}" style="display: none;"></div>
+    @endif
+
     <div class="form-container">
         <h1 class="form-title">Edit Answer</h1>
         
@@ -31,4 +48,8 @@
             </div>
         </form>
     </div>
+@endsection
+
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endsection

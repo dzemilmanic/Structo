@@ -70,10 +70,7 @@ class QuestionsController extends Controller
         $question->views = 0;
         $question->save();
 
-        // return redirect()->route('questions.show', $question)
-        //                 ->with('success', 'Vaše pitanje je uspešno postavljeno.');
-
-        return redirect()->route('questions.index')->with('success', 'Posted succesfully!');
+        return redirect()->route('questions.index')->with('success', 'Posted successfully!');
     }
 
     /**
@@ -98,7 +95,10 @@ class QuestionsController extends Controller
      */
     public function edit(Question $question): View
     {
-        $this->authorize('update', $question);
+        // Allow edit if user owns the question or is admin
+        if (!Auth::user()->isAdmin() && $question->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
 
         return view('questions.edit', compact('question'));
     }
@@ -112,7 +112,10 @@ class QuestionsController extends Controller
      */
     public function update(Request $request, Question $question): RedirectResponse
     {
-        $this->authorize('update', $question);
+        // Allow update if user owns the question or is admin
+        if (!Auth::user()->isAdmin() && $question->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
 
         $request->validate([
             'title' => 'required|min:5|max:255',
@@ -124,7 +127,7 @@ class QuestionsController extends Controller
         $question->save();
 
         return redirect()->route('questions.show', $question)
-                        ->with('success', 'Updated succesfully.');
+                        ->with('success', 'Updated successfully.');
     }
 
     /**
@@ -135,11 +138,14 @@ class QuestionsController extends Controller
      */
     public function destroy(Question $question): RedirectResponse
     {
-        $this->authorize('delete', $question);
+        // Allow delete if user owns the question or is admin
+        if (!Auth::user()->isAdmin() && $question->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
 
         $question->delete();
 
         return redirect()->route('questions.index')
-                        ->with('success', 'Deleted succesfully.');
+                        ->with('success', 'Question deleted successfully.');
     }
 }

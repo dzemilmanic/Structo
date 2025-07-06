@@ -55,7 +55,10 @@ class AnswerController extends Controller
      */
     public function edit(Answer $answer): View
     {
-        $this->authorize('update', $answer);
+        // Allow edit if user owns the answer or is admin
+        if (!Auth::user()->isAdmin() && $answer->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
 
         $question = $answer->question;
 
@@ -71,7 +74,10 @@ class AnswerController extends Controller
      */
     public function update(Request $request, Answer $answer): RedirectResponse
     {
-        $this->authorize('update', $answer);
+        // Allow update if user owns the answer or is admin
+        if (!Auth::user()->isAdmin() && $answer->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
 
         $request->validate([
             'content' => 'required|min:5',
@@ -92,7 +98,10 @@ class AnswerController extends Controller
      */
     public function destroy(Answer $answer): RedirectResponse
     {
-        $this->authorize('delete', $answer);
+        // Allow delete if user owns the answer or is admin
+        if (!Auth::user()->isAdmin() && $answer->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
 
         $question = $answer->question;
         $answer->delete();
@@ -100,11 +109,12 @@ class AnswerController extends Controller
         return redirect()->route('questions.show', $question)
                         ->with('success', 'The answer was successfully deleted..');
     }
+    
     public function index()
-{
-    // Ako ne koristiš, možeš samo vratiti 404 ili neku poruku
-    abort(404);
-}
+    {
+        // Ako ne koristiš, možeš samo vratiti 404 ili neku poruku
+        abort(404);
+    }
 
     /**
      * Mark an answer as solution.
@@ -116,7 +126,10 @@ class AnswerController extends Controller
     {
         $question = $answer->question;
 
-        $this->authorize('markSolution', $question);
+        // Only question owner or admin can mark solution
+        if (!Auth::user()->isAdmin() && $question->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
 
         // Reset all answers for this question
         Answer::where('question_id', $question->id)
