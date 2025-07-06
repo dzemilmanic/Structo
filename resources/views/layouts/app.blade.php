@@ -241,7 +241,6 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="{{ asset('js/home.js') }}"></script>
     @yield('scripts')
 </body>
 </html>
