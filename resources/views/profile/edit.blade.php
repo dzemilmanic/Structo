@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @vite('resources/js/profile.js')
-@vite('resources/js/profile.css')
+@vite('resources/css/profile.css')
 @section('header')
     <h2 class="font-semibold text-xl text-neutral-dark leading-tight">
         {{ __('Profile') }}
