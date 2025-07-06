@@ -487,7 +487,7 @@ document.addEventListener('DOMContentLoaded', function() {
      * Show success message with consistent styling (SAME AS JOBS.JS)
      */
     function showSuccess(message) {
-        console.log('📢 Showing success message:', message);
+        //console.log('📢 Showing success message:', message);
         
         if (typeof Swal === 'undefined') {
             alert(message);
@@ -506,7 +506,7 @@ document.addEventListener('DOMContentLoaded', function() {
      * Show error message with consistent styling (SAME AS JOBS.JS)
      */
     function showError(message) {
-        console.log('⚠️ Showing error message:', message);
+        //console.log('⚠️ Showing error message:', message);
         
         if (typeof Swal === 'undefined') {
             alert(message);
@@ -525,7 +525,7 @@ document.addEventListener('DOMContentLoaded', function() {
      * Show info message with consistent styling (SAME AS JOBS.JS)
      */
     function showInfo(message, title = 'Information') {
-        console.log('ℹ️ Showing info message:', message);
+        //console.log('ℹ️ Showing info message:', message);
         
         if (typeof Swal === 'undefined') {
             alert(message);
@@ -546,7 +546,7 @@ document.addEventListener('DOMContentLoaded', function() {
      * Show warning message with consistent styling (SAME AS JOBS.JS)
      */
     function showWarning(message, title = 'Warning') {
-        console.log('⚠️ Showing warning message:', message);
+        //console.log('⚠️ Showing warning message:', message);
         
         if (typeof Swal === 'undefined') {
             alert(message);
@@ -567,14 +567,14 @@ document.addEventListener('DOMContentLoaded', function() {
      * Session Message Handler (SAME AS JOBS.JS)
      */
     function handleSessionMessages() {
-        console.log('🔍 Checking for users session messages...');
+        //console.log('🔍 Checking for users session messages...');
         
         // Handle success messages
         const successElement = document.querySelector('[data-session-success]');
         if (successElement) {
             const message = successElement.getAttribute('data-session-success');
             if (message) {
-                console.log('✅ Found session success message:', message);
+                //console.log('✅ Found session success message:', message);
                 showSuccess(message);
             }
         }
@@ -584,7 +584,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (errorElement) {
             const message = errorElement.getAttribute('data-session-error');
             if (message) {
-                console.log('❌ Found session error message:', message);
+                //console.log('❌ Found session error message:', message);
                 showError(message);
             }
         }
@@ -594,7 +594,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (infoElement) {
             const message = infoElement.getAttribute('data-session-info');
             if (message) {
-                console.log('ℹ️ Found session info message:', message);
+                //console.log('ℹ️ Found session info message:', message);
                 showInfo(message);
             }
         }
@@ -604,7 +604,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (warningElement) {
             const message = warningElement.getAttribute('data-session-warning');
             if (message) {
-                console.log('⚠️ Found session warning message:', message);
+                //console.log('⚠️ Found session warning message:', message);
                 showWarning(message);
             }
         }

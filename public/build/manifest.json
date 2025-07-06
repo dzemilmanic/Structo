@@ -34,7 +34,7 @@
     "isEntry": true
   },
   "resources/css/home.css": {
-    "file": "assets/home-CrdDwZxI.css",
+    "file": "assets/home-Cey2ZlXD.css",
     "src": "resources/css/home.css",
     "isEntry": true
   },
@@ -95,13 +95,13 @@
     "isEntry": true
   },
   "resources/js/admin-jobs.js": {
-    "file": "assets/admin-jobs-CuQOFKAY.js",
+    "file": "assets/admin-jobs-Dml2qPb1.js",
     "name": "admin-jobs",
     "src": "resources/js/admin-jobs.js",
     "isEntry": true
   },
   "resources/js/admin-requests.js": {
-    "file": "assets/admin-requests-B-XhRXU5.js",
+    "file": "assets/admin-requests-_7U5QnYc.js",
     "name": "admin-requests",
     "src": "resources/js/admin-requests.js",
     "isEntry": true
@@ -113,7 +113,7 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-RaXo4dXd.js",
+    "file": "assets/app-Bd-9ydkU.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -121,7 +121,7 @@
       "_index-xsH4HHeE.js"
     ],
     "css": [
-      "assets/app-KMJcGncc.css"
+      "assets/app-BXmGO0KV.css"
     ]
   },
   "resources/js/bootstrap.js": {
@@ -134,13 +134,13 @@
     ]
   },
   "resources/js/home.js": {
-    "file": "assets/home-CDN6OVoW.js",
+    "file": "assets/home-Dw8JGvl2.js",
     "name": "home",
     "src": "resources/js/home.js",
     "isEntry": true
   },
   "resources/js/jobs.js": {
-    "file": "assets/jobs-TaNHVU6U.js",
+    "file": "assets/jobs-CcbhzBWR.js",
     "name": "jobs",
     "src": "resources/js/jobs.js",
     "isEntry": true
@@ -152,25 +152,25 @@
     "isEntry": true
   },
   "resources/js/news.js": {
-    "file": "assets/news-Bn8O9KmD.js",
+    "file": "assets/news-Ct_T1Bo7.js",
     "name": "news",
     "src": "resources/js/news.js",
     "isEntry": true
   },
   "resources/js/profile.js": {
-    "file": "assets/profile-C5w19exD.js",
+    "file": "assets/profile-DS0r19cT.js",
     "name": "profile",
     "src": "resources/js/profile.js",
     "isEntry": true
   },
   "resources/js/qa.js": {
-    "file": "assets/qa-Rzc4u52g.js",
+    "file": "assets/qa-DIp7W4IF.js",
     "name": "qa",
     "src": "resources/js/qa.js",
     "isEntry": true
   },
   "resources/js/users.js": {
-    "file": "assets/users-Bh6-FPwl.js",
+    "file": "assets/users-DsNYA6M7.js",
     "name": "users",
     "src": "resources/js/users.js",
     "isEntry": true

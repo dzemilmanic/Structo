@@ -76,7 +76,7 @@ function showLoadingModal(title, text) {
 
 
 function showSuccess(message) {
-    console.log('📢 Showing success message:', message);
+    //console.log('📢 Showing success message:', message);
     
     if (typeof Swal === 'undefined') {
         alert(message);
@@ -93,7 +93,7 @@ function showSuccess(message) {
 
 
 function showError(message) {
-    console.log('⚠️ Showing error message:', message);
+    //console.log('⚠️ Showing error message:', message);
     
     if (typeof Swal === 'undefined') {
         alert(message);
@@ -110,7 +110,7 @@ function showError(message) {
 
 
 function showInfo(message, title = 'Information') {
-    console.log('ℹ️ Showing info message:', message);
+    //console.log('ℹ️ Showing info message:', message);
     
     if (typeof Swal === 'undefined') {
         alert(message);
@@ -129,7 +129,7 @@ function showInfo(message, title = 'Information') {
 
 
 function showWarning(message, title = 'Warning') {
-    console.log('⚠️ Showing warning message:', message);
+    //console.log('⚠️ Showing warning message:', message);
     
     if (typeof Swal === 'undefined') {
         alert(message);
@@ -835,5 +835,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    console.log('Admin Jobs JS initialized successfully with consistent modal styling');
+    //console.log('Admin Jobs JS initialized successfully with consistent modal styling');
 });

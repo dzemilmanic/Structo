@@ -275,7 +275,7 @@ class NewsPage {
             // Use CORS proxy to avoid CORS issues
             const proxyApiUrl = `${this.proxyUrl}${encodeURIComponent(apiUrl)}`;
             
-            console.log('Fetching news from:', apiUrl);
+            //console.log('Fetching news from:', apiUrl);
             
             const response = await fetch(proxyApiUrl, {
                 method: 'GET',
@@ -289,7 +289,7 @@ class NewsPage {
             }
             
             const data = await response.json();
-            console.log('API Response:', data);
+            //console.log('API Response:', data);
             
             return data;
             
@@ -300,7 +300,7 @@ class NewsPage {
     }
     
     loadMockNews() {
-        console.log('Loading mock news data as fallback...');
+        //console.log('Loading mock news data as fallback...');
         
         // Simulate API delay
         setTimeout(() => {

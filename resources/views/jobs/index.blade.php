@@ -41,7 +41,7 @@
 <script>
 // Add job request modal functions BEFORE loading the main jobs.js
 function openJobRequestModal(jobId) {
-    console.log('Opening job request modal for job:', jobId);
+    //console.log('Opening job request modal for job:', jobId);
     
     // Set form action
     const form = document.getElementById('jobRequestForm');
@@ -63,7 +63,7 @@ function openJobRequestModal(jobId) {
 }
 
 function closeJobRequestModal() {
-    console.log('Closing job request modal');
+    //console.log('Closing job request modal');
     
     // Use the closeModal function from jobs.js
     if (typeof closeModal === 'function') {

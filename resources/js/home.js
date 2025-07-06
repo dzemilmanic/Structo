@@ -474,7 +474,7 @@ function showLoadingModal(title, text) {
  * Show success message with consistent styling - VELIKI MODAL U CENTRU
  */
 function showSuccess(message) {
-    console.log('📢 Showing success message:', message);
+    //console.log('📢 Showing success message:', message);
     
     if (typeof Swal === 'undefined') {
         alert(message);
@@ -493,7 +493,7 @@ function showSuccess(message) {
  * Show error message with consistent styling
  */
 function showError(message) {
-    console.log('⚠️ Showing error message:', message);
+    //console.log('⚠️ Showing error message:', message);
     
     if (typeof Swal === 'undefined') {
         alert(message);
@@ -512,7 +512,7 @@ function showError(message) {
  * Show info message with consistent styling
  */
 function showInfo(message, title = 'Information') {
-    console.log('ℹ️ Showing info message:', message);
+    //console.log('ℹ️ Showing info message:', message);
     
     if (typeof Swal === 'undefined') {
         alert(message);
@@ -533,7 +533,7 @@ function showInfo(message, title = 'Information') {
  * Show warning message with consistent styling
  */
 function showWarning(message, title = 'Warning') {
-    console.log('⚠️ Showing warning message:', message);
+    //console.log('⚠️ Showing warning message:', message);
     
     if (typeof Swal === 'undefined') {
         alert(message);
@@ -784,5 +784,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    console.log('Home JS initialized successfully with consistent modal styling');
+    //console.log('Home JS initialized successfully with consistent modal styling');
 });
