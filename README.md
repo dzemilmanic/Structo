@@ -4,9 +4,7 @@
 
 ---
 
-## 🌐 Live Website
-
-**Coming Soon...**
+🌐 **Live Website:** [structo.app](https://structo.up.railway.app/)
 
 ---
 
